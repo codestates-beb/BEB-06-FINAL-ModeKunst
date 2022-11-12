@@ -1,5 +1,5 @@
 require("dotenv").config();
-
+const { User } = require('./models');
 const express = require("express");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
@@ -18,6 +18,21 @@ app.use(
     credentials: true,
   })
 );
+
+sequelize
+    .sync({ force: false })
+    .then(() => {
+        console.log('DB 연결 성공...');
+        return User.findAll().then((users) => {
+            return users.map((user) => {
+                console.log(user);
+                console.log(1)
+            })
+        } )
+    })
+    .catch((err) => {
+        console.error(err);
+    })
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
