@@ -37,3 +37,5 @@ const production = {
     typeCast: true,
   },
 };
+
+module.exports = { development, production, test };
