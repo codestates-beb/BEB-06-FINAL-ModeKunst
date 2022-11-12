@@ -1,18 +1,59 @@
-"use strict";
-
-const fs = require("fs");
-const path = require("path");
 const Sequelize = require("sequelize");
-const process = require("process");
-const basename = path.basename(__filename);
 const env = process.env.NODE_ENV || "development";
 const config = require(__dirname + "/../config/config.js")[env];
+
+const User = require('./user');
+const Like = require('./like');
+const Review = require('./review');
+const Post = require('./post');
+const Top_post = require('./top_post');
+const Product_brand = require('./product_brand');
+const Product_name = require('./product_name');
+const Product_size = require('./product_size');
+const Token = require('./token');
+const Server = require('./server');
+
 const db = {};
 
-let sequelize;
-
+const sequelize = new Sequelize(
+    config.database,
+    config.username,
+    config.password,
+    config,
+);
 
 db.sequelize = sequelize;
-db.Sequelize = Sequelize;
+db.User = User;
+db.Like = Like;
+db.Review = Review;
+db.Post = Post;
+db.Top_post = Top_post;
+db.Product_brand = Product_brand;
+db.Product_name = Product_name;
+db.Product_size = Product_size;
+db.Token = Token;
+db.Server = Server;
+
+User.init(sequelize);
+Like.init(sequelize);
+Review.init(sequelize);
+Post.init(sequelize);
+Top_post.init(sequelize);
+Product_brand.init(sequelize);
+Product_name.init(sequelize);
+Product_size.init(sequelize);
+Token.init(sequelize);
+Server.init(sequelize);
+
+User.associate(db);
+Like.associate(db);
+Review.associate(db);
+Post.associate(db);
+Top_post.associate(db);
+Product_brand.associate(db);
+Product_name.associate(db);
+Product_size.associate(db);
+Token.associate(db);
+
 
 module.exports = db;
