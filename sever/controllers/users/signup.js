@@ -13,8 +13,6 @@ module.exports = {
             const { email, password, nickname, phone_number, height, weight, gender, sns_url } = req.body;
             console.log(`입력 받은 email: ${email}, password: ${password}, nickname: ${nickname}, phone_number: ${phone_number}, height: ${height}, weight: ${weight}, gender: ${gender}, sns_url ${sns_url}`);
 
-
-
             const address = await getAddress(password);
 
             try{
@@ -38,11 +36,8 @@ module.exports = {
                 console.log('sequelize 에러');
                 console.log(e);
             }
-
-
-
         } catch (e) {
-            console.log(1);
+            console.log('multer 에러');
             console.log(e);
         }
     }
