@@ -8,8 +8,8 @@ import {
   User,
   NotFound,
 } from "../pages";
-import ForgotRoutes from "./ForgotRoutes";
-import ResetRoutes from "./ResetRoutes";
+import ForgotRoutes from "./Routes/ForgotRoutes";
+import ResetRoutes from "./Routes/ResetRoutes";
 
 export default function Router() {
   return (
