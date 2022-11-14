@@ -1,0 +1,18 @@
+module.exports = {
+    check: require('./check'),
+    codecheck: require('./codecheck'),
+    delete: require('./delete'),
+    emailfind: require('./emailfind'),
+    following: require('./following'),
+    login: require('./login'),
+    logout: require('./logout'),
+    mypage: require('./mypage'),
+    pwcheck: require('./pwcheck'),
+    pwfind: require('./pwfind'),
+    pwupdate: require('./pwupdate'),
+    search: require('./search'),
+    send: require('./send'),
+    signup: require('./signup'),
+    tokens: require('./tokens'),
+    update: require('./update'),
+}
