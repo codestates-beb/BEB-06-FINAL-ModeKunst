@@ -1,5 +1,5 @@
 import { Routes, Route } from "react-router-dom";
-import { ForgotEmail, ForgotPassword } from "../pages";
+import { ForgotEmail, ForgotPassword } from "../../pages";
 
 export default function ForgotRoutes() {
   return (
