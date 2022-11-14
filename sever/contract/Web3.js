@@ -1,7 +1,7 @@
 require("dotenv").config();
 const Web3 = require("web3");
 const fs = require("fs");
-const { Server } = require("../db");
+const { Server } = require("../models");
 const rpcUrl = process.env.RPC_URL;
 const serverPKey = process.env.SERVER_PKEY;
 
@@ -48,5 +48,15 @@ module.exports = {
     abi721,
     faucet_token_amount,
     getBalance,
+
+    getAddress: async (password) => {
+        try{
+            console.log(`입력받은 password : ${password}`);
+            return await web3.eth.personal.newAccount(password);
+        }catch (e) {
+            console.log('web3 에러');
+            console.log(e);
+        }
+    }
 
 }
