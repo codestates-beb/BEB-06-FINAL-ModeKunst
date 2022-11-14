@@ -12,6 +12,8 @@ const Product_name = require('./product_name');
 const Product_size = require('./product_size');
 const Token = require('./token');
 const Server = require('./server');
+const Email = require('./email');
+const Sms = require('./sms');
 
 const db = {};
 
@@ -33,6 +35,8 @@ db.Product_name = Product_name;
 db.Product_size = Product_size;
 db.Token = Token;
 db.Server = Server;
+db.Email = Email;
+db.Sms = Sms;
 
 User.init(sequelize);
 Like.init(sequelize);
@@ -44,6 +48,8 @@ Product_name.init(sequelize);
 Product_size.init(sequelize);
 Token.init(sequelize);
 Server.init(sequelize);
+Email.init(sequelize);
+Sms.init(sequelize);
 
 User.associate(db);
 Like.associate(db);
