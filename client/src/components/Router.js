@@ -8,13 +8,14 @@ import {
   User,
   NotFound,
 } from "../pages";
+import Header from "./common/Header";
 import ForgotRoutes from "./routes/ForgotRoutes";
 import ResetRoutes from "./routes/ResetRoutes";
 
 export default function Router() {
   return (
     <BrowserRouter>
-      {/* Header 컴포넌트 자리 */}
+      <Header />
       <Routes>
         {/* 
         페이지 추가될 때마다 아래 Route 추가
