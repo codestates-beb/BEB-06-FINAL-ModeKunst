@@ -4,6 +4,7 @@ const express = require("express");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const session = require("express-session");
+const fs = require("fs");
 
 const indexRouter = require("./routes/index");
 const { sequelize } = require("./models");
@@ -23,17 +24,12 @@ sequelize
   .sync({ force: false })
   .then(() => {
     console.log("DB 연결 성공...");
-    return User.findAll().then((users) => {
-      return users.map((user) => {
-        console.log(user);
-        console.log(1);
-      });
-    });
   })
   .catch((err) => {
     console.error(err);
   });
-
+app.use("/profile_img", express.static("profile_img"));
+app.use("/post_img", express.static("post_img"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser(process.env.COOKIE_SECRET));
@@ -43,7 +39,6 @@ app.use(
     sceret: process.env.COOKIE_SECRET,
     resave: false,
     saveUninitialized: false,
-
     cookie: {
       domain: "localhost",
       path: "/",
@@ -64,5 +59,13 @@ app.use((req, res, next) => {
 });
 
 app.listen(port, () => {
+  const profile_dir = "./profile_img";
+  const post_dir = "./post_img";
+  if (!fs.existsSync(profile_dir)) {
+    fs.mkdirSync(profile_dir);
+  }
+  if (!fs.existsSync(post_dir)) {
+    fs.mkdirSync(post_dir);
+  }
   console.log("Listening...");
 });

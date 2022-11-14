@@ -7,7 +7,7 @@ const { addFollowing, removeFollower } = require("../middleware/follow");
 // 회원 가입
 router.post(
   "/signup",
-  profile_upload.single("image"),
+  profile_upload.single("profile_image"),
   usersController.signup.post
 );
 
@@ -35,11 +35,14 @@ router.get("/pwfind/:email/:phonenumber", usersController.pwfind.get);
 // 검색
 router.get("/search/:nickname", usersController.search.get);
 
+// 검색
+router.get("/search/:nickname", usersController.search.get);
+
 //로그인
 router.post("/login", usersController.login.post);
 
 //보유 토큰 양
-router.get("/tokens/:usrId", usersController.tokens.get);
+router.get("/tokens/:usernickname", usersController.tokens.get);
 
 //팔로잉
 router.post("/:nickname/follow", isLoggedIn, addFollowing);
