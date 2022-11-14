@@ -1,7 +1,6 @@
-import "./App.css";
+import Router from "./components/Router";
 
-function App() {
-  return <h1>App</h1>;
+export default function App() {
+  // Router 컴포넌트를 Provider로 감싸줘야 함
+  return <Router />;
 }
-
-export default App;
