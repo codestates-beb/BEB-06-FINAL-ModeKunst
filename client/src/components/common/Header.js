@@ -134,12 +134,40 @@ export default function Header() {
             </div>
           </div>
         ) : (
-          <div>
-            <div>
-              <Link to="/signup">회원가입</Link>
+          <div className="self-end place-self-end grid grid-cols-2 gap-16">
+            <div className="p-2 rounded-full hover:bg-slate-200">
+              <Link to="/signup">
+                <svg
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={1.5}
+                  stroke="currentColor"
+                  className="w-6 h-6"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM4 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 0110.374 21c-2.331 0-4.512-.645-6.374-1.766z"
+                  />
+                </svg>
+              </Link>
             </div>
-            <div>
-              <Link to="/login">로그인</Link>
+            <div className="p-2 rounded-full hover:bg-slate-200">
+              <Link to="/login">
+                <svg
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={1.5}
+                  stroke="currentColor"
+                  className="w-6 h-6"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75"
+                  />
+                </svg>
+              </Link>
             </div>
           </div>
         )}
