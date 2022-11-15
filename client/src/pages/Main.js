@@ -1,5 +1,13 @@
+import Banner from "../components/common/Banner";
+import Carousel from "../components/common/Carousel/Carousel";
+
 function Main() {
-  return <h1>Page Main</h1>;
+  return (
+    <div>
+      <Banner />
+      <Carousel />
+    </div>
+  );
 }
 
 export { Main };
