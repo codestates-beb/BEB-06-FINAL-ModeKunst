@@ -22,18 +22,20 @@ module.exports = {
 
         return res.status(200).json({
           message: "로그인이 완료되었습니다.",
-          id: user.dataValues.id,
-          address: user.dataValues.address,
-          profile_img: user.dataValues.profile_img,
-          email: user.dataValues.email,
-          nickname: user.dataValues.nickname,
-          phone_number: user.dataValues.phone_number,
-          sns_url: user.dataValues.sns_url,
-          height: user.dataValues.height,
-          weight: user.dataValues.weight,
-          gender: user.dataValues.gender,
-          token_amount: user.dataValues.token_amount,
-          follower: user.data,
+          data: {
+            id: user.dataValues.id,
+            address: user.dataValues.address,
+            profile_img: user.dataValues.profile_img,
+            email: user.dataValues.email,
+            nickname: user.dataValues.nickname,
+            phone_number: user.dataValues.phone_number,
+            sns_url: user.dataValues.sns_url,
+            height: user.dataValues.height,
+            weight: user.dataValues.weight,
+            gender: user.dataValues.gender,
+            token_amount: user.dataValues.token_amount,
+            follower: user.data,
+          }
         });
       }
     }

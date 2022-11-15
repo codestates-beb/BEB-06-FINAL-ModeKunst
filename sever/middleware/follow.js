@@ -10,7 +10,7 @@ module.exports = {
       if (user) {
         //user가 다른 사람을 팔로잉에 추가
         await user.addFollowing(req.params.nickname);
-        res.send({ message: "팔로우 성공" });
+        res.send({ message: "팔로우 성공!" });
       } else {
         res.status(404).send({ message: "사용자가 없습니다." });
       }
