@@ -9,7 +9,7 @@ module.exports = class Like extends Sequelize.Model {
             {
                 sequelize,
                 timestamps: true,
-                underscored: true,
+                underscored: false,
                 modelName: 'Like',
                 tableName: 'likes',
                 charset: 'utf8',

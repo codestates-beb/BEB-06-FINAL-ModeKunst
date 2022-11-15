@@ -21,6 +21,9 @@ router.get('/:postid', postsController.mypost.get);
 router.post('/upstream', postsController.upstream.post);
 
 // 좋아요
-router.post('/like/:usernickname/:postid', postsController.like.post);
+router.post('/like/:nickname/:postId', postsController.like.like);
+
+// 좋아요 취소
+router.post('/unlike/:nickname/:postId', postsController.like.unlike);
 
 module.exports = router;
