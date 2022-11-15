@@ -11,7 +11,7 @@ module.exports = {
 
     try {
       if (delUser) {
-        delUser.destroy({
+        await delUser.destroy({
           truncate: true,
         });
         res.status(200).json({ message: "탈퇴 하였습니다." });
