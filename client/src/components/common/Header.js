@@ -13,7 +13,7 @@ export default function Header() {
     <div>
       <div className="mx-24 px-16 py-6 grid grid-cols-3 font-medium border-b-[3px] border-b-slate-700">
         <div className="self-end place-self-start grid grid-cols-2 gap-24">
-          <div className="p-2 rounded-full hover:bg-yellow-100">
+          <div className="p-2 rounded-full hover:scale-110">
             <Link to="/">
               <svg
                 fill="none"
@@ -30,7 +30,7 @@ export default function Header() {
               </svg>
             </Link>
           </div>
-          <div className="p-2 rounded-full hover:bg-yellow-100">
+          <div className="p-2 rounded-full hover:scale-110">
             <Link>
               <svg
                 fill="none"
@@ -58,7 +58,7 @@ export default function Header() {
 
         {isUser ? (
           <div className="self-end place-self-end grid grid-cols-4 gap-16">
-            <div className="p-2 rounded-full hover:bg-lime-100 select-none flex justify-center items-center">
+            <div className="p-2 rounded-full hover:scale-110 select-none flex justify-center items-center">
               <button onClick={() => setIsModalOpened(true)}>
                 <svg
                   fill="none"
@@ -75,7 +75,7 @@ export default function Header() {
                 </svg>
               </button>
             </div>
-            <div className="p-2 rounded-full hover:bg-lime-100">
+            <div className="p-2 rounded-full hover:scale-110">
               <Link to="/write">
                 <svg
                   fill="none"
@@ -92,7 +92,7 @@ export default function Header() {
                 </svg>
               </Link>
             </div>
-            <div className="p-2 rounded-full hover:bg-lime-100">
+            <div className="p-2 rounded-full hover:scale-110">
               <Link to={`/user/${isUser.id}`}>
                 <svg
                   fill="none"
@@ -109,7 +109,7 @@ export default function Header() {
                 </svg>
               </Link>
             </div>
-            <div className="p-2 rounded-full hover:bg-red-100 select-none flex justify-center items-center">
+            <div className="p-2 rounded-full hover:scale-110 select-none flex justify-center items-center">
               <button
                 onClick={() => {
                   setIsUser(prev => !prev);
@@ -135,7 +135,7 @@ export default function Header() {
           </div>
         ) : (
           <div className="self-end place-self-end grid grid-cols-2 gap-16">
-            <div className="p-2 rounded-full hover:bg-slate-200">
+            <div className="p-2 rounded-full hover:scale-110">
               <Link to="/signup">
                 <svg
                   fill="none"
@@ -152,7 +152,7 @@ export default function Header() {
                 </svg>
               </Link>
             </div>
-            <div className="p-2 rounded-full hover:bg-slate-200">
+            <div className="p-2 rounded-full hover:scale-110">
               <Link to="/login">
                 <svg
                   fill="none"
