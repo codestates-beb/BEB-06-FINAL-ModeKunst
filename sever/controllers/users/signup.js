@@ -56,7 +56,7 @@ module.exports = {
         console.log(e);
       }
     } catch (e) {
-      console.log(1);
+      console.log("multer 에러");
       console.log(e);
     }
   },

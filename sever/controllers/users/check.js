@@ -74,11 +74,11 @@ module.exports = {
 
         if(user){
             res.status(200).json({
-                message: '사용 가능한 닉네임 입니다.'
+                message: '사용 가능한 닉네임입니다.'
             })
         }else{
             res.status(404).json({
-                message: '사용 불가능한 닉네임 입니다.'
+                message: '사용 불가능한 닉네임입니다.'
             })
         }
 
