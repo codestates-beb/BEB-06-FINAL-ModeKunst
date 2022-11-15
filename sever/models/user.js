@@ -8,14 +8,17 @@ module.exports = class User extends Sequelize.Model {
           type: Sequelize.STRING,
           primaryKey: true,
         },
+
         address: {
           type: Sequelize.STRING,
           allowNull: false,
         },
+
         profile_img: {
           type: Sequelize.STRING,
           allowNull: false,
         },
+
         email: {
           type: Sequelize.STRING,
           allowNull: false,
@@ -54,7 +57,8 @@ module.exports = class User extends Sequelize.Model {
       },
       {
         sequelize,
-        timestamps: true,
+        //timestamps: true,
+        timestamps: false,
         underscored: true,
         modelName: "User",
         tableName: "users",

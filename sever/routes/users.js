@@ -1,15 +1,12 @@
 const router = require("express").Router();
 const { usersController } = require("../controllers");
 const { profile_upload } = require("../middleware/multer/profile");
+const { limiter } = require('../middleware/limiter'); // DOS 공격 대비
 const { isLoggedIn } = require("../middleware/auth");
 const { addFollowing, removeFollower } = require("../middleware/follow");
 
 // 회원 가입
-router.post(
-  "/signup",
-  profile_upload.single("profile_image"),
-  usersController.signup.post
-);
+router.post("/signup", profile_upload.single("profile_image"), usersController.signup.post);
 
 // // 닉네임 검증
 router.get("/checkNickname/:nickname", usersController.check.nickname);
@@ -27,51 +24,39 @@ router.get("/sendSms/", usersController.send.sms);
 router.post("/checkSms", usersController.check.sms);
 
 // 이메일 찾기
-router.get("/emailfind/:nickname/:phonenumber", usersController.emailfind.get);
+router.get("/emailfind/:nickname/:phonenumber", usersController.find.email);
 
 // 비밀번호 찾기
-router.get("/pwfind/:email/:phonenumber", usersController.pwfind.get);
-
-// 검색
-router.get("/search/:nickname", usersController.search.get);
-
-// 검색
-router.get("/search/:nickname", usersController.search.get);
+router.get("/pwfind/:email/:phonenumber", usersController.find.password);
 
 //로그인
 router.post("/login", usersController.login.post);
 
 //보유 토큰 양
-router.get("/tokens/:usernickname", usersController.tokens.get);
+router.get("/tokens/:nickname", usersController.tokens.get);
 
 //팔로잉
 router.post("/:nickname/follow", isLoggedIn, addFollowing);
+
 //언팔로우
 router.post("/:nickname/unfollow", isLoggedIn, removeFollower);
 
 // 마이 페이지
-router.get("/mypage/:usernickname", usersController.mypage.get);
+router.get("/mypage/:usernickname", isLoggedIn, usersController.mypage.get);
 
 // 유저 정보 수정
-router.post(
-  "/update",
-  profile_upload.single("image"),
-  usersController.update.post
-);
+router.post("/update", profile_upload.single("image"), usersController.update.post);
 
 // 비밀번호 확인
-router.post("/pwcheck", usersController.pwcheck.post);
+router.post("/pwcheck", isLoggedIn, usersController.pwcheck.post);
 
 // 비밀번호 수정
-router.post("/pwupdate", usersController.pwupdate.post);
+router.post("/:email/pwupdate", usersController.pwupdate.post);
 
 //로그아웃
-router.get("/logout", usersController.logout.get);
+router.get("/logout", isLoggedIn, usersController.logout.get);
 
-// 회원 탈퇴
-router.delete("/:usernickname", usersController.delete.delete);
-
-//회원탈퇴 (테스트용)
+//회원탈퇴
 router.delete("/deluser", isLoggedIn, usersController.delete.delete);
 
 module.exports = router;

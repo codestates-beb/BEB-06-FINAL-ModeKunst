@@ -8,6 +8,7 @@ const fs = require("fs");
 
 const indexRouter = require("./routes/index");
 const { sequelize } = require("./models");
+const { insertServerAddress, deploy20, deploy721 } = require("./contract/Web3");
 
 const app = express();
 const port = 8000;
@@ -24,6 +25,11 @@ sequelize
   .sync({ force: false })
   .then(() => {
     console.log("DB 연결 성공...");
+    insertServerAddress().then(() => {
+        deploy20().then(() => {
+            deploy721()
+        })
+    })
   })
   .catch((err) => {
     console.error(err);
