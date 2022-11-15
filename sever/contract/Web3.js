@@ -1,14 +1,15 @@
 require("dotenv").config();
 const Web3 = require("web3");
 const fs = require("fs");
+const path = require("path");
 const { Server } = require("../models");
 const rpcUrl = process.env.RPC_URL;
 const serverPKey = process.env.SERVER_PKEY;
 
-const abi20 = JSON.parse(fs.readFileSync('/Users/jangsam/Desktop/project/final/BEB-06-FINAL-ModeKunst/sever/contract/erc20/ICToken_sol_ICToken.abi').toString());
-const byte20 = fs.readFileSync('/Users/jangsam/Desktop/project/final/BEB-06-FINAL-ModeKunst/sever/contract/erc20/ICToken_sol_ICToken.bin').toString();
-const abi721 = JSON.parse(fs.readFileSync('/Users/jangsam/Desktop/project/final/BEB-06-FINAL-ModeKunst/sever/contract/erc721/NFTLootBox_sol_NFTLootBox.abi').toString());
-const byte721 = fs.readFileSync('/Users/jangsam/Desktop/project/final/BEB-06-FINAL-ModeKunst/sever/contract/erc721/NFTLootBox_sol_NFTLootBox.bin').toString();
+const abi20 = JSON.parse(fs.readFileSync(path.join(__dirname, '.', 'erc20', 'ICToken_sol_ICToken.abi')).toString());
+const byte20 = fs.readFileSync(path.join(__dirname, '.', 'erc20', 'ICToken_sol_ICToken.bin')).toString();
+const abi721 = JSON.parse(fs.readFileSync(path.join(__dirname, '.', 'erc721', 'NFTLootBox_sol_NFTLootBox.abi')).toString());
+const byte721 = fs.readFileSync(path.join(__dirname, '.', 'erc721', 'NFTLootBox_sol_NFTLootBox.bin')).toString();
 
 
 const web3 = new Web3(new Web3.providers.HttpProvider(rpcUrl)); //가나슈와 연동한 web3

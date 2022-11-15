@@ -41,7 +41,7 @@ module.exports = class Post extends Sequelize.Model {
                 },
                 price: {
                     type: Sequelize.INTEGER,
-                    allowNull: false,
+                    defaultValue: 0,
                 },
                 views: {
                     type: Sequelize.INTEGER,
@@ -51,7 +51,7 @@ module.exports = class Post extends Sequelize.Model {
             {
                 sequelize,
                 timestamps: true,
-                underscored: true,
+                underscored: false,
                 modelName: 'Post',
                 tableName: 'posts',
                 charset: 'utf8',

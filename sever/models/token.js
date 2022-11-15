@@ -33,7 +33,7 @@ module.exports = class Token extends Sequelize.Model {
             {
                 sequelize,
                 timestamps: true,
-                underscored: true,
+                underscored: false,
                 modelName: 'Token',
                 tableName: 'tokens',
                 charset: 'utf8',

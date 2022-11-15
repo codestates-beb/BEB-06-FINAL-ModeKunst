@@ -20,7 +20,7 @@ module.exports = class Product_size extends Sequelize.Model {
             {
                 sequelize,
                 timestamps: true,
-                underscored: true,
+                underscored: false,
                 modelName: 'Product_size',
                 tableName: 'product_sizes',
                 charset: 'utf8',
