@@ -47,6 +47,10 @@ module.exports = class Post extends Sequelize.Model {
                     type: Sequelize.INTEGER,
                     defaultValue: 0,
                 },
+                top_post: {
+                    type: Sequelize.BOOLEAN,
+                    defaultValue: false,
+                }
             },
             {
                 sequelize,
@@ -61,7 +65,7 @@ module.exports = class Post extends Sequelize.Model {
     }
 
     static associate(db){
-        db.Post.hasOne(db.Top_post);
+        // db.Post.hasOne(db.Top_post);
         db.Post.hasOne(db.Product_brand);
         db.Post.hasOne(db.Product_name);
         db.Post.hasOne(db.Product_size);

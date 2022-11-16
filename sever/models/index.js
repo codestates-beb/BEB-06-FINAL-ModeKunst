@@ -31,7 +31,7 @@ db.User = User;
 db.Like = Like;
 db.Review = Review;
 db.Post = Post;
-db.Top_post = Top_post;
+// db.Top_post = Top_post;
 db.Product_brand = Product_brand;
 db.Product_name = Product_name;
 db.Product_size = Product_size;
@@ -39,6 +39,7 @@ db.Token = Token;
 db.Server = Server;
 db.Email = Email;
 db.Sms = Sms;
+//socket부분
 db.Chat = Chat;
 db.Message = Message;
 
@@ -46,7 +47,7 @@ User.init(sequelize);
 Like.init(sequelize);
 Review.init(sequelize);
 Post.init(sequelize);
-Top_post.init(sequelize);
+// Top_post.init(sequelize);
 Product_brand.init(sequelize);
 Product_name.init(sequelize);
 Product_size.init(sequelize);
@@ -54,6 +55,7 @@ Token.init(sequelize);
 Server.init(sequelize);
 Email.init(sequelize);
 Sms.init(sequelize);
+//socket부분
 Chat.init(sequelize);
 Message.init(sequelize);
 
@@ -61,11 +63,12 @@ User.associate(db);
 Like.associate(db);
 Review.associate(db);
 Post.associate(db);
-Top_post.associate(db);
+// Top_post.associate(db);
 Product_brand.associate(db);
 Product_name.associate(db);
 Product_size.associate(db);
 Token.associate(db);
+//socket부분
 Chat.associate(db);
 Message.associate(db);
 
