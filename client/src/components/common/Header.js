@@ -1,10 +1,19 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { logout } from "../../store/user";
+
 import logo from "../../assets/mode.png";
 import SearchBar from "./SearchBar";
 
 export default function Header() {
-  const [isUser, setIsUser] = useState({ id: 1, nickname: "jason" });
+  const userInfo = useSelector((state) => state.user);
+  const dispatch = useDispatch();
+  const showInfo = () => {
+    console.log(userInfo);
+    console.log(userInfo.isLoggedIn);
+  };
+  // const [isUser, setIsUser] = useState({ id: 1, nickname: "jason" });
   const [isModalOpened, setIsModalOpened] = useState(false);
   const navigate = useNavigate();
 
@@ -56,7 +65,7 @@ export default function Header() {
           </Link>
         </div>
 
-        {isUser ? (
+        {userInfo.isLoggedIn ? (
           <div className="self-end place-self-end grid grid-cols-4 gap-16">
             <div className="p-2 rounded-full hover:scale-110 select-none flex justify-center items-center">
               <button onClick={() => setIsModalOpened(true)}>
@@ -93,7 +102,7 @@ export default function Header() {
               </Link>
             </div>
             <div className="p-2 rounded-full hover:scale-110">
-              <Link to={`/user/${isUser.id}`}>
+              <Link to={`/user/${userInfo.userInfo.id}`}>
                 <svg
                   fill="none"
                   viewBox="0 0 24 24"
@@ -112,7 +121,7 @@ export default function Header() {
             <div className="p-2 rounded-full hover:scale-110 select-none flex justify-center items-center">
               <button
                 onClick={() => {
-                  setIsUser(prev => !prev);
+                  dispatch(logout());
                   navigate("/");
                 }}
               >

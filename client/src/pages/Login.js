@@ -1,13 +1,12 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
+import { useDispatch } from "react-redux";
 
-// function cls(...classnames) {
-//   return classnames.join(" ");
-// }
+import { login } from "../store/user";
 
 function Login() {
+  // const userInfo = useSelector((state) => state.user);
   const {
     register,
     handleSubmit,
@@ -15,17 +14,24 @@ function Login() {
     setValue,
   } = useForm();
   const navigate = useNavigate();
-
+  const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
 
   //📌on Submit할 때 실행되는 함수
   const onValid = (data) => {
     setLoading(true);
-    console.log(data);
-    setValue("email", "");
-    setValue("password", "");
-    // navigate("/");
-    setLoading(false);
+    try {
+      dispatch(login(data));
+
+      setValue("email", "");
+      setValue("password", "");
+
+      setLoading(false);
+      alert("환영합니다!");
+      navigate("/");
+    } catch (e) {
+      console.log(e);
+    }
   };
 
   return (
@@ -36,16 +42,17 @@ function Login() {
           <Link to="/">
             <button className="mt-2">
               <svg
+                xmlns="http://www.w3.org/2000/svg"
                 fill="none"
                 viewBox="0 0 24 24"
-                strokeWidth={1.5}
+                stroke-width={1.5}
                 stroke="currentColor"
-                className="w-6 h-6 text-black-500"
+                class="w-6 h-6"
               >
                 <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"
                 />
               </svg>
             </button>
@@ -84,14 +91,13 @@ function Login() {
             </button>
           </form>
         </div>
-        <hr />
+        <div className="mt-8 border-b-[1px] border-slate-800" />
         <div className="mt-4 text-center">
           <p className="text-gray-500 text-sm">회원이 아니신가요?</p>
           <Link to="/signup" className="font-bold">
             가입하기
           </Link>
         </div>
-        <div className="mt-2 border-b-[1px] border-slate-800" />
         <div className="mt-4">
           <Link to="/forgot/email">
             <span className="font-bold">이메일</span>
