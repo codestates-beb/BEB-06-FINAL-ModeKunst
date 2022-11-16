@@ -83,5 +83,19 @@ module.exports = class User extends Sequelize.Model {
     db.User.hasMany(db.Token);
     db.User.hasMany(db.Like);
     db.User.hasMany(db.Review);
+    db.User.hasMany(db.Chat, {
+        foreignKey: 'senderNickname',
+    });
+    db.User.hasMany(db.Chat, {
+        foreignKey: 'receiverNickname',
+    })
+      db.User.hasMany(db.Message, {
+          foreignKey: 'senderNickname',
+          as: 'OutgoingMessages'
+      });
+      db.User.hasMany(db.Message, {
+          foreignKey: 'receiverNickname',
+          as: 'IncomingMessages'
+      })
   }
 };

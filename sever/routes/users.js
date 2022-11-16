@@ -33,6 +33,9 @@ router.get("/emailfind/:nickname/:phonenumber", usersController.find.email);
 // 비밀번호 찾기
 router.get("/pwfind/:email/:phonenumber", usersController.find.password);
 
+//검색
+router.get("/search/:nickname", usersController.search.get);
+
 //로그인
 router.post("/login", usersController.login.post);
 
@@ -60,6 +63,18 @@ router.post("/pwcheck", isLoggedIn, usersController.pwcheck.post);
 
 // 비밀번호 수정 (비밀번호 찾기 , 비밀번호 수정 로직에 쓸거라 로그인 냅둠 )
 router.post("/:email/pwupdate", usersController.pwupdate.post);
+
+// 채팅방 페이지
+router.get('/chatRoom/:sender', usersController.chat.find);
+
+// 채팅방 생성
+router.post('/chatRoom/:sender/:receiver', usersController.chat.create);
+
+// 채팅
+router.post('/message/:sender/:receiver', usersController.chat.send);
+
+// 채팅방 삭제
+router.post('/chatRoom/:sender/:receiver', usersController.chat.delete);
 
 //로그아웃
 router.get("/logout", isLoggedIn, usersController.logout.get);

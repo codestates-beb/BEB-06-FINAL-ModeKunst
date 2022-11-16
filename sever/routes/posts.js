@@ -11,6 +11,8 @@ router.post('/board', post_upload.array('image') ,postsController.mypost.post);
 // 게시물 수정
 router.put('/:postid', post_upload.array('image'), postsController.mypost.put);
 
+router.put('/:postid', post_upload.array('image_1'), postsController.mypost.put);
+
 // 게시물 삭제
 router.delete('/:postid', postsController.mypost.delete);
 
@@ -25,5 +27,14 @@ router.post('/like/:nickname/:postId', postsController.like.like);
 
 // 좋아요 취소
 router.post('/unlike/:nickname/:postId', postsController.like.unlike);
+
+// 리뷰 작성
+router.post('/review/:nickname/:postId', postsController.review.post);
+
+// 리뷰 수정
+router.put('/review/:nickname/:postId', postsController.review.put);
+
+// 리뷰 삭제
+router.delete('/review/:nickname/:postId', postsController.review.delete);
 
 module.exports = router;

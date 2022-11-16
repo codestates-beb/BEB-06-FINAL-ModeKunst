@@ -14,6 +14,8 @@ const Token = require('./token');
 const Server = require('./server');
 const Email = require('./email');
 const Sms = require('./sms');
+const Chat = require('./chat');
+const Message = require('./message');
 
 const db = {};
 
@@ -37,6 +39,8 @@ db.Token = Token;
 db.Server = Server;
 db.Email = Email;
 db.Sms = Sms;
+db.Chat = Chat;
+db.Message = Message;
 
 User.init(sequelize);
 Like.init(sequelize);
@@ -50,6 +54,8 @@ Token.init(sequelize);
 Server.init(sequelize);
 Email.init(sequelize);
 Sms.init(sequelize);
+Chat.init(sequelize);
+Message.init(sequelize);
 
 User.associate(db);
 Like.associate(db);
@@ -60,6 +66,7 @@ Product_brand.associate(db);
 Product_name.associate(db);
 Product_size.associate(db);
 Token.associate(db);
-
+Chat.associate(db);
+Message.associate(db);
 
 module.exports = db;
