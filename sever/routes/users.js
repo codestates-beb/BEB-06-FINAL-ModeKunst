@@ -1,12 +1,16 @@
 const router = require("express").Router();
 const { usersController } = require("../controllers");
 const { profile_upload } = require("../middleware/multer/profile");
-const { limiter } = require('../middleware/limiter'); // DOS 공격 대비
+const { limiter } = require("../middleware/limiter"); // DOS 공격 대비
 const { isLoggedIn } = require("../middleware/auth");
 const { addFollowing, removeFollower } = require("../middleware/follow");
 
 // 회원 가입
-router.post("/signup", profile_upload.single("profile_image"), usersController.signup.post);
+router.post(
+  "/signup",
+  profile_upload.single("profile_image"),
+  usersController.signup.post
+);
 
 // // 닉네임 검증
 router.get("/checkNickname/:nickname", usersController.check.nickname);
@@ -42,15 +46,19 @@ router.post("/:nickname/follow", isLoggedIn, addFollowing);
 router.post("/:nickname/unfollow", isLoggedIn, removeFollower);
 
 // 마이 페이지
-router.get("/mypage/:usernickname", isLoggedIn, usersController.mypage.get);
+router.get("/mypage/:nickname", isLoggedIn, usersController.mypage.get);
 
 // 유저 정보 수정
-router.post("/update", profile_upload.single("profile_image"), usersController.update.post);
+router.post(
+  "/update",isLoggedIn,
+  profile_upload.single("profile_image"),
+  usersController.update.post
+);
 
 // 비밀번호 확인
 router.post("/pwcheck", isLoggedIn, usersController.pwcheck.post);
 
-// 비밀번호 수정
+// 비밀번호 수정 (비밀번호 찾기 , 비밀번호 수정 로직에 쓸거라 로그인 냅둠 )
 router.post("/:email/pwupdate", usersController.pwupdate.post);
 
 //로그아웃
