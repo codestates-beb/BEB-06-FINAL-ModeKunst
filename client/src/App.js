@@ -1,6 +1,14 @@
 import Router from "./components/Router";
+import { Provider } from "react-redux";
+import { PersistGate } from "redux-persist/integration/react";
+import store, { persistor } from "./store/index";
 
 export default function App() {
-  // Router 컴포넌트를 Provider로 감싸줘야 함
-  return <Router />;
+  return (
+    <Provider store={store}>
+      <PersistGate loading={null} persistor={persistor}>
+        <Router />
+      </PersistGate>
+    </Provider>
+  );
 }
