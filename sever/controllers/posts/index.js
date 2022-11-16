@@ -3,4 +3,5 @@ module.exports = {
     like: require('./like'),
     mypost: require('./mypost'),
     upstream: require('./upstream'),
+    review: require('./review'),
 }

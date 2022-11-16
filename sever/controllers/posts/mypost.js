@@ -32,7 +32,7 @@ module.exports = {
 
             const imagePathList = imageList.map((image) => {
                return `http://${host}/${image}`;
-            })
+            });
 
             const [image_1, image_2, image_3, image_4, image_5] = imagePathList;
 
@@ -98,7 +98,7 @@ module.exports = {
         const { postid } = req.params;
         const { title, content, category } = req.body;
         // const files = req.files;
-        //
+        
         // const images = await Post.findOne({
         //     attributes: ['image_1', 'image_2', 'image_3', 'image_4', 'image_5'],
         //     where: { id: postid}

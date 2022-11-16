@@ -10,6 +10,7 @@ module.exports = class Review extends Sequelize.Model {
             }, {
                 sequelize,
                 timestamps: true,
+                paranoid: true,
                 underscored: false,
                 modelName: 'Review',
                 tableName: 'reviews',
