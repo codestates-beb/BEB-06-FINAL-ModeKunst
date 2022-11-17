@@ -1,3 +1,4 @@
+import axios from "axios";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
@@ -8,14 +9,28 @@ function Signup() {
     handleSubmit,
     formState: { errors },
     setError,
+    setValue,
     watch,
     reset,
   } = useForm();
-  const [imagePreview, setImagePreview] = useState("");
-  const [emailVerify, setEmailVerify] = useState(false);
-  const [phoneVerify, setPhoneVerify] = useState(false);
-  const image = watch("profile_image");
   const navigate = useNavigate();
+
+  // 이미지 미리보기용 상태
+  const image = watch("profile_image");
+  const [imagePreview, setImagePreview] = useState("");
+  // 닉네임 검증용 상태
+  const [nicknameChecked, setNicknameChecked] = useState(false);
+  const [nicknameDisabled, setNicknameDisabled] = useState(false);
+  // 이메일 검증용 상태
+  const [emailVerifyInput, setEmailVerifyInput] = useState(false);
+  const [emailVerifyBtn, setEmailVerifyBtn] = useState(true);
+  const [emailDisabled, setEmailDisabled] = useState(false);
+  const [emailVerifyCode, setEmailVerifyCode] = useState("");
+  // 폰번호 검증용 상태
+  const [phoneVerifyInput, setPhoneVerifyInput] = useState(false);
+  const [phoneVerifyBtn, setPhoneVerifyBtn] = useState(true);
+  const [phoneDisabled, setPhoneDisabled] = useState(false);
+  const [phoneVerifyCode, setPhoneVerifyCode] = useState("");
 
   useEffect(() => {
     if (image && image.length > 0) {
@@ -24,8 +39,9 @@ function Signup() {
     }
   }, [image]);
 
-  const onValid = formData => {
-    if (formData.password !== formData.passwordRe) {
+  const onValid = async data => {
+    // 비밀번호 불일치 시
+    if (data.password !== data.passwordRe) {
       setError(
         "passwordRe",
         {
@@ -34,24 +50,51 @@ function Signup() {
         { shouldFocus: true }
       );
     }
-    reset();
-    window.alert("가입이 완료되었습니다");
-    navigate("/");
+
+    delete data.passwordRe;
+    const formData = new FormData();
+    formData.append("profile_image", watch("profile_image")[0]);
+    formData.append("email", watch("email"));
+    formData.append("password", watch("password"));
+    formData.append("nickname", watch("nickname"));
+    formData.append("phone_number", watch("phone_number"));
+    formData.append("height", watch("height"));
+    formData.append("weight", watch("weight"));
+    formData.append("gender", watch("gender"));
+    formData.append("sns_url", watch("sns_url"));
+
+    try {
+      const result = await axios.post(
+        "http://localhost:8000/users/signup",
+        formData
+      );
+      if (result.status === 200) {
+        alert("회원가입이 완료되었습니다");
+      }
+      navigate("/");
+    } catch (error) {
+      alert("가입이 불가능합니다", error.toString());
+    }
+
+    // 📍 sweetalert로 바꾸기
+    // reset();
+    // window.alert("가입이 완료되었습니다");
+    // navigate("/");
   };
 
   return (
-    <div className="mt-16 flex flex-col items-center">
-      <div className="flex">
+    <div className="mt-16 max-w-3xl mx-auto">
+      <div className="max-w-xl mx-auto mb-16">
         <button
-          className="relative -left-20 hover:scale-110"
+          className="w-8 h-8 flex justify-center items-center rounded-lg bg-slate-100 hover:bg-slate-900 hover:text-white shadow-md"
           onClick={() => navigate(-1)}
         >
           <svg
             fill="none"
             viewBox="0 0 24 24"
-            strokeWidth={1.5}
+            strokeWidth={2}
             stroke="currentColor"
-            className="w-6 h-6"
+            className="w-5 h-5"
           >
             <path
               strokeLinecap="round"
@@ -60,35 +103,122 @@ function Signup() {
             />
           </svg>
         </button>
-        <h1 className="relative -left-4 text-3xl font-bold select-none">
+
+        <h1 className="text-center font-bold text-slate-900 text-3xl">
           회원가입
         </h1>
       </div>
-
       <form
         onSubmit={handleSubmit(onValid)}
-        className="flex flex-col justify-center items-center space-y-10"
+        className="flex flex-col items-center space-y-10"
       >
         {/* 🟠 이미지 파일 */}
-        <div className="flex flex-col">
-          <div className="mt-8">
-            {imagePreview ? (
-              <div className="relative">
-                <img
-                  src={imagePreview}
-                  alt="profile_image_preview"
-                  className="w-44 h-44 rounded-full shadow-xl"
+        <div>
+          {imagePreview ? (
+            // 이미지 미리보기가 존재한다면
+            <div className="relative">
+              <img
+                src={imagePreview}
+                alt="profile_image_preview"
+                className="w-52 h-52 rounded-full shadow-xl select-none"
+              />
+              <button
+                onClick={() => setImagePreview("")}
+                className="absolute -top-1 -right-1 w-6 h-6 flex justify-center items-center bg-blue-400 hover:bg-blue-500 rounded-full"
+              >
+                <svg
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={2}
+                  stroke="currentColor"
+                  className="w-4 h-4 text-white"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+            </div>
+          ) : (
+            // 이미지 미리보기가 존재하지 않는다면
+            <div>
+              <label className="flex justify-center items-center w-52 h-52 rounded-full bg-slate border-2 border-slate-200 bg-slate-50 hover:bg-slate-100 shadow-sm cursor-pointer">
+                <svg
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={2}
+                  stroke="currentColor"
+                  className="w-6 h-6"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z"
+                  />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM18.75 10.5h.008v.008h-.008V10.5z"
+                  />
+                </svg>
+                <svg
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={3}
+                  stroke="currentColor"
+                  className="w-3 h-3"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M12 4.5v15m7.5-7.5h-15"
+                  />
+                </svg>
+
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  // 🟠
+                  {...register("profile_image", {
+                    required: "프로필 이미지를 등록하세요",
+                  })}
                 />
-                <button
-                  onClick={() => setImagePreview("")}
-                  className="absolute -top-1 -right-1 w-6 h-6 flex justify-center items-center bg-pink-300 hover:bg-pink-400 rounded-full"
+              </label>
+              <span className="text-xs text-red-500 font-semibold">
+                {errors?.profile_image?.message}
+              </span>
+            </div>
+          )}
+        </div>
+
+        {/* 🟠 이메일 */}
+        <div className="flex flex-col space-y-4">
+          <label className="text-lg text-slate-900 font-bold select-none">
+            이메일
+          </label>
+          <div className="flex space-x-2">
+            <div className="relative">
+              <input
+                {...register("email", { required: "이메일을 입력하세요" })}
+                type="text"
+                disabled={emailDisabled}
+                className="w-72 px-3 text-sm border-b-2 focus:border-b-[3px] border-b-slate-800 focus:outline-none disabled:bg-white disabled:select-none"
+              />
+              {/* 🟢 이메일 입력값 삭제 버튼 */}
+              {emailVerifyBtn && (
+                <div
+                  onClick={() => !emailDisabled && setValue("email", "")}
+                  className="inline-block absolute right-3 top-1 cursor-pointer select-none"
                 >
                   <svg
                     fill="none"
                     viewBox="0 0 24 24"
                     strokeWidth={2}
                     stroke="currentColor"
-                    className="w-4 h-4 text-white"
+                    className="w-3 h-3"
                   >
                     <path
                       strokeLinecap="round"
@@ -96,79 +226,103 @@ function Signup() {
                       d="M6 18L18 6M6 6l12 12"
                     />
                   </svg>
-                </button>
+                </div>
+              )}
+            </div>
+            {/* 🟢 이메일 검증하기 버튼 */}
+            {/* 검증하기 버튼 or 검증 성공 버튼 */}
+            {emailVerifyBtn ? (
+              <div
+                onClick={() => {
+                  setEmailVerifyInput(true);
+                  setEmailDisabled(true);
+                  axios
+                    .get(
+                      `http://localhost:8000/users/sendEmail/?email=${watch(
+                        "email"
+                      )}`
+                    )
+                    .then(result => alert(result.data.message));
+                }}
+                className="w-6 h-6 flex justify-center items-center text-xs font-medium bg-blue-500 text-white hover:bg-white hover:text-blue-700 cursor-pointer rounded-full"
+              >
+                <svg
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={2}
+                  stroke="currentColor"
+                  className="w-5 h-5"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z"
+                  />
+                </svg>
               </div>
             ) : (
               <div>
-                <label className="flex flex-col space-y-2 justify-center items-center w-44 h-44 rounded-full bg-slate border-2 border-dashed border-slate-300 bg-blue-50 hover:bg-blue-100 cursor-pointer">
-                  <svg
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={1.5}
-                    stroke="currentColor"
-                    className="w-6 h-8 text-slate-800"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"
-                    />
-                  </svg>
-                  <span className="text-xs font-semibold text-slate-800">
-                    ADD profile
-                  </span>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    {...register(
-                      "profile_image",
-                      {
-                        required: "프로필 이미지를 등록하세요",
-                      },
-                      { shouldFocus: true }
-                    )}
+                <svg
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={2}
+                  stroke="currentColor"
+                  className="w-4 h-4 text-green-500"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                   />
-                </label>
-                <span className="text-xs text-red-500 font-semibold">
-                  {errors?.profile_image?.message}
-                </span>
+                </svg>
               </div>
             )}
           </div>
-        </div>
-
-        {/* 🟠 이메일 */}
-        <div className="flex flex-col space-y-2">
-          <label className="text-xl font-bold select-none">이메일</label>
-          <div className="flex space-x-2">
-            <input
-              {...register("email", { required: "이메일을 입력하세요" })}
-              type="text"
-              disabled={emailVerify}
-              className="w-72 px-4 py-2 border-[1px] border-slate-500 focus:outline-none hover:bg-slate-100 rounded-md text-sm disabled:bg-slate-300"
-            />
-            <div
-              onClick={() => setEmailVerify(true)}
-              className="flex justify-center items-center w-10 h-10 bg-slate-800 hover:scale-105 rounded-md text-white cursor-pointer"
-            >
-              인증
-            </div>
-          </div>
-          {emailVerify && (
+          {emailVerifyInput && (
             <div className="flex space-x-2">
+              <div className="flex justify-center items-center px-2 text-xs font-medium text-blue-500 rounded-md">
+                인증코드
+              </div>
               <input
                 type="text"
-                placeholder="인증코드를 입력하세요"
-                className="px-3 py-2 rounded-lg shadow-md text-sm bg-slate-50 hover:bg-slate-100 focus:outline-none"
+                onChange={e => setEmailVerifyCode(e.target.value)}
+                className="px-3 border-b-2 border-b-blue-500 w-1/3 focus:outline-none text-xs text-blue-500 font-medium"
               />
+              {/* 🟢 이메일 검증코드 제출하기 버튼 */}
               <div
-                onClick={() => {
-                  // axios
+                onClick={async () => {
+                  try {
+                    const data = await axios.post(
+                      "http://localhost:8000/users/checkEmail",
+                      {
+                        email: watch("email"),
+                        code: emailVerifyCode,
+                      }
+                    );
+                    if (data.status === 200) {
+                      setEmailVerifyBtn(false);
+                      setEmailVerifyInput(false);
+                      alert("인증이 완료되었습니다");
+                    }
+                  } catch (error) {
+                    alert("인증을 진행할 수 없습니다", error.toString());
+                  }
                 }}
-                className="flex justify-center items-center w-10 h-10 bg-slate-800 hover:scale-105 rounded-md text-white cursor-pointer"
+                className="flex justify-center items-center w-5 h-5 bg-blue-500 text-white hover:bg-white hover:text-blue-500 rounded-full cursor-pointer"
               >
-                확인
+                <svg
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={2}
+                  stroke="currentColor"
+                  className="w-4 h-4"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"
+                  />
+                </svg>
               </div>
             </div>
           )}
@@ -178,78 +332,332 @@ function Signup() {
         </div>
 
         {/* 🟠 닉네임 */}
-        <div className="flex flex-col space-y-2">
-          <label className="text-xl font-bold select-none">닉네임</label>
-          <input
-            {...register("nickname", { required: "닉네임을 입력하세요" })}
-            type="text"
-            className="w-72 px-4 py-2 border-[1px] border-slate-500 focus:outline-none hover:bg-slate-100 rounded-md text-sm"
-          />
+        <div className="flex flex-col space-y-4">
+          <label className="text-lg text-slate-900 font-bold select-none">
+            닉네임
+          </label>
+          <div className="flex space-x-2">
+            <div className="relative">
+              <input
+                {...register("nickname", { required: "닉네임을 입력하세요" })}
+                type="text"
+                disabled={nicknameDisabled}
+                className="w-72 px-3 text-sm border-b-2 focus:border-b-[3px] border-b-slate-800 focus:outline-none disabled:bg-white disabled:select-none"
+              />
+              {/* 🟢 닉네임 입력값 삭제 버튼 */}
+              {nicknameChecked ? (
+                // 닉네임 체크 완료 (change)
+                <div
+                  onClick={() => {
+                    setValue("nickname", "");
+                    setNicknameChecked(false);
+                    setNicknameDisabled(false);
+                  }}
+                  className="inline-block absolute right-3 top-1 cursor-pointer"
+                >
+                  <svg
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={2}
+                    stroke="currentColor"
+                    className="w-3 h-3"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"
+                    />
+                  </svg>
+                </div>
+              ) : (
+                // 닉네임 체크 미완료 (x)
+                <div
+                  onClick={() => {
+                    setValue("nickname", "");
+                  }}
+                  className="inline-block absolute right-3 top-1 cursor-pointer"
+                >
+                  <svg
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={2}
+                    stroke="currentColor"
+                    className="w-3 h-3"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </div>
+              )}
+            </div>
+            {/* 🟢 닉네임 검증 버튼 */}
+            {!nicknameChecked ? (
+              <div
+                onClick={async () => {
+                  try {
+                    const data = await axios.get(
+                      `http://localhost:8000/users/checkNickname/:${watch(
+                        "nickname)"
+                      )}`
+                    );
+                    if (data.status === 200) {
+                      alert("사용 가능한 닉네임 입니다");
+                      setNicknameChecked(true);
+                      setNicknameDisabled(true);
+                    }
+                  } catch (error) {
+                    alert("닉네임이 이미 존재합니다");
+                  }
+                }}
+                className="w-6 h-6 flex justify-center items-center text-xs font-medium bg-slate-700 text-white hover:bg-white hover:text-slate-700 cursor-pointer rounded-full"
+              >
+                <svg
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={2}
+                  stroke="currentColor"
+                  className="w-5 h-5"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"
+                  />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                  />
+                </svg>
+              </div>
+            ) : (
+              <div>
+                <svg
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={2}
+                  stroke="currentColor"
+                  className="w-4 h-4 text-green-500"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+              </div>
+            )}
+          </div>
           <span className="text-xs text-red-500 font-semibold">
             {errors?.nickname?.message}
           </span>
         </div>
 
         {/* 🟠 비밀번호 */}
-        <div className="flex flex-col space-y-3">
-          <div className="flex flex-col space-y-2">
-            <label className="text-xl font-bold select-none">비밀번호</label>
+        <div className="flex flex-col space-y-4">
+          <label className="text-lg text-slate-900 font-bold select-none">
+            비밀번호
+          </label>
+          <div className="relative">
             <input
               {...register("password", { required: "비밀번호를 입력하세요" })}
               type="password"
-              className="w-52 px-4 py-2 border-[1px] border-slate-500 focus:outline-none hover:bg-slate-100 rounded-md text-sm"
+              className="w-80 px-3 text-base border-b-2 focus:border-b-[3px] border-b-slate-800 focus:outline-none"
             />
-            <span className="text-xs text-red-500 font-semibold">
-              {errors?.password?.message}
-            </span>
+            <div
+              onClick={() => setValue("password", "")}
+              className="inline-block absolute right-3 top-1 cursor-pointer"
+            >
+              <svg
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={2}
+                stroke="currentColor"
+                className="w-3 h-3"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </div>
           </div>
-          <div className="flex flex-col space-y-2">
-            <label className="text-xl font-bold select-none">
-              비밀번호 확인
-            </label>
+          <span className="text-xs text-red-500 font-semibold">
+            {errors?.password?.message}
+          </span>
+        </div>
+
+        {/* 🟠 비밀번호 RE */}
+        <div className="flex flex-col space-y-4">
+          <label className="text-lg text-slate-900 font-bold select-none">
+            비밀번호 확인
+          </label>
+          <div className="relative">
             <input
               {...register("passwordRe", { required: true })}
               type="password"
-              className="w-52 px-4 py-2 border-[1px] border-slate-500 focus:outline-none hover:bg-slate-100 rounded-md text-sm"
+              className="w-80 px-3 text-base border-b-2 focus:border-b-[3px] border-b-slate-800 focus:outline-none"
             />
-            <span className="text-xs text-red-500 font-semibold">
-              {errors?.passwordRe?.message}
-            </span>
+            <div
+              onClick={() => setValue("passwordRe", "")}
+              className="inline-block absolute right-3 top-1 cursor-pointer"
+            >
+              <svg
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={2}
+                stroke="currentColor"
+                className="w-3 h-3"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </div>
           </div>
+          <span className="text-xs text-red-500 font-semibold">
+            {errors?.passwordRe?.message}
+          </span>
         </div>
 
         {/* 🟠 핸드폰 번호 */}
-        <div className="flex flex-col space-y-2">
-          <label className="text-xl font-bold select-none">핸드폰 번호</label>
+        <div className="flex flex-col space-y-4">
+          <label className="text-lg text-slate-900 font-bold select-none">
+            핸드폰 번호
+          </label>
           <div className="flex space-x-2">
-            <input
-              {...register("phone", { required: "핸드폰 번호를 입력하세요" })}
-              type="text"
-              disabled={phoneVerify}
-              placeholder="-를 제외하고 입력해주세요"
-              className="w-72 placeholder:text-xs px-4 py-2 border-[1px] border-slate-500 focus:outline-none hover:bg-slate-100 rounded-md text-sm disabled:bg-slate-300"
-            />
-            <div
-              onClick={() => setPhoneVerify(true)}
-              className="flex justify-center items-center w-10 h-10 bg-slate-800 hover:scale-105 rounded-md text-white cursor-pointer"
-            >
-              인증
-            </div>
-          </div>
-          {phoneVerify && (
-            <div className="flex space-x-2">
+            <div className="relative">
               <input
+                {...register("phone_number", {
+                  required: "핸드폰 번호를 입력하세요",
+                })}
                 type="text"
-                placeholder="인증코드를 입력하세요"
-                className="px-3 py-2 rounded-lg shadow-md text-sm bg-slate-50 hover:bg-slate-100 focus:outline-none"
+                disabled={phoneDisabled}
+                placeholder="-를 제외하고 입력해주세요"
+                className="w-72 px-3 text-sm placeholder:text-xs border-b-2 focus:border-b-[3px] border-b-slate-800 focus:outline-none disabled:bg-transparent"
               />
+              {/* 🟢 핸드폰번호 입력값 삭제 버튼 */}
+              {phoneVerifyBtn && (
+                <div
+                  onClick={() => !phoneDisabled && setValue("phone_number", "")}
+                  className="inline-block absolute right-3 top-1 cursor-pointer select-none"
+                >
+                  <svg
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={2}
+                    stroke="currentColor"
+                    className="w-3 h-3"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </div>
+              )}
+            </div>
+            {/* 🟢 핸드폰 검증하기 버튼 */}
+            {/* 검증하기 버튼 or 검증 성공 버튼 */}
+            {phoneVerifyBtn ? (
               <div
                 onClick={() => {
-                  // axios
+                  setPhoneVerifyInput(true);
+                  setPhoneDisabled(true);
+                  axios
+                    .get(
+                      `http://localhost:8000/users/sendSms/?phoneNumber=${watch(
+                        "phone_number"
+                      )}`
+                    )
+                    .then(result => alert(result.data.message));
                 }}
-                className="flex justify-center items-center w-10 h-10 bg-slate-800 hover:scale-105 rounded-md text-white cursor-pointer"
+                className="w-6 h-6 flex justify-center items-center text-xs font-medium bg-blue-500 text-white hover:bg-white hover:text-blue-700 cursor-pointer rounded-full"
               >
-                확인
+                <svg
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={2}
+                  stroke="currentColor"
+                  className="w-5 h-5"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z"
+                  />
+                </svg>
+              </div>
+            ) : (
+              <div>
+                <svg
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={2}
+                  stroke="currentColor"
+                  className="w-4 h-4 text-green-500"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+              </div>
+            )}
+          </div>
+          {phoneVerifyInput && (
+            <div className="flex space-x-2">
+              <div className="flex justify-center items-center px-2 text-xs font-medium text-blue-500 rounded-md">
+                인증코드
+              </div>
+              <input
+                type="text"
+                onChange={e => setPhoneVerifyCode(e.target.value)}
+                className="px-3 border-b-2 border-b-blue-500 w-1/3 focus:outline-none text-xs text-blue-500 font-medium"
+              />
+              {/* 🟢 핸드폰번호 검증코드 제출하기 버튼 */}
+              <div
+                onClick={async () => {
+                  try {
+                    const data = await axios.post(
+                      "http://localhost:8000/users/checkSms",
+                      {
+                        phone_number: watch("phone_number"),
+                        code: phoneVerifyCode,
+                      }
+                    );
+                    if (data.status === 200) {
+                      setPhoneVerifyBtn(false);
+                      setPhoneVerifyInput(false);
+                      alert("인증이 완료되었습니다");
+                    }
+                  } catch (error) {
+                    alert("인증을 진행할 수 없습니다", error.toString());
+                  }
+                }}
+                className="flex justify-center items-center w-5 h-5 bg-blue-500 text-white hover:bg-white hover:text-blue-500 rounded-full cursor-pointer"
+              >
+                <svg
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={2}
+                  stroke="currentColor"
+                  className="w-4 h-4"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"
+                  />
+                </svg>
               </div>
             </div>
           )}
@@ -259,38 +667,36 @@ function Signup() {
         </div>
 
         {/* 🟠 신체 정보 */}
-        <div className="flex flex-col space-y-2">
-          <span className="text-xl font-bold select-none">신체 정보</span>
-          <div className="flex space-x-4">
-            <div className="flex flex-col space-y-2">
-              <label className="text-md font-medium select-none">신장</label>
+        <div className="flex flex-col space-y-4">
+          <span className="text-lg text-slate-900 font-bold select-none">
+            신체 정보
+          </span>
+          <div className="flex space-x-8">
+            <div className="flex flex-col space-y-3">
+              <label className="text-sm font-medium select-none">키(cm)</label>
               <div className="flex">
                 <input
                   {...register("height", { required: "신장을 입력하세요" })}
                   type="text"
                   placeholder="소수점 제외"
-                  className="placeholder:text-xs px-4 py-2 border-[1px] border-slate-500 focus:outline-none hover:bg-slate-100 rounded-md rounded-r-none text-sm"
+                  className="w-36 text-sm placeholder:text-xs px-3 border-b-2 focus:border-b-[3px] border-b-slate-800 focus:outline-none"
                 />
-                <span className="flex justify-center items-center select-none px-2 rounded-r-md border border-l-0 bg-gray-50 text-sm">
-                  cm
-                </span>
               </div>
               <span className="text-xs text-red-500 font-semibold">
                 {errors?.height?.message}
               </span>
             </div>
-            <div className="flex flex-col space-y-2">
-              <label className="text-md font-medium select-none">체중</label>
+            <div className="flex flex-col space-y-3">
+              <label className="text-sm font-medium select-none">
+                체중(kg)
+              </label>
               <div className="flex">
                 <input
                   {...register("weight", { required: "체중을 입력하세요" })}
                   type="text"
                   placeholder="소수점 제외"
-                  className="placeholder:text-xs px-4 py-2 border-[1px] border-slate-500 focus:outline-none hover:bg-slate-100 rounded-md rounded-r-none text-sm"
+                  className="w-36 text-sm placeholder:text-xs px-3 border-b-2 focus:border-b-[3px] border-b-slate-800 focus:outline-none"
                 />
-                <span className="flex justify-center items-center select-none px-2 rounded-r-md border border-l-0 bg-gray-50 text-sm">
-                  kg
-                </span>
               </div>
               <span className="text-xs text-red-500 font-semibold">
                 {errors?.weight?.message}
@@ -301,10 +707,12 @@ function Signup() {
 
         {/* 🟠 성별 */}
         <div className="flex flex-col space-y-2">
-          <label className="text-xl font-bold select-none">성별</label>
+          <label className="text-lg text-slate-900 font-bold select-none">
+            성별
+          </label>
           <select
             {...register("gender", { required: "성별을 선택하세요" })}
-            className="px-2 py-1 border-0 rounded-md cursor-pointer drop-shadow-md w-20 duration-300 bg-slate-100 hover:bg-slate-200 focus:outline-none text-sm"
+            className="px-1 py-2 border-0 rounded-md cursor-pointer drop-shadow-md w-80 duration-300 bg-slate-100 hover:bg-slate-200 focus:outline-none text-sm"
           >
             <option value="male">남자</option>
             <option value="female">여자</option>
@@ -316,30 +724,43 @@ function Signup() {
         </div>
 
         {/* 🟠 SNS URL */}
-        <div className="flex flex-col space-y-2">
-          <label className="text-xl font-bold select-none">SNS URL</label>
+        <div className="flex flex-col space-y-4">
+          <label className="text-lg text-slate-900 font-bold select-none">
+            SNS URL
+            <span className="ml-2 text-xs text-orange-500">선택사항</span>
+          </label>
           <input
-            {...register("snsUrl")}
+            {...register("sns_url")}
             type="text"
-            className="w-72 px-4 py-2 border-[1px] border-slate-500 focus:outline-none hover:bg-slate-100 rounded-md text-sm"
+            className="w-80 px-3 text-sm border-b-2 focus:border-b-[3px] border-b-slate-800 focus:outline-none"
           />
         </div>
 
-        <button className="mx-auto px-4 py-1 text-white bg-slate-800 hover:bg-black rounded-xl select-none">
-          가입하기
+        <button className="flex justify-center items-center p-2 text-white bg-slate-800 hover:scale-105 rounded-full select-none">
+          <svg
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={2}
+            stroke="currentColor"
+            className="w-5 h-5"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5"
+            />
+          </svg>
         </button>
       </form>
 
-      <div className="mt-12 w-64 border-b-2 border-slate-800" />
+      <div className="mx-auto mt-20 w-3/4 border-b-double border-b-[1px] border-slate-900" />
 
-      <div className="flex flex-col items-center select-none">
-        <div className="mt-8 mb-4">
-          이미{" "}
-          <span className="font-bold">
-            <Link to="/login">계정</Link>
-          </span>
-          이 존재한다면?
-        </div>
+      <div className="my-10 text-center">
+        이미{" "}
+        <span className="font-bold text-slate-900">
+          <Link to="/login">계정</Link>
+        </span>
+        이 존재한다면?
       </div>
     </div>
   );
