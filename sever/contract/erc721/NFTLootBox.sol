@@ -7,7 +7,6 @@ import "d:/2022/project-03/BEB-06-FINAL-01/sever/node_modules/@openzeppelin/cont
 import "d:/2022/project-03/BEB-06-FINAL-01/sever/node_modules/@openzeppelin/contracts/utils/Counters.sol";
 import "d:/2022/project-03/BEB-06-FINAL-01/sever/node_modules/@openzeppelin/contracts/access/Ownable.sol";
 import "d:/2022/project-03/BEB-06-FINAL-01/sever/node_modules/@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
-import "d:/2022/project-03/BEB-06-FINAL-01/sever/node_modules/@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "d:/2022/project-03/BEB-06-FINAL-01/sever/node_modules/@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
 
@@ -16,7 +15,6 @@ import "d:/2022/project-03/BEB-06-FINAL-01/sever/node_modules/@openzeppelin/cont
 contract NFTLootBox is ERC721URIStorage, Ownable{
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIds;
-    IERC20 token;
     uint256 public _nftPrice;
     string public _name;
     string public _symbol;
@@ -44,10 +42,6 @@ contract NFTLootBox is ERC721URIStorage, Ownable{
         return newItemId;
     }
 
-    function setNftPrice (uint256 nftPrice_) public onlyOwner returns (uint256){
-        _nftPrice = nftPrice_;
-        return _nftPrice;
-    }
 
     
 

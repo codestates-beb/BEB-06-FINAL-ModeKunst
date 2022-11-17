@@ -176,7 +176,7 @@ module.exports = {
 
         try {
           await contract721
-            .deploy({ data: byte721, arguments: [tokenName, tokenSymbol, 100] })
+            .deploy({ data: byte721, arguments: [tokenName, tokenSymbol] })
             .send({ from: server_addr, gas: 3054460 })
             .then((result) => (ca = result._address));
 
