@@ -6,18 +6,16 @@ const { postsController } = require('../controllers');
 router.get('/board', postsController.board.get);
 
 // 게시물 작성
-router.post('/board', post_upload.array('image') ,postsController.mypost.post);
+router.post('/board', post_upload.array('image') ,postsController.post.post);
 
 // 게시물 수정
-router.put('/:postid', post_upload.array('image'), postsController.mypost.put);
-
-router.put('/:postid', post_upload.array('image_1'), postsController.mypost.put);
+router.put('/:postId', post_upload.array('image'), postsController.post.put);
 
 // 게시물 삭제
-router.delete('/:postid', postsController.mypost.delete);
+router.delete('/:postId', postsController.post.delete);
 
 // 디테일 페이지
-router.get('/:postid', postsController.mypost.get);
+router.get('/:nickname/:postId', postsController.post.get);
 
 // 상단 게시물 추가
 router.post('/upstream', postsController.upstream.post);

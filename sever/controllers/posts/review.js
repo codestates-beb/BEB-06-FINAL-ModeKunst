@@ -20,15 +20,29 @@ module.exports = {
                         { content: content, UserNickname: nickname, PostId: postId },
                     );
 
+                    const review_counts = await Review.count({
+                        where: { PostId: postId }
+                    });
+
+                    const reviews = await Review.findAll({
+                        attributes: ['id', 'content', 'createdAt', 'UserNickname'],
+                        where: { PostId: postId },
+                        raw: true,
+                    });
+
                     res.status(200).json({
-                        message: '리뷰가 작성되었습니다.'
-                    })
+                        message: '리뷰가 작성되었습니다.',
+                        data: {
+                            review_counts: review_counts,
+                            reviews: reviews
+                        }
+                    });
                 } catch (e) {
                     console.log(`sequelize Err`);
                     console.log(e);
                 }
             }else{
-                //여기가 리뷰 삭제 후 다시 작성
+                //리뷰 삭제 후 다시 작성
                 if(review?.dataValues.deletedAt){
                     await Review.destroy({
                         where: { UserNickname: nickname, PostId: postId},
@@ -39,8 +53,23 @@ module.exports = {
                         { content: content, UserNickname: nickname, PostId: postId },
                     );
 
+                    const review_counts = await Review.count({
+                        where: { PostId: postId }
+                    });
+
+                    const reviews = await Review.findAll({
+                        attributes: ['id', 'content', 'createdAt', 'UserNickname'],
+                        where: { PostId: postId },
+                        raw: true
+                    });
+
+
                     res.status(200).json({
-                        message: '리뷰가 작성 되었습니다.'
+                        message: '리뷰가 작성 되었습니다.',
+                        data: {
+                            review_counts: review_counts,
+                            reviews: reviews
+                        }
                     })
                 }else{
                     res.status(401).json({
@@ -66,8 +95,17 @@ module.exports = {
                 { where: { UserNickname: nickname, PostId: postId}}
             );
 
+            const reviews = await Review.findAll({
+                attributes: ['id', 'content', 'createdAt', 'UserNickname'],
+                where: { PostId: postId },
+                raw: true
+            });
+
             res.status(200).json({
-                message: '리뷰가 수정되었습니다.'
+                message: '리뷰가 수정되었습니다.',
+                data: {
+                    reviews: reviews
+                }
             })
         } catch (e) {
             console.log(`sequelize Err`);
@@ -85,8 +123,22 @@ module.exports = {
                 where: { UserNickname: nickname, PostId: postId }
             });
 
+            const review_counts = await Review.count({
+                where: { PostId: postId }
+            });
+
+            const reviews = await Review.findAll({
+                attributes: ['id', 'content', 'createdAt', 'UserNickname'],
+                where: { PostId: postId },
+                raw: true
+            });
+
             res.status(200).json({
-                message: '리뷰가 삭제되었습니다.'
+                message: '리뷰가 삭제되었습니다.',
+                data: {
+                    review_counts: review_counts,
+                    reviews: reviews
+                }
             })
 
         } catch (e) {
@@ -96,3 +148,4 @@ module.exports = {
 
     }
 }
+

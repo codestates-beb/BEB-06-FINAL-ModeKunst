@@ -1,4 +1,4 @@
-const { Top_post } = require('../../models');
+const { Post } = require('../../models');
 
 module.exports = {
 
@@ -7,14 +7,27 @@ module.exports = {
         const { id } = req.body;
 
         try {
-            await Top_post.findOrCreate({
-                where : { PostId : id },
-                defaults: { PostId : id }
+            const { top_post } = await Post.findOne({
+                attributes: ['top_post'],
+                where: { id: id },
+                raw: true
             });
+            if(!top_post){
+                try {
+                  await Post.update({ top_post: true }, { where: { id: id } });
 
-            res.status(200).json({
-               message: '상단 게시물에 등록 되었습니다.'
-            });
+                  res.status(200).json({
+                      message: '상단 게시물에 추가 되었습니다.'
+                  })
+                } catch (e) {
+                    console.log('sequelize Err');
+                    console.log(e);
+                }
+            }else{
+                res.status(401).json({
+                    message: '이미 상단 게시물 입니다.'
+                })
+            }
         } catch (e) {
             console.log('sequelize Err');
             console.log(e);

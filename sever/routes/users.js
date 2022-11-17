@@ -6,11 +6,7 @@ const { isLoggedIn } = require("../middleware/auth");
 const { addFollowing, removeFollower } = require("../middleware/follow");
 
 // 회원 가입
-router.post(
-  "/signup",
-  profile_upload.single("profile_image"),
-  usersController.signup.post
-);
+router.post("/signup", profile_upload.single("profile_image"), usersController.signup.post);
 
 // // 닉네임 검증
 router.get("/checkNickname/:nickname", usersController.check.nickname);
@@ -52,11 +48,7 @@ router.post("/:nickname/unfollow", isLoggedIn, removeFollower);
 router.get("/mypage/:nickname", isLoggedIn, usersController.mypage.get);
 
 // 유저 정보 수정
-router.post(
-  "/update",isLoggedIn,
-  profile_upload.single("profile_image"),
-  usersController.update.post
-);
+router.post("/update",isLoggedIn, profile_upload.single("profile_image"), usersController.update.post);
 
 // 비밀번호 확인
 router.post("/pwcheck", isLoggedIn, usersController.pwcheck.post);
