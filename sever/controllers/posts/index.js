@@ -1,7 +1,7 @@
 module.exports = {
     board: require('./board'),
     like: require('./like'),
-    mypost: require('./mypost'),
+    post: require('./post'),
     upstream: require('./upstream'),
     review: require('./review'),
 }

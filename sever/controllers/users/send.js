@@ -103,12 +103,11 @@ module.exports = {
 
         //회원 가입
         if(!phoneNumber){
-            console.log(1);
             const emailCheck = await User.findOne({
                 where: { email: email }
             });
 
-            if(emailCheck.isNewRecord){
+            if(!emailCheck){
                 await sendEmail(random, email);
                 try {
                     await Email.create({
@@ -129,7 +128,7 @@ module.exports = {
                 });
             }
         }else{
-            console.log(2);
+            // 비밀번호 찾기
             const user = User.findOne({
                 where: { email: email, phone_number: phoneNumber }
             });
@@ -169,7 +168,8 @@ module.exports = {
             const phoneCheck = await User.findOne({
                 where: { phone_number: phoneNumber }
             });
-            if(phoneCheck.isNewRecord){
+            console.log(phoneCheck)
+            if(!phoneCheck){
                 try{
                     await sendSMS(random, phoneNumber);
                     try{

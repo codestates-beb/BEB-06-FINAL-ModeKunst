@@ -50,11 +50,14 @@ module.exports = {
                 post.createdAt = diff[i]
             })
 
-            //
+
             if(posts.length) {
                 res.status(200).json({
                     message: `${nickname}님의 게시물 목록`,
-                    data: posts
+                    data: {
+                        nickname: nickname,
+                        posts : posts,
+                    }
                 });
             }else {
                 res.status(200).json({
