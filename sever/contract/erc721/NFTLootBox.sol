@@ -3,23 +3,34 @@ pragma solidity ^0.8.0;
 
 
 
-import "/Users/jangsam/Desktop/project/final/BEB-06-FINAL-ModeKunst/sever/node_modules/@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "/Users/jangsam/Desktop/project/final/BEB-06-FINAL-ModeKunst/sever/node_modules/@openzeppelin/contracts/utils/Counters.sol";
-import "/Users/jangsam/Desktop/project/final/BEB-06-FINAL-ModeKunst/sever/node_modules/@openzeppelin/contracts/access/Ownable.sol";
-import "/Users/jangsam/Desktop/project/final/BEB-06-FINAL-ModeKunst/sever/node_modules/@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
-import "/Users/jangsam/Desktop/project/final/BEB-06-FINAL-ModeKunst/sever/node_modules/@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
+import "d:/2022/project-03/BEB-06-FINAL-01/sever/node_modules/@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "d:/2022/project-03/BEB-06-FINAL-01/sever/node_modules/@openzeppelin/contracts/utils/Counters.sol";
+import "d:/2022/project-03/BEB-06-FINAL-01/sever/node_modules/@openzeppelin/contracts/access/Ownable.sol";
+import "d:/2022/project-03/BEB-06-FINAL-01/sever/node_modules/@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
+import "d:/2022/project-03/BEB-06-FINAL-01/sever/node_modules/@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "d:/2022/project-03/BEB-06-FINAL-01/sever/node_modules/@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
-contract NFTLootBox is ERC721URIStorage, Ownable, ERC721Enumerable {
+
+
+
+contract NFTLootBox is ERC721URIStorage, Ownable{
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIds;
     IERC20 token;
     uint256 public _nftPrice;
     string public _name;
     string public _symbol;
+    uint256 private _totalSupply = 0;
 
     constructor(string memory name_, string memory symbol_ ) ERC721(_name, _symbol){
         _name = name_;
         _symbol = symbol_;
+    }
+
+    //
+   
+    function totalSupply() public view virtual  returns (uint256){
+        return _totalSupply;
     }
 
     function mintNFT(address recipient, string memory tokenURI) public onlyOwner returns (uint256) {
@@ -28,6 +39,7 @@ contract NFTLootBox is ERC721URIStorage, Ownable, ERC721Enumerable {
         uint256 newItemId = _tokenIds.current();
         _mint(recipient, newItemId);
         _setTokenURI(newItemId, tokenURI);
+        _totalSupply +=1;
 
         return newItemId;
     }
@@ -36,5 +48,7 @@ contract NFTLootBox is ERC721URIStorage, Ownable, ERC721Enumerable {
         _nftPrice = nftPrice_;
         return _nftPrice;
     }
+
+    
 
 }
