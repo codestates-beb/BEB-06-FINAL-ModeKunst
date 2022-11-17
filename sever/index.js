@@ -26,10 +26,10 @@ sequelize
   .then(() => {
     console.log("DB 연결 성공...");
     insertServerAddress().then(() => {
-        deploy20().then(() => {
-            deploy721()
-        })
-    })
+      deploy20().then(() => {
+        deploy721();
+      });
+    });
   })
   .catch((err) => {
     console.error(err);
