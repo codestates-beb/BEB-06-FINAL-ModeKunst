@@ -1,6 +1,6 @@
 const { User } = require("../../models");
 const bcrypt = require("bcrypt");
-
+const { web3, abi20, serverPkey, getBalance } = require('../../contract/Web3');
 module.exports = {
   // 로그인
   post: async (req, res) => {
