@@ -14,6 +14,8 @@ function Signup() {
     reset,
   } = useForm();
   const navigate = useNavigate();
+  const password = watch("password");
+  const passwordRe = watch("passwordRe");
 
   // 이미지 미리보기용 상태
   const image = watch("profile_image");
@@ -23,12 +25,14 @@ function Signup() {
   const [nicknameDisabled, setNicknameDisabled] = useState(false);
   // 이메일 검증용 상태
   const [emailVerifyInput, setEmailVerifyInput] = useState(false);
-  const [emailVerifyBtn, setEmailVerifyBtn] = useState(true);
+  const [emailVerifyBtns, setEmailVerifyBtns] = useState(true);
+  const [emailVerified, setEmailVerified] = useState(false);
   const [emailDisabled, setEmailDisabled] = useState(false);
   const [emailVerifyCode, setEmailVerifyCode] = useState("");
   // 폰번호 검증용 상태
   const [phoneVerifyInput, setPhoneVerifyInput] = useState(false);
-  const [phoneVerifyBtn, setPhoneVerifyBtn] = useState(true);
+  const [phoneVerifyBtns, setPhoneVerifyBtns] = useState(true);
+  const [phoneVerified, setPhoneVerified] = useState(false);
   const [phoneDisabled, setPhoneDisabled] = useState(false);
   const [phoneVerifyCode, setPhoneVerifyCode] = useState("");
 
@@ -40,17 +44,6 @@ function Signup() {
   }, [image]);
 
   const onValid = async data => {
-    // 비밀번호 불일치 시
-    if (data.password !== data.passwordRe) {
-      setError(
-        "passwordRe",
-        {
-          message: "입력하신 패스워드가 일치하지 않습니다",
-        },
-        { shouldFocus: true }
-      );
-    }
-
     delete data.passwordRe;
     const formData = new FormData();
     formData.append("profile_image", watch("profile_image")[0]);
@@ -108,12 +101,13 @@ function Signup() {
           회원가입
         </h1>
       </div>
+
       <form
         onSubmit={handleSubmit(onValid)}
         className="flex flex-col items-center space-y-10"
       >
         {/* 🟠 이미지 파일 */}
-        <div>
+        <div className="flex flex-col items-center space-y-2">
           {imagePreview ? (
             // 이미지 미리보기가 존재한다면
             <div className="relative">
@@ -124,14 +118,14 @@ function Signup() {
               />
               <button
                 onClick={() => setImagePreview("")}
-                className="absolute -top-1 -right-1 w-6 h-6 flex justify-center items-center bg-blue-400 hover:bg-blue-500 rounded-full"
+                className="absolute -top-1 -right-1 w-6 h-6 flex justify-center items-center bg-white hover:bg-slate-900 hover:text-white rounded-full"
               >
                 <svg
                   fill="none"
                   viewBox="0 0 24 24"
                   strokeWidth={2}
                   stroke="currentColor"
-                  className="w-4 h-4 text-white"
+                  className="w-4 h-4"
                 >
                   <path
                     strokeLinecap="round"
@@ -181,17 +175,16 @@ function Signup() {
                   type="file"
                   accept="image/*"
                   className="hidden"
-                  // 🟠
                   {...register("profile_image", {
                     required: "프로필 이미지를 등록하세요",
                   })}
                 />
               </label>
-              <span className="text-xs text-red-500 font-semibold">
-                {errors?.profile_image?.message}
-              </span>
             </div>
           )}
+          <span className="text-xs text-red-500 font-semibold">
+            {errors?.profile_image?.message}
+          </span>
         </div>
 
         {/* 🟠 이메일 */}
@@ -205,69 +198,85 @@ function Signup() {
                 {...register("email", { required: "이메일을 입력하세요" })}
                 type="text"
                 disabled={emailDisabled}
-                className="w-72 px-3 text-sm border-b-2 focus:border-b-[3px] border-b-slate-800 focus:outline-none disabled:bg-white disabled:select-none"
+                className="w-72 px-3 pb-1 text-sm border-b-2 focus:border-b-[3px] border-b-slate-800 focus:outline-none disabled:bg-white disabled:select-none"
               />
-              {/* 🟢 이메일 입력값 삭제 버튼 */}
-              {emailVerifyBtn && (
-                <div
-                  onClick={() => !emailDisabled && setValue("email", "")}
-                  className="inline-block absolute right-3 top-1 cursor-pointer select-none"
-                >
-                  <svg
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={2}
-                    stroke="currentColor"
-                    className="w-3 h-3"
+              {/* 🟢 검증 버튼 & 입력값삭제 버튼 */}
+              {emailVerifyBtns && (
+                <div className="flex items-center space-x-3 absolute right-3 -top-0.5">
+                  <div
+                    onClick={() => {
+                      setEmailVerifyInput(true);
+                      setEmailDisabled(true);
+                      axios
+                        .get(
+                          `http://localhost:8000/users/sendEmail/?email=${watch(
+                            "email"
+                          )}`
+                        )
+                        .then(result => alert(result.data.message));
+                    }}
+                    className="cursor-pointer select-none hover:scale-110"
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
+                    <svg
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth={2}
+                      stroke="currentColor"
+                      className="w-5 h-5"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
+                      />
+                    </svg>
+                  </div>
+                  <div
+                    onClick={() => !emailDisabled && setValue("email", "")}
+                    className="cursor-pointer select-none"
+                  >
+                    <svg
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth={2}
+                      stroke="currentColor"
+                      className="w-3 h-3"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M6 18L18 6M6 6l12 12"
+                      />
+                    </svg>
+                  </div>
                 </div>
               )}
             </div>
-            {/* 🟢 이메일 검증하기 버튼 */}
-            {/* 검증하기 버튼 or 검증 성공 버튼 */}
-            {emailVerifyBtn ? (
-              <div
-                onClick={() => {
-                  setEmailVerifyInput(true);
-                  setEmailDisabled(true);
-                  axios
-                    .get(
-                      `http://localhost:8000/users/sendEmail/?email=${watch(
-                        "email"
-                      )}`
-                    )
-                    .then(result => alert(result.data.message));
-                }}
-                className="w-6 h-6 flex justify-center items-center text-xs font-medium bg-blue-500 text-white hover:bg-white hover:text-blue-700 cursor-pointer rounded-full"
-              >
+            {/* 🟢 이메일 검증 여부 표시 */}
+            {!emailVerified ? (
+              <div className="w-5 h-5 flex justify-center items-center text-xs text-red-500 font-medium rounded-full">
                 <svg
                   fill="none"
                   viewBox="0 0 24 24"
-                  strokeWidth={2}
+                  strokeWidth={1.5}
                   stroke="currentColor"
                   className="w-5 h-5"
                 >
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z"
+                    d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                   />
                 </svg>
               </div>
             ) : (
-              <div>
+              <div className="flex justify-center items-center text-xs text-green-500 font-medium rounded-full">
                 <svg
                   fill="none"
                   viewBox="0 0 24 24"
                   strokeWidth={2}
                   stroke="currentColor"
-                  className="w-4 h-4 text-green-500"
+                  className="w-5 h-5"
                 >
                   <path
                     strokeLinecap="round"
@@ -280,13 +289,13 @@ function Signup() {
           </div>
           {emailVerifyInput && (
             <div className="flex space-x-2">
-              <div className="flex justify-center items-center px-2 text-xs font-medium text-blue-500 rounded-md">
+              <div className="flex justify-center items-center px-2 text-xs font-medium text-slate-500 rounded-md">
                 인증코드
               </div>
               <input
                 type="text"
                 onChange={e => setEmailVerifyCode(e.target.value)}
-                className="px-3 border-b-2 border-b-blue-500 w-1/3 focus:outline-none text-xs text-blue-500 font-medium"
+                className="px-3 border-b-2 border-b-slate-500 w-1/3 focus:outline-none text-xs text-slate-400 font-medium"
               />
               {/* 🟢 이메일 검증코드 제출하기 버튼 */}
               <div
@@ -300,22 +309,23 @@ function Signup() {
                       }
                     );
                     if (data.status === 200) {
-                      setEmailVerifyBtn(false);
+                      setEmailVerifyBtns(false);
                       setEmailVerifyInput(false);
+                      setEmailVerified(true);
                       alert("인증이 완료되었습니다");
                     }
                   } catch (error) {
                     alert("인증을 진행할 수 없습니다", error.toString());
                   }
                 }}
-                className="flex justify-center items-center w-5 h-5 bg-blue-500 text-white hover:bg-white hover:text-blue-500 rounded-full cursor-pointer"
+                className="flex justify-center items-center w-4 h-4 text-slate-400 hover:text-white hover:bg-slate-400 rounded-full cursor-pointer"
               >
                 <svg
                   fill="none"
                   viewBox="0 0 24 24"
                   strokeWidth={2}
                   stroke="currentColor"
-                  className="w-4 h-4"
+                  className="w-3 h-3"
                 >
                   <path
                     strokeLinecap="round"
@@ -346,7 +356,7 @@ function Signup() {
               />
               {/* 🟢 닉네임 입력값 삭제 버튼 */}
               {nicknameChecked ? (
-                // 닉네임 체크 완료 (change)
+                // 닉네임 체크 완료
                 <div
                   onClick={() => {
                     setValue("nickname", "");
@@ -360,7 +370,7 @@ function Signup() {
                     viewBox="0 0 24 24"
                     strokeWidth={2}
                     stroke="currentColor"
-                    className="w-3 h-3"
+                    className="w-4 h-4"
                   >
                     <path
                       strokeLinecap="round"
@@ -370,77 +380,94 @@ function Signup() {
                   </svg>
                 </div>
               ) : (
-                // 닉네임 체크 미완료 (x)
-                <div
-                  onClick={() => {
-                    setValue("nickname", "");
-                  }}
-                  className="inline-block absolute right-3 top-1 cursor-pointer"
-                >
-                  <svg
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={2}
-                    stroke="currentColor"
-                    className="w-3 h-3"
+                // 닉네임 체크 미완료
+                // 닉네임 체크버튼 & 닉네임 입력값 삭제버튼
+                <div className="flex items-center space-x-3 absolute right-3 -top-0.5">
+                  <div
+                    onClick={async () => {
+                      try {
+                        const data = await axios.get(
+                          `http://localhost:8000/users/checkNickname/${watch(
+                            "nickname"
+                          )}`
+                        );
+                        if (data.status === 200) {
+                          alert("사용 가능한 닉네임 입니다");
+                          setNicknameChecked(true);
+                          setNicknameDisabled(true);
+                        }
+                      } catch (error) {
+                        alert("닉네임이 이미 존재합니다");
+                      }
+                    }}
+                    className="cursor-pointer select-none hover:scale-110"
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
+                    <svg
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth={2}
+                      stroke="currentColor"
+                      className="w-5 h-5"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"
+                      />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                      />
+                    </svg>
+                  </div>
+                  <div
+                    onClick={() => {
+                      setValue("nickname", "");
+                    }}
+                  >
+                    <svg
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth={2}
+                      stroke="currentColor"
+                      className="w-3 h-3"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M6 18L18 6M6 6l12 12"
+                      />
+                    </svg>
+                  </div>
                 </div>
               )}
             </div>
-            {/* 🟢 닉네임 검증 버튼 */}
+            {/* 🟢 닉네임 검증 여부 표시 */}
             {!nicknameChecked ? (
-              <div
-                onClick={async () => {
-                  try {
-                    const data = await axios.get(
-                      `http://localhost:8000/users/checkNickname/:${watch(
-                        "nickname)"
-                      )}`
-                    );
-                    if (data.status === 200) {
-                      alert("사용 가능한 닉네임 입니다");
-                      setNicknameChecked(true);
-                      setNicknameDisabled(true);
-                    }
-                  } catch (error) {
-                    alert("닉네임이 이미 존재합니다");
-                  }
-                }}
-                className="w-6 h-6 flex justify-center items-center text-xs font-medium bg-slate-700 text-white hover:bg-white hover:text-slate-700 cursor-pointer rounded-full"
-              >
+              <div className="w-5 h-5 flex justify-center items-center text-xs text-red-500 font-medium rounded-full">
                 <svg
                   fill="none"
                   viewBox="0 0 24 24"
-                  strokeWidth={2}
+                  strokeWidth={1.5}
                   stroke="currentColor"
                   className="w-5 h-5"
                 >
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"
-                  />
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                    d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                   />
                 </svg>
               </div>
             ) : (
-              <div>
+              <div className="flex justify-center items-center text-xs text-green-500 font-medium rounded-full">
                 <svg
                   fill="none"
                   viewBox="0 0 24 24"
                   strokeWidth={2}
                   stroke="currentColor"
-                  className="w-4 h-4 text-green-500"
+                  className="w-5 h-5"
                 >
                   <path
                     strokeLinecap="round"
@@ -504,7 +531,7 @@ function Signup() {
             />
             <div
               onClick={() => setValue("passwordRe", "")}
-              className="inline-block absolute right-3 top-1 cursor-pointer"
+              className="flex items-center space-x-3 absolute right-3 -top-0.5 cursor-pointer"
             >
               <svg
                 fill="none"
@@ -521,9 +548,15 @@ function Signup() {
               </svg>
             </div>
           </div>
-          <span className="text-xs text-red-500 font-semibold">
-            {errors?.passwordRe?.message}
-          </span>
+          {(!password && !passwordRe) || password !== passwordRe ? (
+            <span className="text-xs text-red-500 font-semibold select-none">
+              패스워드가 일치하지 않습니다
+            </span>
+          ) : (
+            <span className="text-xs text-green-500 font-semibold select-none">
+              패스워드가 일치합니다
+            </span>
+          )}
         </div>
 
         {/* 🟠 핸드폰 번호 */}
@@ -542,67 +575,88 @@ function Signup() {
                 placeholder="-를 제외하고 입력해주세요"
                 className="w-72 px-3 text-sm placeholder:text-xs border-b-2 focus:border-b-[3px] border-b-slate-800 focus:outline-none disabled:bg-transparent"
               />
-              {/* 🟢 핸드폰번호 입력값 삭제 버튼 */}
-              {phoneVerifyBtn && (
-                <div
-                  onClick={() => !phoneDisabled && setValue("phone_number", "")}
-                  className="inline-block absolute right-3 top-1 cursor-pointer select-none"
-                >
-                  <svg
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={2}
-                    stroke="currentColor"
-                    className="w-3 h-3"
+              {/* 🟢 검증 버튼 & 입력값 삭제 버튼 */}
+              {phoneVerifyBtns && (
+                <div className="flex items-center space-x-3 absolute right-3 -top-0.5">
+                  <div
+                    onClick={() => {
+                      setPhoneVerifyInput(true);
+                      setPhoneDisabled(true);
+                      axios
+                        .get(
+                          `http://localhost:8000/users/sendSms/?phoneNumber=${watch(
+                            "phone_number"
+                          )}`
+                        )
+                        .then(result => alert(result.data.message));
+                    }}
+                    className="cursor-pointer select-none hover:scale-110"
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
+                    <svg
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth={2}
+                      stroke="currentColor"
+                      className="w-5 h-5"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
+                      />
+                    </svg>
+                  </div>
+                  <div
+                    onClick={() =>
+                      !phoneDisabled && setValue("phone_number", "")
+                    }
+                    className="cursor-pointer select-none"
+                  >
+                    <svg
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth={2}
+                      stroke="currentColor"
+                      className="w-3 h-3"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M6 18L18 6M6 6l12 12"
+                      />
+                    </svg>
+                  </div>
                 </div>
               )}
+              {/* <span className="text-xs text-red-500 font-semibold">
+                {errors?.phone_number?.message}
+              </span> */}
             </div>
-            {/* 🟢 핸드폰 검증하기 버튼 */}
-            {/* 검증하기 버튼 or 검증 성공 버튼 */}
-            {phoneVerifyBtn ? (
-              <div
-                onClick={() => {
-                  setPhoneVerifyInput(true);
-                  setPhoneDisabled(true);
-                  axios
-                    .get(
-                      `http://localhost:8000/users/sendSms/?phoneNumber=${watch(
-                        "phone_number"
-                      )}`
-                    )
-                    .then(result => alert(result.data.message));
-                }}
-                className="w-6 h-6 flex justify-center items-center text-xs font-medium bg-blue-500 text-white hover:bg-white hover:text-blue-700 cursor-pointer rounded-full"
-              >
+            {/* 🟢 핸드폰 검증 여부 표시 */}
+            {!phoneVerified ? (
+              <div className="w-5 h-5 flex justify-center items-center text-xs text-red-500 font-medium rounded-full">
                 <svg
                   fill="none"
                   viewBox="0 0 24 24"
-                  strokeWidth={2}
+                  strokeWidth={1.5}
                   stroke="currentColor"
                   className="w-5 h-5"
                 >
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z"
+                    d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                   />
                 </svg>
               </div>
             ) : (
-              <div>
+              <div className="flex justify-center items-center text-xs text-green-500 font-medium rounded-full">
                 <svg
                   fill="none"
                   viewBox="0 0 24 24"
                   strokeWidth={2}
                   stroke="currentColor"
-                  className="w-4 h-4 text-green-500"
+                  className="w-5 h-5"
                 >
                   <path
                     strokeLinecap="round"
@@ -615,13 +669,13 @@ function Signup() {
           </div>
           {phoneVerifyInput && (
             <div className="flex space-x-2">
-              <div className="flex justify-center items-center px-2 text-xs font-medium text-blue-500 rounded-md">
+              <div className="flex justify-center items-center px-2 text-xs font-medium text-slate-500 rounded-md">
                 인증코드
               </div>
               <input
                 type="text"
                 onChange={e => setPhoneVerifyCode(e.target.value)}
-                className="px-3 border-b-2 border-b-blue-500 w-1/3 focus:outline-none text-xs text-blue-500 font-medium"
+                className="px-3 border-b-2 border-b-slate-500 w-1/3 focus:outline-none text-xs text-slate-4000 font-medium"
               />
               {/* 🟢 핸드폰번호 검증코드 제출하기 버튼 */}
               <div
@@ -635,7 +689,7 @@ function Signup() {
                       }
                     );
                     if (data.status === 200) {
-                      setPhoneVerifyBtn(false);
+                      setPhoneVerifyBtns(false);
                       setPhoneVerifyInput(false);
                       alert("인증이 완료되었습니다");
                     }
@@ -643,14 +697,14 @@ function Signup() {
                     alert("인증을 진행할 수 없습니다", error.toString());
                   }
                 }}
-                className="flex justify-center items-center w-5 h-5 bg-blue-500 text-white hover:bg-white hover:text-blue-500 rounded-full cursor-pointer"
+                className="flex justify-center items-center w-4 h-4 text-slate-400 hover:text-white hover:bg-slate-400 rounded-full cursor-pointer"
               >
                 <svg
                   fill="none"
                   viewBox="0 0 24 24"
                   strokeWidth={2}
                   stroke="currentColor"
-                  className="w-4 h-4"
+                  className="w-3 h-3"
                 >
                   <path
                     strokeLinecap="round"
@@ -662,7 +716,7 @@ function Signup() {
             </div>
           )}
           <span className="text-xs text-red-500 font-semibold">
-            {errors?.phone?.message}
+            {errors?.phone_number?.message}
           </span>
         </div>
 
@@ -727,7 +781,9 @@ function Signup() {
         <div className="flex flex-col space-y-4">
           <label className="text-lg text-slate-900 font-bold select-none">
             SNS URL
-            <span className="ml-2 text-xs text-orange-500">선택사항</span>
+            <span className="ml-2 px-2 py-0.5 text-xs font-medium text-white bg-slate-900 rounded-xl">
+              선택사항
+            </span>
           </label>
           <input
             {...register("sns_url")}
