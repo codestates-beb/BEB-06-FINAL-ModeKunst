@@ -3,11 +3,11 @@ pragma solidity ^0.8.0;
 
 
 
-import "/Users/imjinseon/Desktop/codestates/BEB-06-FINAL-ModeKunst/sever/node_modules/@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "/Users/imjinseon/Desktop/codestates/BEB-06-FINAL-ModeKunst/sever/node_modules/@openzeppelin/contracts/utils/Counters.sol";
-import "/Users/imjinseon/Desktop/codestates/BEB-06-FINAL-ModeKunst/sever/node_modules/@openzeppelin/contracts/access/Ownable.sol";
-import "/Users/imjinseon/Desktop/codestates/BEB-06-FINAL-ModeKunst/sever/node_modules/@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
-import "/Users/imjinseon/Desktop/codestates/BEB-06-FINAL-ModeKunst/sever/node_modules/@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "/Users/jason/Desktop/BEB-06-FINAL-ModeKunst/sever/node_modules/@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "/Users/jason/Desktop/BEB-06-FINAL-ModeKunst/sever/node_modules/@openzeppelin/contracts/utils/Counters.sol";
+import "/Users/jason/Desktop/BEB-06-FINAL-ModeKunst/sever/node_modules/@openzeppelin/contracts/access/Ownable.sol";
+import "/Users/jason/Desktop/BEB-06-FINAL-ModeKunst/sever/node_modules/@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
+import "/Users/jason/Desktop/BEB-06-FINAL-ModeKunst/sever/node_modules/@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 
 
@@ -42,15 +42,7 @@ contract NFTLootBox is ERC721URIStorage, Ownable{
         return newItemId;
     }
 
-    function setToken (address tokenAddress) public onlyOwner returns (bool) {
-        require(tokenAddress != address(0x0));
-        token = IERC20(tokenAddress);
-        return true;
-    }
 
-    function setNftPrice (uint256 nftPrice_) public onlyOwner returns (uint256){
-        _nftPrice = nftPrice_;
-        return _nftPrice;
-    }
+    
 
 }
