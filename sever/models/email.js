@@ -16,7 +16,7 @@ module.exports = class Email extends Sequelize.Model {
             {
                 sequelize,
                 timestamps: true,
-                underscored: true,
+                underscored: false,
                 modelName: 'Email',
                 tableName: 'emails',
                 charset: 'utf8',

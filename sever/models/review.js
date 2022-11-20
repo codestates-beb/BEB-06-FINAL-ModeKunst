@@ -10,7 +10,8 @@ module.exports = class Review extends Sequelize.Model {
             }, {
                 sequelize,
                 timestamps: true,
-                underscored: true,
+                paranoid: true,
+                underscored: false,
                 modelName: 'Review',
                 tableName: 'reviews',
                 charset: 'utf8',

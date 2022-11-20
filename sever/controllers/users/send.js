@@ -110,7 +110,7 @@ module.exports = {
         where: { email: email },
       });
 
-      if (!emailCheck) {
+      if (emailCheck.isNewRecord) {
         await sendEmail(random, email);
         try {
           await Email.create({
@@ -131,10 +131,11 @@ module.exports = {
         });
       }
     } else {
-      // 비밀번호 찾기
-      const user = await User.findOne({
+      console.log(2);
+      const user = User.findOne({
         where: { email: email, phone_number: phoneNumber },
       });
+
       if (user) {
         await sendEmail(random, email);
         try {
@@ -171,7 +172,7 @@ module.exports = {
       const phoneCheck = await User.findOne({
         where: { phone_number: phoneNumber },
       });
-      if (!phoneCheck) {
+      if (phoneCheck.isNewRecord) {
         try {
           await sendSMS(random, phoneNumber);
           try {

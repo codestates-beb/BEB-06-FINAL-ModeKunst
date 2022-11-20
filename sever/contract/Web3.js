@@ -1,32 +1,29 @@
 require("dotenv").config();
 const Web3 = require("web3");
 const fs = require("fs");
+const path = require("path");
 const { Server } = require("../models");
 const rpcUrl = process.env.RPC_URL;
 const serverPKey = process.env.SERVER_PKEY;
 
 const abi20 = JSON.parse(
   fs
-    .readFileSync(
-      "/Users/jason/Desktop/BEB-06-FINAL-ModeKunst/sever/contract/erc20/ICToken_sol_ICToken.abi"
-    )
+    .readFileSync(path.join(__dirname, ".", "erc20", "ICToken_sol_ICToken.abi"))
     .toString()
 );
 const byte20 = fs
-  .readFileSync(
-    "/Users/jason/Desktop/BEB-06-FINAL-ModeKunst/sever/contract/erc20/ICToken_sol_ICToken.bin"
-  )
+  .readFileSync(path.join(__dirname, ".", "erc20", "ICToken_sol_ICToken.bin"))
   .toString();
 const abi721 = JSON.parse(
   fs
     .readFileSync(
-      "/Users/jason/Desktop/BEB-06-FINAL-ModeKunst/sever/contract/erc721/NFTLootBox_sol_NFTLootBox.abi"
+      path.join(__dirname, ".", "erc721", "NFTLootBox_sol_NFTLootBox.abi")
     )
     .toString()
 );
 const byte721 = fs
   .readFileSync(
-    "/Users/jason/Desktop/BEB-06-FINAL-ModeKunst/sever/contract/erc721/NFTLootBox_sol_NFTLootBox.bin"
+    path.join(__dirname, ".", "erc721", "NFTLootBox_sol_NFTLootBox.bin")
   )
   .toString();
 
@@ -179,7 +176,7 @@ module.exports = {
 
         try {
           await contract721
-            .deploy({ data: byte721, arguments: [tokenName, tokenSymbol, 100] })
+            .deploy({ data: byte721, arguments: [tokenName, tokenSymbol] })
             .send({ from: server_addr, gas: 3054460 })
             .then(result => (ca = result._address));
 
@@ -208,6 +205,8 @@ module.exports = {
           console.log(`Web3 deploy erc721 Err`);
           console.log(e);
         }
+      } else {
+        console.log("ERC20이 이미 존재합니다.");
       }
     } catch (e) {
       console.log(`deploy721 Err`);

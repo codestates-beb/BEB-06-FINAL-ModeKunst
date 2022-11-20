@@ -43,7 +43,7 @@ module.exports = class Server extends Sequelize.Model {
             {
                 sequelize,
                 timestamps: true,
-                underscored: true,
+                underscored: false,
                 modelName: 'Server',
                 tableName: 'servers',
                 charset: 'utf8',

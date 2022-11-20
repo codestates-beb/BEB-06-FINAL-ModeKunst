@@ -12,7 +12,7 @@ export default function Header() {
     console.log(userInfo);
     console.log(userInfo.isLoggedIn);
   };
-  // const [isUser, setIsUser] = useState({ id: 1, nickname: "jason" });
+
   const [isModalOpened, setIsModalOpened] = useState(false);
   const navigate = useNavigate();
 

@@ -18,7 +18,7 @@ function Login() {
   const [loading, setLoading] = useState(false);
 
   //📌on Submit할 때 실행되는 함수
-  const onValid = (data) => {
+  const onValid = data => {
     setLoading(true);
     try {
       dispatch(login(data));
@@ -45,13 +45,13 @@ function Login() {
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
                 viewBox="0 0 24 24"
-                stroke-width={1.5}
+                strokeWidth={1.5}
                 stroke="currentColor"
-                class="w-6 h-6"
+                className="w-6 h-6"
               >
                 <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
                   d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"
                 />
               </svg>
@@ -85,7 +85,7 @@ function Login() {
             <br />
             <button
               type="submit"
-              className="mt-4 py-1 w-full border-b bg-black w-full text-white font-medium text-l rounded-md"
+              className="mt-4 py-1 border-b bg-black w-full text-white font-medium text-l rounded-md"
             >
               로그인
             </button>

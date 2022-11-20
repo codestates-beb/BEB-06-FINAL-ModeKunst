@@ -14,7 +14,7 @@ module.exports = class Sms extends Sequelize.Model {
             {
                 sequelize,
                 timestamps: true,
-                underscored: true,
+                underscored: false,
                 modelName: 'Sms',
                 tableName: 'sms',
                 charset: 'utf8',
