@@ -59,54 +59,50 @@ function ForgotEmail() {
         </h1>
       </div>
 
-      {targetEmail ? (
-        <span>{targetEmail}</span>
-      ) : (
-        <form
-          onSubmit={handleSubmit(onValid)}
-          className="flex flex-col items-center space-y-16"
-        >
-          <div className="flex flex-col space-y-4">
-            <label className="text-lg text-slate-900 font-bold select-none">
-              닉네임
-            </label>
+      <form
+        onSubmit={handleSubmit(onValid)}
+        className="flex flex-col items-center space-y-16"
+      >
+        <div className="flex flex-col space-y-4">
+          <label className="text-lg text-slate-900 font-bold select-none">
+            닉네임
+          </label>
+          <input
+            type="text"
+            {...register("nickname")}
+            className="w-72 px-3 pb-1 text-sm border-b-2 focus:border-b-[3px] border-b-slate-800 focus:outline-none"
+          />
+        </div>
+
+        <div className="flex flex-col space-y-4">
+          <label className="text-lg text-slate-900 font-bold select-none">
+            핸드폰번호
+          </label>
+          <div>
             <input
               type="text"
-              {...register("nickname")}
+              {...register("phone_number")}
               className="w-72 px-3 pb-1 text-sm border-b-2 focus:border-b-[3px] border-b-slate-800 focus:outline-none"
             />
           </div>
+        </div>
 
-          <div className="flex flex-col space-y-4">
-            <label className="text-lg text-slate-900 font-bold select-none">
-              핸드폰번호
-            </label>
-            <div>
-              <input
-                type="text"
-                {...register("phone_number")}
-                className="w-72 px-3 pb-1 text-sm border-b-2 focus:border-b-[3px] border-b-slate-800 focus:outline-none"
-              />
-            </div>
-          </div>
-
-          <button className="flex justify-center items-center p-2 text-white bg-slate-800 hover:scale-105 rounded-full select-none">
-            <svg
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={2}
-              stroke="currentColor"
-              className="w-5 h-5"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
-              />
-            </svg>
-          </button>
-        </form>
-      )}
+        <button className="flex justify-center items-center p-2 text-white bg-slate-800 hover:scale-105 rounded-full select-none">
+          <svg
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={2}
+            stroke="currentColor"
+            className="w-5 h-5"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
+            />
+          </svg>
+        </button>
+      </form>
     </div>
   );
 }
