@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-
-
 import "/Users/jason/Desktop/BEB-06-FINAL-ModeKunst/sever/node_modules/@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "/Users/jason/Desktop/BEB-06-FINAL-ModeKunst/sever/node_modules/@openzeppelin/contracts/utils/Counters.sol";
 import "/Users/jason/Desktop/BEB-06-FINAL-ModeKunst/sever/node_modules/@openzeppelin/contracts/access/Ownable.sol";
@@ -46,5 +44,4 @@ contract NFTLootBox is ERC721URIStorage, Ownable {
         _nftPrice = nftPrice_;
         return _nftPrice;
     }
-
 }

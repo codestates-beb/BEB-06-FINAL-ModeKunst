@@ -47,5 +47,6 @@ module.exports = {
         .status(404)
         .json({ message: "이메일 혹은 비밀번호가 틀렸습니다." });
     }
+    // }
   },
 };
