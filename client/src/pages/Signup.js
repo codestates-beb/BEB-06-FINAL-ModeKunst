@@ -2,13 +2,13 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 
 function Signup() {
   const {
     register,
     handleSubmit,
     formState: { errors },
-    setError,
     setValue,
     watch,
     reset,
@@ -44,35 +44,35 @@ function Signup() {
   }, [image]);
 
   const onValid = async data => {
-    delete data.passwordRe;
-    const formData = new FormData();
-    formData.append("profile_image", watch("profile_image")[0]);
-    formData.append("email", watch("email"));
-    formData.append("password", watch("password"));
-    formData.append("nickname", watch("nickname"));
-    formData.append("phone_number", watch("phone_number"));
-    formData.append("height", watch("height"));
-    formData.append("weight", watch("weight"));
-    formData.append("gender", watch("gender"));
-    formData.append("sns_url", watch("sns_url"));
+    if (emailVerified && phoneVerified && nicknameChecked) {
+      const formData = new FormData();
+      formData.append("profile_image", watch("profile_image")[0]);
+      formData.append("email", watch("email"));
+      formData.append("password", watch("password"));
+      formData.append("nickname", watch("nickname"));
+      formData.append("phone_number", watch("phone_number"));
+      formData.append("height", watch("height"));
+      formData.append("weight", watch("weight"));
+      formData.append("gender", watch("gender"));
+      formData.append("sns_url", watch("sns_url"));
 
-    try {
       const result = await axios.post(
         "http://localhost:8000/users/signup",
         formData
       );
       if (result.status === 200) {
-        alert("회원가입이 완료되었습니다");
+        Swal.fire({
+          icon: "success",
+          text: `${result.data.message}`,
+        }).then(() => navigate("/"));
       }
-      navigate("/");
-    } catch (error) {
-      alert("가입이 불가능합니다", error.toString());
+      reset();
+    } else {
+      Swal.fire({
+        icon: "warning",
+        text: "닉네임 검증 혹은 이메일과 핸드폰 번호 인증을 반드시 진행해주세요.",
+      });
     }
-
-    // 📍 sweetalert로 바꾸기
-    // reset();
-    // window.alert("가입이 완료되었습니다");
-    // navigate("/");
   };
 
   return (
@@ -114,7 +114,7 @@ function Signup() {
               <img
                 src={imagePreview}
                 alt="profile_image_preview"
-                className="w-52 h-52 rounded-full shadow-xl select-none"
+                className="w-52 h-52 object-cover rounded-full shadow-xl select-none"
               />
               <button
                 onClick={() => setImagePreview("")}
@@ -200,22 +200,41 @@ function Signup() {
                 disabled={emailDisabled}
                 className="w-72 px-3 pb-1 text-sm border-b-2 focus:border-b-[3px] border-b-slate-800 focus:outline-none disabled:bg-white disabled:select-none"
               />
-              {/* 🟢 검증 버튼 & 입력값삭제 버튼 */}
+              {/* 🟢 인증 버튼 & 입력값삭제 버튼 */}
               {emailVerifyBtns && (
                 <div className="flex items-center space-x-3 absolute right-3 -top-0.5">
                   <div
-                    onClick={() => {
-                      setEmailVerifyInput(true);
-                      setEmailDisabled(true);
-                      axios
-                        .get(
-                          `http://localhost:8000/users/sendEmail/?email=${watch(
-                            "email"
-                          )}`
-                        )
-                        .then(result => alert(result.data.message));
-                    }}
                     className="cursor-pointer select-none hover:scale-110"
+                    onClick={async () => {
+                      try {
+                        if (watch("email") === "") {
+                          Swal.fire({
+                            icon: "warning",
+                            text: "이메일을 입력하세요.",
+                          });
+                          return;
+                        } else {
+                          const result = await axios.get(
+                            `http://localhost:8000/users/sendEmail/?email=${watch(
+                              "email"
+                            )}`
+                          );
+                          if (result.status === 200) {
+                            setEmailVerifyInput(true);
+                            setEmailDisabled(true);
+                            Swal.fire({
+                              icon: "success",
+                              text: "인증코드가 발송되었습니다. 이메일을 확인해주세요.",
+                            });
+                          }
+                        }
+                      } catch (error) {
+                        Swal.fire({
+                          icon: "error",
+                          text: "이미 가입된 이메일 입니다.",
+                        });
+                      }
+                    }}
                   >
                     <svg
                       fill="none"
@@ -252,7 +271,7 @@ function Signup() {
                 </div>
               )}
             </div>
-            {/* 🟢 이메일 검증 여부 표시 */}
+            {/* 🟢 이메일 인증 완료 여부 표시 */}
             {!emailVerified ? (
               <div className="w-5 h-5 flex justify-center items-center text-xs text-red-500 font-medium rounded-full">
                 <svg
@@ -297,28 +316,34 @@ function Signup() {
                 onChange={e => setEmailVerifyCode(e.target.value)}
                 className="px-3 border-b-2 border-b-slate-500 w-1/3 focus:outline-none text-xs text-slate-400 font-medium"
               />
-              {/* 🟢 이메일 검증코드 제출하기 버튼 */}
+              {/* 🟢 이메일 인증코드 제출 버튼 */}
               <div
+                className="flex justify-center items-center w-4 h-4 text-slate-400 hover:text-white hover:bg-slate-400 rounded-full cursor-pointer"
                 onClick={async () => {
                   try {
-                    const data = await axios.post(
+                    const result = await axios.post(
                       "http://localhost:8000/users/checkEmail",
                       {
                         email: watch("email"),
                         code: emailVerifyCode,
                       }
                     );
-                    if (data.status === 200) {
+                    if (result.status === 200) {
+                      setEmailVerified(true);
                       setEmailVerifyBtns(false);
                       setEmailVerifyInput(false);
-                      setEmailVerified(true);
-                      alert("인증이 완료되었습니다");
+                      Swal.fire({
+                        icon: "success",
+                        text: "인증이 완료되었습니다. 회원가입을 계속 진행해주세요.",
+                      });
                     }
                   } catch (error) {
-                    alert("인증을 진행할 수 없습니다", error.toString());
+                    Swal.fire({
+                      icon: "error",
+                      text: "인증코드가 일치하지 않습니다.",
+                    });
                   }
                 }}
-                className="flex justify-center items-center w-4 h-4 text-slate-400 hover:text-white hover:bg-slate-400 rounded-full cursor-pointer"
               >
                 <svg
                   fill="none"
@@ -356,7 +381,8 @@ function Signup() {
               />
               {/* 🟢 닉네임 입력값 삭제 버튼 */}
               {nicknameChecked ? (
-                // 닉네임 체크 완료
+                // 닉네임 체크 완료 상태일 때
+                // 닉네임 바꾸기 버튼
                 <div
                   onClick={() => {
                     setValue("nickname", "");
@@ -380,27 +406,42 @@ function Signup() {
                   </svg>
                 </div>
               ) : (
-                // 닉네임 체크 미완료
+                // 닉네임 체크 미완료 상태일 때
                 // 닉네임 체크버튼 & 닉네임 입력값 삭제버튼
                 <div className="flex items-center space-x-3 absolute right-3 -top-0.5">
                   <div
+                    className="cursor-pointer select-none hover:scale-110"
                     onClick={async () => {
                       try {
-                        const data = await axios.get(
-                          `http://localhost:8000/users/checkNickname/${watch(
-                            "nickname"
-                          )}`
-                        );
-                        if (data.status === 200) {
-                          alert("사용 가능한 닉네임 입니다");
-                          setNicknameChecked(true);
-                          setNicknameDisabled(true);
+                        if (watch("nickname") === "") {
+                          Swal.fire({
+                            icon: "warning",
+                            text: "닉네임을 입력하세요.",
+                          });
+                          return;
+                        } else {
+                          const result = await axios.get(
+                            `http://localhost:8000/users/checkNickname/${watch(
+                              "nickname"
+                            )}`
+                          );
+                          if (result.status === 200) {
+                            Swal.fire({
+                              icon: "success",
+                              text: `${result.data.message}`,
+                            });
+                            setNicknameChecked(true);
+                            setNicknameDisabled(true);
+                          }
                         }
                       } catch (error) {
-                        alert("닉네임이 이미 존재합니다");
+                        console.log(error);
+                        Swal.fire({
+                          icon: "error",
+                          text: "이미 사용 중인 닉네임 입니다.",
+                        });
                       }
                     }}
-                    className="cursor-pointer select-none hover:scale-110"
                   >
                     <svg
                       fill="none"
@@ -575,22 +616,40 @@ function Signup() {
                 placeholder="-를 제외하고 입력해주세요"
                 className="w-72 px-3 text-sm placeholder:text-xs border-b-2 focus:border-b-[3px] border-b-slate-800 focus:outline-none disabled:bg-transparent"
               />
-              {/* 🟢 검증 버튼 & 입력값 삭제 버튼 */}
+              {/* 🟢 인증 버튼 & 입력값 삭제 버튼 */}
               {phoneVerifyBtns && (
                 <div className="flex items-center space-x-3 absolute right-3 -top-0.5">
                   <div
-                    onClick={() => {
-                      setPhoneVerifyInput(true);
-                      setPhoneDisabled(true);
-                      axios
-                        .get(
-                          `http://localhost:8000/users/sendSms/?phoneNumber=${watch(
-                            "phone_number"
-                          )}`
-                        )
-                        .then(result => alert(result.data.message));
-                    }}
                     className="cursor-pointer select-none hover:scale-110"
+                    onClick={async () => {
+                      try {
+                        if (watch("phone_number") === "") {
+                          Swal.fire({
+                            icon: "warning",
+                            text: "핸드폰 번호를 입력하세요.",
+                          });
+                        } else {
+                          const result = await axios.get(
+                            `http://localhost:8000/users/sendSms/?phoneNumber=${watch(
+                              "phone_number"
+                            )}`
+                          );
+                          if (result.status === 200) {
+                            setPhoneVerifyInput(true);
+                            setPhoneDisabled(true);
+                            Swal.fire({
+                              icon: "success",
+                              text: "인증코드가 입력하신 핸드폰 번호로 발송되었습니다.",
+                            });
+                          }
+                        }
+                      } catch (error) {
+                        Swal.fire({
+                          icon: "error",
+                          text: "이미 가입된 핸드폰 번호입니다.",
+                        });
+                      }
+                    }}
                   >
                     <svg
                       fill="none"
@@ -628,11 +687,8 @@ function Signup() {
                   </div>
                 </div>
               )}
-              {/* <span className="text-xs text-red-500 font-semibold">
-                {errors?.phone_number?.message}
-              </span> */}
             </div>
-            {/* 🟢 핸드폰 검증 여부 표시 */}
+            {/* 🟢 핸드폰 인증 완료 여부 표시 */}
             {!phoneVerified ? (
               <div className="w-5 h-5 flex justify-center items-center text-xs text-red-500 font-medium rounded-full">
                 <svg
@@ -677,27 +733,34 @@ function Signup() {
                 onChange={e => setPhoneVerifyCode(e.target.value)}
                 className="px-3 border-b-2 border-b-slate-500 w-1/3 focus:outline-none text-xs text-slate-4000 font-medium"
               />
-              {/* 🟢 핸드폰번호 검증코드 제출하기 버튼 */}
+              {/* 🟢 핸드폰번호 인증코드 제출 버튼 */}
               <div
+                className="flex justify-center items-center w-4 h-4 text-slate-400 hover:text-white hover:bg-slate-400 rounded-full cursor-pointer"
                 onClick={async () => {
                   try {
-                    const data = await axios.post(
+                    const result = await axios.post(
                       "http://localhost:8000/users/checkSms",
                       {
                         phone_number: watch("phone_number"),
                         code: phoneVerifyCode,
                       }
                     );
-                    if (data.status === 200) {
+                    if (result.status === 200) {
+                      setPhoneVerified(true);
                       setPhoneVerifyBtns(false);
                       setPhoneVerifyInput(false);
-                      alert("인증이 완료되었습니다");
+                      Swal.fire({
+                        icon: "success",
+                        text: "인증이 완료되었습니다. 회원가입을 계속 진행해주세요.",
+                      });
                     }
                   } catch (error) {
-                    alert("인증을 진행할 수 없습니다", error.toString());
+                    Swal.fire({
+                      icon: "error",
+                      text: "오류가 발생했습니다. 잠시 후에 다시 시도해주세요.",
+                    });
                   }
                 }}
-                className="flex justify-center items-center w-4 h-4 text-slate-400 hover:text-white hover:bg-slate-400 rounded-full cursor-pointer"
               >
                 <svg
                   fill="none"
@@ -792,6 +855,7 @@ function Signup() {
           />
         </div>
 
+        {/* 🟠 폼 제출 버튼 */}
         <button className="flex justify-center items-center p-2 text-white bg-slate-800 hover:scale-105 rounded-full select-none">
           <svg
             fill="none"
