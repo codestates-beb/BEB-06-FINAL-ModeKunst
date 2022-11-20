@@ -129,7 +129,7 @@ module.exports = {
             }
         }else{
             // 비밀번호 찾기
-            const user = User.findOne({
+            const user = await User.findOne({
                 where: { email: email, phone_number: phoneNumber }
             });
 
@@ -244,7 +244,7 @@ module.exports = {
 
                             res.status(200).json({
                                 message: '인증 코드가 전송 되었습니다.'
-                            })
+                            });
                         } catch (e) {
                             console.log('sequelize 에러');
                             console.log(e);
@@ -255,7 +255,7 @@ module.exports = {
                 }else{
                     res.status(404).json({
                         message: '존재하지 않는 유저입니다.'
-                    })
+                    });
                 }
             }
         }

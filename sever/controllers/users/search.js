@@ -1,4 +1,5 @@
 const { User, Post } = require('../../models');
+const {literal} = require("sequelize");
 
 module.exports = {
 
@@ -14,11 +15,12 @@ module.exports = {
         if(user) {
             const posts = await Post.findAll({
                 where: {UserNickname: nickname},
+                order: literal('views DESC'),
                 attributes: ['id', 'image_1', 'title', 'content', 'category', 'views', 'createdAt', 'UserNickname'],
                 raw: true
             });
 
-            // 게시글 생성 시간
+            // 현재 시간
             const today = new Date();
 
             const dateFormatPosts = posts.map((post) =>{
@@ -44,11 +46,10 @@ module.exports = {
                 return `${Math.floor(year)}`
             });
 
-            //console.log(diff);
 
             posts.map((post, i) => {
                 post.createdAt = diff[i]
-            })
+            });
 
 
             if(posts.length) {

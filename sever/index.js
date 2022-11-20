@@ -9,9 +9,19 @@ const fs = require("fs");
 const indexRouter = require("./routes/index");
 const { sequelize } = require("./models");
 const { insertServerAddress, deploy20, deploy721 } = require("./contract/Web3");
+const { create, find, send, join } = require('./socket/chatRoom');
 
 const app = express();
 const port = 8000;
+
+const http = require('http').createServer(app);
+const { Server } = require('socket.io');
+const io = new Server(http, {
+    cors: {
+        origin: "http://localhost:3000",
+        credentials: true
+    }
+});
 
 app.use(
   cors({
@@ -59,13 +69,14 @@ app.use(
 
 app.use("/", indexRouter);
 
+
 app.use((req, res, next) => {
   const error = new Error(`${req.method} ${req.url} 라우터가 없습니다!`);
   error.status = 404;
   next(error);
 });
 
-app.listen(port, () => {
+http.listen(port, () => {
   const profile_dir = "./profile_img";
   const post_dir = "./post_img";
   if (!fs.existsSync(profile_dir)) {
@@ -76,3 +87,32 @@ app.listen(port, () => {
   }
   console.log("Listening...");
 });
+
+io.on('connection', (socket) => {
+    console.log(`${socket.id}`);
+
+    socket.on('create', (data) => {
+        const { sender, receiver } = data;
+        create(sender, receiver).then((a) => {
+            console.log(a)
+        });
+    });
+
+    socket.on('join', (data) => {
+        const { sender, receiver } = data;
+        create(sender, receiver).then((id) => {
+            console.log(id)
+            socket.join(id)
+            io.to(id).emit('chatRoom', id);
+        });
+    });
+
+    socket.on('send', (data) => {
+        const { id, sender, receiver, message } = data;
+        console.log(`입력받은 id: ${id} sender: ${sender} receiver: ${receiver} message: ${message}`);
+        send(id, sender, receiver, message).then((result) => {
+            console.log(result);
+        })
+        io.to(id).emit('message', message);
+    })
+})

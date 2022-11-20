@@ -58,7 +58,7 @@ Email.init(sequelize);
 Sms.init(sequelize);
 Chat.init(sequelize);
 Message.init(sequelize);
-//Follow.init(sequelize);
+Follow.init(sequelize);
 
 
 User.associate(db);

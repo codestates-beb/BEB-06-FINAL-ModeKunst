@@ -4,7 +4,7 @@ const SALT_ROUNDS = process.env.SALT_ROUNDS;
 
 module.exports = {
   // 비밀 번호 수정
-  //와일드 카드로 값이라도 하나 넘겨야할듯
+  // 와일드 카드로 값이라도 하나 넘겨야할듯
   post: async (req, res) => {
     const email = req.params.email;
     const { firstPassword, secondPassword } = req.body;
