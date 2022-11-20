@@ -1,0 +1,28 @@
+.slick-slider {
+  width: 90%;
+  margin: 0 auto;
+  padding: 1em 0;
+  background-color: rgb(247, 249, 250);
+  border-radius: 20px;
+  box-shadow: -1px 1px 41px -12px rgba(0, 0, 0, 0.44);
+}
+
+.slick-track div {
+  margin: 0 auto;
+}
+
+.slick-prev::before {
+  content: "<";
+  color: black;
+  font-weight: 700;
+  font-size: 25px;
+  border-radius: 100%;
+}
+
+.slick-next::before {
+  content: ">";
+  color: black;
+  font-weight: 700;
+  font-size: 25px;
+  border-radius: 100%;
+}

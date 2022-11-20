@@ -155,5 +155,6 @@ module.exports = {
       console.log('sequelize Err');
       console.log(e);
     }
+    // }
   },
 };
