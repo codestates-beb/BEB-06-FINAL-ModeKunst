@@ -26,12 +26,12 @@ sequelize
   .then(() => {
     console.log("DB 연결 성공...");
     insertServerAddress().then(() => {
-        deploy20().then(() => {
-            deploy721()
-        })
-    })
+      deploy20().then(() => {
+        deploy721();
+      });
+    });
   })
-  .catch((err) => {
+  .catch(err => {
     console.error(err);
   });
 app.use("/profile_img", express.static("profile_img"));
