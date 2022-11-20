@@ -51,14 +51,13 @@ module.exports = class User extends Sequelize.Model {
           type: Sequelize.STRING,
         },
         login_at: {
-          type: Sequelize.INTEGER,
+          type: Sequelize.BIGINT,
           defaultValue: 0,
         },
       },
       {
         sequelize,
         timestamps: true,
-        // timestamps: false,
         underscored: false,
         modelName: "User",
         tableName: "users",
@@ -81,6 +80,7 @@ module.exports = class User extends Sequelize.Model {
     db.User.hasMany(db.Token);
     db.User.hasMany(db.Like);
     db.User.hasMany(db.Review);
+    // socket부분
     db.User.hasMany(db.Chat, {
         foreignKey: 'senderNickname',
     });
