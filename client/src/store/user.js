@@ -5,13 +5,15 @@ export const login = createAsyncThunk("users/login", async (data, thunkAPI) => {
   const result = await axios.post("http://localhost:8000/users/login", {
     email: data.email,
     password: data.password,
-  });
+  },
+  { 'Content-Type': 'application/json', withCredentials: true }
+  );
   console.log(result.data.data);
   return result.data.data;
 });
 
 export const logout = createAsyncThunk("users/logout", async () => {
-  await axios.get("http://localhost:8000/users/logout", {});
+  await axios.get("http://localhost:8000/users/logout",{ withCredentials: true });
 });
 
 const initialUserState = {
