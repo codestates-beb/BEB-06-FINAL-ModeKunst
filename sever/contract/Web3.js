@@ -205,8 +205,7 @@ module.exports = {
           console.log(`Web3 deploy erc721 Err`);
           console.log(e);
         }
-      }else{
-
+      } else {
         console.log("ERC20이 이미 존재합니다.");
       }
     } catch (e) {
