@@ -68,15 +68,13 @@ module.exports = class User extends Sequelize.Model {
   }
 
   static associate(db) {
-    db.User.belongsToMany(db.User, {
-      foreignKey: "follower",
-      as: "Followings",
-      through: "follows",
+    db.User.hasMany(db.Follow, {
+        foreignKey: "follower",
+        as: 'Follower'
     });
-    db.User.belongsToMany(db.User, {
-      foreignKey: "following",
-      as: "Followers",
-      through: "follows",
+    db.User.hasMany(db.Follow, {
+        foreignKey: "following",
+        as: 'Following'
     });
     db.User.hasMany(db.Post);
     db.User.hasMany(db.Token);

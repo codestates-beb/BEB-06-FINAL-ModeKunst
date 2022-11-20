@@ -56,14 +56,17 @@ router.post("/pwcheck", isLoggedIn, usersController.pwcheck.post);
 // 비밀번호 수정 (비밀번호 찾기 , 비밀번호 수정 로직에 쓸거라 로그인 냅둠 )
 router.post("/:email/pwupdate", usersController.pwupdate.post);
 
-// 채팅방 페이지
-router.get('/chatRoom/:sender', usersController.chat.find);
+// 채팅방 목록
+router.get('/chatRoom', usersController.chat.find);
+
+// 채팅방 입장
+router.get('/chatRoom/:chatId/:receiver', usersController.chat.join);
 
 // 채팅방 생성
-router.post('/chatRoom/:sender/:receiver', usersController.chat.create);
+router.post('/chatRoom/:receiver', usersController.chat.create);
 
-// 채팅
-router.post('/message/:sender/:receiver', usersController.chat.send);
+// 메세지 보내기
+router.post('/message', usersController.chat.send);
 
 // 채팅방 삭제
 router.post('/chatRoom/:sender/:receiver', usersController.chat.delete);

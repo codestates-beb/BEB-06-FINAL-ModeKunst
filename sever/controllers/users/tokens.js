@@ -14,9 +14,7 @@ module.exports = {
         // 방법 1. user db에 있는 정보를 빼온다.
         //const { address, token_amount } = user.dataValues;
 
-
-        // 방법 2. user db에서 EOA만 빼오고 그 EOA로 web3 연결해서 토큰 양 구한다.
-
+        // 방법 2. 이건 나중에 수정
         const address = user.dataValues.address;
 
         const erc20CA = await Server.findOne({

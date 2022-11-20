@@ -1,8 +1,9 @@
 const fs = require('fs');
 const path = require('path');
 
-const { User, Token, Like, Review, Post, Product_name, Product_brand, Product_size } = require('../../models');
-const {literal} = require("sequelize");
+const { User, Follow, Token, Like, Review, Post, Product_name, Product_brand, Product_size } = require('../../models');
+
+const { literal , Op } = require('sequelize');
 
 module.exports = {
 
@@ -38,52 +39,102 @@ module.exports = {
             const [image_1, image_2, image_3, image_4, image_5] = imagePathList;
 
             const { nickname, title, content, category, top_post } = req.body;
-            // const { outer_brand, top_brand, pants_brand, shoes_brand, outer_name, top_name, pants_name, shoes_name, outer_size, top_size, pants_size, shoes_size } = req.body;
+            const { outer_brand, top_brand, pants_brand, shoes_brand, outer_name, top_name, pants_name, shoes_name, outer_size, top_size, pants_size, shoes_size } = req.body;
             if(top_post){
                 // token 지불
+
             }
             try {
-                const post = await Post.create({
-                    image_1: image_1,
-                    image_2: image_2,
-                    image_3: image_3,
-                    image_4: image_4,
-                    image_5: image_5,
-                    title: title,
-                    content: content,
-                    category: category,
-                    top_post: top_post,
-                    UserNickname: nickname,
-                });
+                let post;
+                if(top_size){
+                    // 보상 토큰 정상 지급
+                    post = await Post.create({
+                        image_1: image_1,
+                        image_2: image_2,
+                        image_3: image_3,
+                        image_4: image_4,
+                        image_5: image_5,
+                        title: title,
+                        content: content,
+                        category: category,
+                        price: 2,
+                        top_post: top_post,
+                        UserNickname: nickname,
+                    });
 
-                // 옷 정보
-                // await Product_brand.create(
-                //     {
-                //         outer: outer_brand,
-                //         top: top_brand,
-                //         pants: pants_brand,
-                //         shoes: shoes_brand,
-                //     }
-                // );
-                // await Product_name.create(
-                //     {
-                //         outer: outer_name,
-                //         top: top_name,
-                //         pants: pants_name,
-                //         shoes: shoes_name,
-                //     }
-                // );
-                // await Product_size.create(
-                //     {
-                //         outer: outer_size,
-                //         top: top_size,
-                //         pants: pants_size,
-                //         shoes: shoes_size,
-                //     }
-                // );
+                    // 옷 정보
+                    await Product_brand.create(
+                        {
+                            outer: outer_brand,
+                            top: top_brand,
+                            pants: pants_brand,
+                            shoes: shoes_brand,
+                        }
+                    );
+                    await Product_name.create(
+                        {
+                            outer: outer_name,
+                            top: top_name,
+                            pants: pants_name,
+                            shoes: shoes_name,
+                        }
+                    );
+                    await Product_size.create(
+                        {
+                            outer: outer_size,
+                            top: top_size,
+                            pants: pants_size,
+                            shoes: shoes_size,
+                        }
+                    );
+                }else{
+                    // 보상 토큰 적게 지급
+                    post = await Post.create({
+                        image_1: image_1,
+                        image_2: image_2,
+                        image_3: image_3,
+                        image_4: image_4,
+                        image_5: image_5,
+                        title: title,
+                        content: content,
+                        category: category,
+                        top_post: top_post,
+                        UserNickname: nickname,
+                    });
+
+                    // 옷 정보
+                    await Product_brand.create(
+                        {
+                            outer: outer_brand,
+                            top: top_brand,
+                            pants: pants_brand,
+                            shoes: shoes_brand,
+                        }
+                    );
+                    await Product_name.create(
+                        {
+                            outer: outer_name,
+                            top: top_name,
+                            pants: pants_name,
+                            shoes: shoes_name,
+                        }
+                    );
+                    await Product_size.create(
+                        {
+                            outer: outer_size,
+                            top: top_size,
+                            pants: pants_size,
+                            shoes: shoes_size,
+                        }
+                    );
+                }
 
                 res.status(200).json({
-                    message: '게시물이 등록 되었습니다.'
+                    message: '게시물이 등록 되었습니다.',
+                    data: {
+                        postId: post.dataValues.id,
+                        nickname
+                    }
                 })
             } catch (e) {
                 console.log('Sequelize err');
@@ -103,12 +154,8 @@ module.exports = {
     get: async (req, res) => {
         const loginNickname = req.session.user?.nickname
         const { nickname, postId } = req.params;
-        // post 정보 ( 사진 전부, 제목, 내용, 카테고리, views, 생성일, 작성자 ) 좋아요 개수,
-        // product 정보 ( 전체 )
-        // user 정보 ( 닉네임, 키, 몸무게, 성별, sns_url )
-        // 비슷한 룩 ( image_1, 제목, 조회 수, 좋아요 수, 생성일, PostId )
-        // review  ( 리뷰 수, 리뷰 전체 )
         // postId의 작성자의 nft들
+        console.log(`입력 받은 loginNickname: ${loginNickname}, nickname: ${nickname}, postId: ${postId}`)
         try {
             await Post.increment({ views: 1 }, {where: { id: postId }});
             const userData = await User.findOne({
@@ -125,11 +172,9 @@ module.exports = {
             });
 
             const { image_1, image_2, image_3, image_4, image_5, title, content, category, views } = post.dataValues;
-            console.log(post.Product_brand?.dataValues);
-            console.log(post.Product_name?.dataValues);
-            console.log(post.Product_size?.dataValues);
+
             const similarLook = await Post.findAll({
-                where: { category: category },
+                where: { category: category, id: { [Op.ne]: postId }},
                 order: literal('views DESC'),
                 limit: 15,
                 attributes: ['id', 'image_1', 'title', 'views', 'UserNickname'],
@@ -146,29 +191,22 @@ module.exports = {
                 raw: true,
             });
 
-
             if(loginNickname){
                 try {
-
                     const like = await Like.findOne({
                         where: { UserNickname: loginNickname, PostId: postId }
                     });
 
                     const isLike = !!like;
 
-                    const following = await userData.getFollowings();
+                    const following  = await Follow.findOne({
+                        where: { follower: loginNickname, following: nickname },
+                        raw: true
+                    });
 
-                    if(following){
-                        const followingUser = following.map((user) => {
-                            return user.dataValues.nickname;
-                        });
-
-                        const nicknames = followingUser.filter((followingNickname) => {
-                            return (nickname === followingNickname);
-                        });
-
-                        const isFollow = !!nicknames.length;
-
+                    const isFollow = !!following;
+                    if(loginNickname === nickname){
+                        // 자기가 쓴 게시물 detail 페이지는 isOwner
                         res.status(200).json({
                             message: `${title}의 디테일 페이지`,
                             data: {
@@ -180,26 +218,44 @@ module.exports = {
                                 review_counts: review_counts,
                                 reviews: reviews,
                                 similarLook: similarLook,
-                                isFollow: isFollow,
-                                isLike: isLike
+                                isLike: isLike,
+                                isOwner: true,
                             }
                         });
                     }else{
-                        res.status(200).json({
-                            message: `${title}의 디테일 페이지`,
-                            data: {
-                                post: { image_1, image_2, image_3, image_4, image_5, title, content, category, views },
-                                user: user,
-                                product_brand: post.Product_brand?.dataValues,
-                                product_name: post.Product_name?.dataValues,
-                                product_size: post.Product_size?.dataValues,
-                                review_counts: review_counts,
-                                reviews: reviews,
-                                similarLook: similarLook,
-                                isFollow: false,
-                                isLike: isLike
-                            }
-                        });
+                        if(following){
+                            res.status(200).json({
+                                message: `${title}의 디테일 페이지`,
+                                data: {
+                                    post: { image_1, image_2, image_3, image_4, image_5, title, content, category, views },
+                                    user: user,
+                                    product_brand: post.Product_brand?.dataValues,
+                                    product_name: post.Product_name?.dataValues,
+                                    product_size: post.Product_size?.dataValues,
+                                    review_counts: review_counts,
+                                    reviews: reviews,
+                                    similarLook: similarLook,
+                                    isFollow: isFollow,
+                                    isLike: isLike
+                                }
+                            });
+                        }else{
+                            res.status(200).json({
+                                message: `${title}의 디테일 페이지`,
+                                data: {
+                                    post: { image_1, image_2, image_3, image_4, image_5, title, content, category, views },
+                                    user: user,
+                                    product_brand: post.Product_brand?.dataValues,
+                                    product_name: post.Product_name?.dataValues,
+                                    product_size: post.Product_size?.dataValues,
+                                    review_counts: review_counts,
+                                    reviews: reviews,
+                                    similarLook: similarLook,
+                                    isFollow: false,
+                                    isLike: isLike
+                                }
+                            });
+                        }
                     }
                 } catch (e) {
                     console.log(e);

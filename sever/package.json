@@ -26,6 +26,7 @@
     "nodemailer": "^6.8.0",
     "sequelize": "^6.25.5",
     "sequelize-cli": "^6.5.2",
+    "socket.io": "^4.5.3",
     "solc": "^0.8.17",
     "web3": "^1.8.1"
   },

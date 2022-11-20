@@ -95,6 +95,10 @@ module.exports = {
                 { where: { UserNickname: nickname, PostId: postId}}
             );
 
+            const review_counts = await Review.count({
+                where: { PostId: postId }
+            });
+
             const reviews = await Review.findAll({
                 attributes: ['id', 'content', 'createdAt', 'UserNickname'],
                 where: { PostId: postId },
@@ -104,6 +108,7 @@ module.exports = {
             res.status(200).json({
                 message: '리뷰가 수정되었습니다.',
                 data: {
+                    review_counts: review_counts,
                     reviews: reviews
                 }
             })

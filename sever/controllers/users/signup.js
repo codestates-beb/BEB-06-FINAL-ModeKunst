@@ -12,7 +12,7 @@ module.exports = {
       console.log(req.file);
       const { host } = req.headers;
       const profile_img = req.file.path;
-      let {email,password,nickname,phone_number,height,weight,gender,sns_url,} = req.body;
+      let { email ,password ,nickname ,phone_number ,height ,weight ,gender ,sns_url } = req.body;
 
       console.log(
         `입력 받은 email: ${email}, password: ${password}, nickname: ${nickname}, phone_number: ${phone_number}, height: ${height}, weight: ${weight}, gender: ${gender}, sns_url ${sns_url}`
