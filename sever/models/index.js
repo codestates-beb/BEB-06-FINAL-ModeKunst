@@ -40,6 +40,7 @@ db.Token = Token;
 db.Server = Server;
 db.Email = Email;
 db.Sms = Sms;
+//socket부분
 db.Chat = Chat;
 db.Message = Message;
 db.Follow = Follow;
@@ -56,6 +57,7 @@ Token.init(sequelize);
 Server.init(sequelize);
 Email.init(sequelize);
 Sms.init(sequelize);
+//socket부분
 Chat.init(sequelize);
 Message.init(sequelize);
 Follow.init(sequelize);
@@ -70,6 +72,7 @@ Product_brand.associate(db);
 Product_name.associate(db);
 Product_size.associate(db);
 Token.associate(db);
+//socket부분
 Chat.associate(db);
 Message.associate(db);
 Follow.associate(db);
