@@ -60,7 +60,7 @@ Sms.init(sequelize);
 //socket부분
 Chat.init(sequelize);
 Message.init(sequelize);
-//Follow.init(sequelize);
+Follow.init(sequelize);
 
 
 User.associate(db);

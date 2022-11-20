@@ -9,7 +9,6 @@ module.exports = class User extends Sequelize.Model {
             {
                 sequelize,
                 timestamps: true,
-                // timestamps: false,
                 underscored: false,
                 paranoid: true,
                 modelName: "Follow",
@@ -21,6 +20,13 @@ module.exports = class User extends Sequelize.Model {
     }
 
     static associate(db) {
-
+        db.Follow.belongsTo(db.User, {
+            foreignKey: 'follower',
+            as: 'Follower'
+        });
+        db.Follow.belongsTo(db.User, {
+            foreignKey: 'following',
+            as: 'Following'
+        });
     }
 };
