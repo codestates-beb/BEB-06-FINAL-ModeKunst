@@ -110,7 +110,7 @@ module.exports = {
         where: { email: email },
       });
 
-      if (emailCheck.isNewRecord) {
+      if (!emailCheck) {
         await sendEmail(random, email);
         try {
           await Email.create({
