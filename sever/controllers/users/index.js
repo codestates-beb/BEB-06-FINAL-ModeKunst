@@ -13,4 +13,5 @@ module.exports = {
     signup: require('./signup'),
     tokens: require('./tokens'),
     update: require('./update'),
+    chat: require('./chat'),
 }

@@ -9,7 +9,7 @@ module.exports = class Top_post extends Sequelize.Model {
             {
                 sequelize,
                 timestamps: true,
-                underscored: true,
+                underscored: false,
                 modelName: 'Top_post',
                 tableName: 'top_posts',
                 charset: 'utf8',

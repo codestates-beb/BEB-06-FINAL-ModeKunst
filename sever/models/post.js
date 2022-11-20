@@ -41,17 +41,21 @@ module.exports = class Post extends Sequelize.Model {
                 },
                 price: {
                     type: Sequelize.INTEGER,
-                    allowNull: false,
+                    defaultValue: 0,
                 },
                 views: {
                     type: Sequelize.INTEGER,
                     defaultValue: 0,
                 },
+                top_post: {
+                    type: Sequelize.BOOLEAN,
+                    defaultValue: false,
+                }
             },
             {
                 sequelize,
                 timestamps: true,
-                underscored: true,
+                underscored: false,
                 modelName: 'Post',
                 tableName: 'posts',
                 charset: 'utf8',
@@ -61,7 +65,7 @@ module.exports = class Post extends Sequelize.Model {
     }
 
     static associate(db){
-        db.Post.hasOne(db.Top_post);
+        // db.Post.hasOne(db.Top_post);
         db.Post.hasOne(db.Product_brand);
         db.Post.hasOne(db.Product_name);
         db.Post.hasOne(db.Product_size);

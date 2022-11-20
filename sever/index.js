@@ -36,6 +36,7 @@ sequelize
   });
 app.use("/profile_img", express.static("profile_img"));
 app.use("/post_img", express.static("post_img"));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser(process.env.COOKIE_SECRET));

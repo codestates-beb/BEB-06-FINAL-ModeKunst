@@ -39,7 +39,7 @@ function Signup() {
     }
   }, [image]);
 
-  const onValid = async data => {
+  const onValid = async (data) => {
     // 비밀번호 불일치 시
     if (data.password !== data.passwordRe) {
       setError(
@@ -242,7 +242,7 @@ function Signup() {
                         "email"
                       )}`
                     )
-                    .then(result => alert(result.data.message));
+                    .then((result) => alert(result.data.message));
                 }}
                 className="w-6 h-6 flex justify-center items-center text-xs font-medium bg-blue-500 text-white hover:bg-white hover:text-blue-700 cursor-pointer rounded-full"
               >
@@ -285,7 +285,7 @@ function Signup() {
               </div>
               <input
                 type="text"
-                onChange={e => setEmailVerifyCode(e.target.value)}
+                onChange={(e) => setEmailVerifyCode(e.target.value)}
                 className="px-3 border-b-2 border-b-blue-500 w-1/3 focus:outline-none text-xs text-blue-500 font-medium"
               />
               {/* 🟢 이메일 검증코드 제출하기 버튼 */}
@@ -577,7 +577,7 @@ function Signup() {
                         "phone_number"
                       )}`
                     )
-                    .then(result => alert(result.data.message));
+                    .then((result) => alert(result.data.message));
                 }}
                 className="w-6 h-6 flex justify-center items-center text-xs font-medium bg-blue-500 text-white hover:bg-white hover:text-blue-700 cursor-pointer rounded-full"
               >
@@ -620,7 +620,7 @@ function Signup() {
               </div>
               <input
                 type="text"
-                onChange={e => setPhoneVerifyCode(e.target.value)}
+                onChange={(e) => setPhoneVerifyCode(e.target.value)}
                 className="px-3 border-b-2 border-b-blue-500 w-1/3 focus:outline-none text-xs text-blue-500 font-medium"
               />
               {/* 🟢 핸드폰번호 검증코드 제출하기 버튼 */}

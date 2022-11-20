@@ -19,7 +19,6 @@ module.exports = {
           message: `${req.params.nickname}님을 팔로우 했습니다.`,
           //TODO 팔로우 한 사람 닉네임과 프로필 이미지 닉네임 API문서
         });
-
       } else {
         res.status(404).send({ message: "사용자가 없습니다." });
       }

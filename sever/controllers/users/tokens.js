@@ -16,7 +16,9 @@ module.exports = {
 
 
         // 방법 2. user db에서 EOA만 빼오고 그 EOA로 web3 연결해서 토큰 양 구한다.
-        const email = user.dataValues.email;
+
+        const address = user.dataValues.address;
+
         const erc20CA = await Server.findOne({
             attributes: ['erc20', 'erc20_name', 'erc20_symbol', 'erc20_img']
         });
