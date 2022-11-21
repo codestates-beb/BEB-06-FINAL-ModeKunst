@@ -1,11 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "/Users/imjinseon/Desktop/codestates/BEB-06-FINAL-ModeKunst/sever/node_modules/@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "/Users/imjinseon/Desktop/codestates/BEB-06-FINAL-ModeKunst/sever/node_modules/@openzeppelin/contracts/utils/Counters.sol";
-import "/Users/imjinseon/Desktop/codestates/BEB-06-FINAL-ModeKunst/sever/node_modules/@openzeppelin/contracts/access/Ownable.sol";
-import "/Users/imjinseon/Desktop/codestates/BEB-06-FINAL-ModeKunst/sever/node_modules/@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
-import "/Users/imjinseon/Desktop/codestates/BEB-06-FINAL-ModeKunst/sever/node_modules/@openzeppelin/contracts/token/ERC20/IERC20.sol";
+
+
+import "/Users/jason/Desktop/BEB-06-FINAL-ModeKunst/sever/node_modules/@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "/Users/jason/Desktop/BEB-06-FINAL-ModeKunst/sever/node_modules/@openzeppelin/contracts/utils/Counters.sol";
+import "/Users/jason/Desktop/BEB-06-FINAL-ModeKunst/sever/node_modules/@openzeppelin/contracts/access/Ownable.sol";
+import "/Users/jason/Desktop/BEB-06-FINAL-ModeKunst/sever/node_modules/@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
+import "/Users/jason/Desktop/BEB-06-FINAL-ModeKunst/sever/node_modules/@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 
 

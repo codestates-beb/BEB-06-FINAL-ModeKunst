@@ -2,12 +2,11 @@ import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { logout } from "../../store/user";
-
 import logo from "../../assets/mode.png";
 import SearchBar from "./SearchBar";
 
 export default function Header() {
-  const userInfo = useSelector((state) => state.user);
+  const userInfo = useSelector(state => state.user);
   const dispatch = useDispatch();
   const showInfo = () => {
     console.log(userInfo);
