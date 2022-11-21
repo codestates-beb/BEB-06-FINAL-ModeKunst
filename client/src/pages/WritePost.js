@@ -5,16 +5,17 @@ import { useSelector } from "react-redux";
 import axios from "axios";
 
 //📌 to do
-//1. formData append 데이터 싹 정리해놓기
+//1. formData append 데이터 싹 정리해놓기 (v)
 //2. 작성한 data를 redux로 관리할것인지?
+//2-1. upstream = true 일 경우 fashion info 모든 값이 null 값이 아니어야됨
 //3. 사진 누르면 배열에서 요소 삭제하기
 //4. UI 개선하기
 //5. image 최소 3장, 최대 5장
 //6. 유효성 검사(최소 내용 글자 수, fashion info)
 
 function WritePost() {
-  const user = useSelector(state => state.user);
-  const isLoggedIn = user.isLoggedIn;
+  const userInfo = useSelector(state => state.user);
+  const isLoggedIn = userInfo.isLoggedIn;
   const navigate = useNavigate();
 
   const {
@@ -86,27 +87,58 @@ function WritePost() {
   const onValid = data => {
     try {
       const formData = new FormData();
-      const { title, contents, category, upstream } = data;
+      const {
+        title,
+        contents,
+        category,
+        upstream,
+        outer_brand,
+        top_brand,
+        pants_brand,
+        shoes_brand,
+        outer_name,
+        top_name,
+        pants_name,
+        shoes_name,
+        outer_size,
+        top_size,
+        pants_size,
+        shoes_size,
+      } = data;
 
-      const writer = user.userInfo.nickname;
       const image_1 = data.image[0];
       const image_2 = data.image[1];
       const image_3 = data.image[2];
       const image_4 = data.image[3];
       const image_5 = data.image[4];
 
-      formData.append('nickname', writer);
       formData.append("title", title);
       formData.append("content", contents);
       formData.append("category", category);
-      formData.append("upstream", upstream);
+      formData.append("top_post", upstream);
+      formData.append("outer_brand", outer_brand);
+      formData.append("outer_name", outer_name);
+      formData.append("outer_size", outer_size);
+      formData.append("top_brand", top_brand);
+      formData.append("top_name", top_name);
+      formData.append("top_size", top_size);
+      formData.append("pants_brand", pants_brand);
+      formData.append("pants_name", pants_name);
+      formData.append("pants_size", pants_size);
+      formData.append("shoes_brand", shoes_brand);
+      formData.append("shoes_name", shoes_name);
+      formData.append("shoes_size", shoes_size);
       formData.append("image", image_1);
       formData.append("image", image_2);
       formData.append("image", image_3);
       formData.append("image", image_4);
       formData.append("image", image_5);
+      formData.append("nickname", userInfo.userInfo.nickname);
+
       axios
-        .post("http://localhost:8000/posts/board", formData,{ withCredentials: true })
+        .post("http://localhost:8000/posts/board", formData, {
+          withCredentials: true,
+        })
         .then(result => {
           const data = result.data;
           alert(data.message);
@@ -267,20 +299,20 @@ function WritePost() {
                       <div>
                         <span>하의</span>
                         <input
-                          name="bottom_brand"
+                          name="pants_brand"
                           className="border-2 border-black rounded-md"
                           placeholder="브랜드명"
-                          {...register("bottom_brand", { required: false })}
+                          {...register("pants_brand", { required: false })}
                         ></input>
                         <input
-                          name="bottom_name"
+                          name="pants_name"
                           className="border-2 border-black rounded-md"
                           placeholder="제품명"
-                          {...register("bottom_name", { required: false })}
+                          {...register("pants_name", { required: false })}
                         ></input>
                         <select
-                          name="bottom_size"
-                          {...register("bottom_size", { required: false })}
+                          name="pants_size"
+                          {...register("pants_size", { required: false })}
                           className="border-2 border-black rounded-md"
                         >
                           <option value="S">S</option>

@@ -101,7 +101,7 @@ export default function Header() {
               </Link>
             </div>
             <div className="p-2 rounded-full hover:scale-110">
-              <Link to={`/user/${userInfo.userInfo.id}`}>
+              <Link to={`/user/${userInfo.userInfo.nickname}`}>
                 <svg
                   fill="none"
                   viewBox="0 0 24 24"

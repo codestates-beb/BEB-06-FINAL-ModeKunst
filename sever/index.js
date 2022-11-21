@@ -1,4 +1,5 @@
 require("dotenv").config();
+const { User } = require("./models");
 const express = require("express");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
@@ -86,12 +87,9 @@ http.listen(port, () => {
   console.log("Listening...");
 });
 
-
-
-let count = 0;
-
 io.on('connection', (socket) => {
-    count++;
+    console.log(`${socket.id}`);
+
     socket.on('create', (data) => {
         const { sender, receiver } = data;
         create(sender, receiver).then((a) => {
@@ -103,14 +101,12 @@ io.on('connection', (socket) => {
 
 
     socket.on('join', (data) => {
-        const { sender, receiver, roomId } = data;
-        console.log(`입력받은 sender ${sender}, receiver: ${receiver}, roomId: ${roomId}`)
-        socket.join(roomId)
-
-        join(roomId).then((data) => {
-            io.to(roomId).emit('chatRoom', data);
+        const { sender, receiver } = data;
+        create(sender, receiver).then((id) => {
+            console.log(id)
+            socket.join(id)
+            io.to(id).emit('chatRoom', id);
         });
-
     });
   
 
@@ -119,7 +115,8 @@ io.on('connection', (socket) => {
         const { id, sender, receiver, message } = data;
         console.log(`입력받은 id: ${id} sender: ${sender} receiver: ${receiver} message: ${message}`);
         send(id, sender, receiver, message).then((result) => {
-            io.to(id).emit('messages', result);
+            console.log(result);
         })
+        io.to(id).emit('message', message);
     })
-  });
+})

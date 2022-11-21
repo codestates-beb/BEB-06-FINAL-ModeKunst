@@ -12,5 +12,6 @@ export * from "./HotPosts";
 export * from "./NftLists";
 export * from "./Collections";
 export * from "./Followings";
+export * from "./Followers";
 export * from "./NotFound";
 export * from './Chat';
