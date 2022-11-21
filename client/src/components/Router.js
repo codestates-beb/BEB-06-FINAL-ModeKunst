@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+
 import {
   Login,
   Main,
@@ -6,12 +7,14 @@ import {
   WritePost,
   ReadPost,
   NotFound,
+  Chat,
   HotPosts,
   NftLists,
   Collections,
   Followings,
   Followers,
 } from "../pages";
+
 import Header from "./common/Header";
 // import UserRoutes from "./Routes/UserRoutes";
 import ForgotRoutes from "./Routes/ForgotRoutes";
@@ -44,6 +47,8 @@ export default function Router() {
         <Route path="/forgot/*" element={<ForgotRoutes />} />
         <Route path="/reset/*" element={<ResetRoutes />} />
         <Route path="*" element={<NotFound />} />
+        <Route path="/chat" element={<Chat />} />
+
       </Routes>
       {/* Footer 컴포넌트 자리 */}
     </BrowserRouter>

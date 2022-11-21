@@ -1,5 +1,4 @@
 require("dotenv").config();
-const { User } = require("./models");
 const express = require("express");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
@@ -9,18 +8,18 @@ const fs = require("fs");
 const indexRouter = require("./routes/index");
 const { sequelize } = require("./models");
 const { insertServerAddress, deploy20, deploy721 } = require("./contract/Web3");
-const { create, find, send, join } = require("./socket/chatRoom");
+const { create, find, send, join } = require('./socket/chatRoom');
 
 const app = express();
 const port = 8000;
 
-const http = require("http").createServer(app);
-const { Server } = require("socket.io");
+const http = require('http').createServer(app);
+const { Server } = require('socket.io');
 const io = new Server(http, {
-  cors: {
-    origin: "http://localhost:3000",
-    credentials: true,
-  },
+    cors: {
+        origin: "http://localhost:3000",
+        credentials: true
+    }
 });
 
 app.use(
@@ -41,7 +40,7 @@ sequelize
       });
     });
   })
-  .catch(err => {
+  .catch((err) => {
     console.error(err);
   });
 app.use("/profile_img", express.static("profile_img"));
@@ -69,6 +68,7 @@ app.use(
 
 app.use("/", indexRouter);
 
+
 app.use((req, res, next) => {
   const error = new Error(`${req.method} ${req.url} 라우터가 없습니다!`);
   error.status = 404;
@@ -87,33 +87,35 @@ http.listen(port, () => {
   console.log("Listening...");
 });
 
-io.on("connection", socket => {
-  console.log(`${socket.id}`);
 
-  socket.on("create", data => {
-    const { sender, receiver } = data;
-    create(sender, receiver).then(a => {
-      console.log(a);
-    });
-  });
+let count = 0;
 
-  socket.on("join", data => {
-    const { sender, receiver } = data;
-    create(sender, receiver).then(id => {
-      console.log(id);
-      socket.join(id);
-      io.to(id).emit("chatRoom", id);
+io.on('connection', (socket) => {
+    count++;
+    socket.on('create', (data) => {
+        const { sender, receiver } = data;
+        create(sender, receiver).then((a) => {
+            console.log(a)
+        });
     });
-  });
 
-  socket.on("send", data => {
-    const { id, sender, receiver, message } = data;
-    console.log(
-      `입력받은 id: ${id} sender: ${sender} receiver: ${receiver} message: ${message}`
-    );
-    send(id, sender, receiver, message).then(result => {
-      console.log(result);
+    socket.on('join', (data) => {
+        const { sender, receiver, roomId } = data;
+        console.log(`입력받은 sender ${sender}, receiver: ${receiver}, roomId: ${roomId}`)
+        socket.join(roomId)
+
+        join(roomId).then((data) => {
+            io.to(roomId).emit('chatRoom', data);
+        });
+
     });
-    io.to(id).emit("message", message);
-  });
-});
+
+    socket.on('send', (data) => {
+        const { id, sender, receiver, message } = data;
+        console.log(`입력받은 id: ${id} sender: ${sender} receiver: ${receiver} message: ${message}`);
+        send(id, sender, receiver, message).then((result) => {
+            io.to(id).emit('messages', result);
+        })
+    })
+})
+
