@@ -21,7 +21,9 @@ import ForgotRoutes from "./Routes/ForgotRoutes";
 import ResetRoutes from "./Routes/ResetRoutes";
 import UserProfile from "./common/UserProfile";
 
+
 export default function Router() {
+
   return (
     <BrowserRouter>
       <Header />
