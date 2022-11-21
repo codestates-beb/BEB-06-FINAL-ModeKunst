@@ -1,9 +1,22 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { Login, Main, Signup, WritePost, ReadPost, NotFound } from "../pages";
+import {
+  Login,
+  Main,
+  Signup,
+  WritePost,
+  ReadPost,
+  NotFound,
+  HotPosts,
+  NftLists,
+  Collections,
+  Followings,
+  Followers,
+} from "../pages";
 import Header from "./common/Header";
-import UserRoutes from "./Routes/UserRoutes";
+// import UserRoutes from "./Routes/UserRoutes";
 import ForgotRoutes from "./Routes/ForgotRoutes";
 import ResetRoutes from "./Routes/ResetRoutes";
+import UserProfile from "./common/UserProfile";
 
 export default function Router() {
   return (
@@ -20,7 +33,14 @@ export default function Router() {
         <Route path="/login" element={<Login />} />
         <Route path="/write" element={<WritePost />} />
         <Route path="/post/:id" element={<ReadPost />} />
-        <Route path="/user/:id/*" element={<UserRoutes />} />
+        {/* <Route path="/user/:nickname/*" element={<UserRoutes />} /> */}
+        <Route path="/user/:nickname" element={<UserProfile />}>
+          <Route path="hotposts" element={<HotPosts />} />
+          <Route path="nfts" element={<NftLists />} />
+          <Route path="collections" element={<Collections />} />
+          <Route path="followings" element={<Followings />} />
+          <Route path="followers" element={<Followers />} />
+        </Route>
         <Route path="/forgot/*" element={<ForgotRoutes />} />
         <Route path="/reset/*" element={<ResetRoutes />} />
         <Route path="*" element={<NotFound />} />
