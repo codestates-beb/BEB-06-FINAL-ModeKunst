@@ -48,7 +48,6 @@ export default function Router() {
         <Route path="/reset/*" element={<ResetRoutes />} />
         <Route path="*" element={<NotFound />} />
         <Route path="/chat" element={<Chat />} />
-
       </Routes>
       {/* Footer 컴포넌트 자리 */}
     </BrowserRouter>
