@@ -1,6 +1,11 @@
 const fs = require('fs');
 const path = require('path');
-const { User, Follow, Token, Like, Review, Post, Product_name, Product_brand, Product_size } = require('../../models');
+
+
+const { User, Follow, Token, Like, Review, Post, Product_name, Product_brand, Product_size,Server } = require('../../models');
+const { web3, abi20, serverPKey, getBalance } = require('../../contract/Web3');
+
+
 const { literal , Op } = require('sequelize');
 const { one } = require('../function/createdAt');
 
@@ -9,6 +14,7 @@ module.exports = {
     // 게시물 작성
     post: async (req, res) => {
         // 이미지가 3개 미만일 때 게시물 작성 안됨
+
         if(req.files.length <= 2){
             req.files.map((file) => {
                 if(fs.existsSync(path.join(__dirname, '..', '..', 'post_img', `${file.filename}`))){
@@ -39,15 +45,87 @@ module.exports = {
 
             const { nickname, title, content, category, top_post } = req.body;
             const { outer_brand, top_brand, pants_brand, shoes_brand, outer_name, top_name, pants_name, shoes_name, outer_size, top_size, pants_size, shoes_size } = req.body;
-            if(top_post){
-                // token 지불
 
+            const userSession = req.session.user; //사용자의 세션 정보 
+            const server_Accounts = await web3.eth.getAccounts();
+            const serverInfo = await Server.findOne({
+                        attributes: ['address', 'erc20'],
+                        where: { address: server_Accounts[0] }
+                    });
+            const serverAddress = serverInfo.dataValues.address;
+            const erc20 = serverInfo.dataValues.erc20;
+            const contract = await new web3.eth.Contract(abi20, erc20);
+            if (Number(top_post)) {
+                // token 지불
+                // 게시물 상단 노출은 토큰 20 개 지불 
+                // 사용자에게 approve 받아서 서버가 transferfrom 사용하여 본인에게 전송
+                const test = await contract.methods.allowance(userSession.address, serverAddress).call();
+                console.log(test); //approve 받은 갯수 확인 
+                console.log('사용자 토큰 갯수 : ',await contract.methods.balanceOf(userSession.address).call())
+                
+                const ApproveData = await contract.methods.approve(userSession.address, 20).encodeABI();
+                const approveRawTransaction = { 'to': erc20, 'gas': 100000, "data": ApproveData };
+                const approveSignTx = await web3.eth.accounts.signTransaction(approveRawTransaction, serverPKey);
+                const approveSendSignTx = await web3.eth.sendSignedTransaction(approveSignTx.rawTransaction); 
+                
+                try { 
+                const transferfromData = await contract.methods.transferFrom(userSession.address, serverAddress, 20).encodeABI();
+                const transferRawTransaction = { 'to': erc20, 'gas': 100000, "data": transferfromData };
+                const transferSignTx = await web3.eth.accounts.signTransaction(transferRawTransaction, serverPKey);
+                const transferSendSignTx = await web3.eth.sendSignedTransaction(transferSignTx.rawTransaction);
+                //사용자 보유 토큰이 20개가 넘어가야함 
+                    
+                if (approveSendSignTx && transferSendSignTx) {
+                    const server_eth = await getBalance(serverAddress);
+                    const serverBalance = await contract.methods.balanceOf(serverAddress).call();
+                    const clientBalance = await contract.methods.balanceOf(userSession.address).call();
+
+                    await Server.update({
+                        eth_amount: server_eth,
+                        token_amount: serverBalance
+                      }, { where: { address: serverAddress } });
+                      
+                      await User.update({
+                        token_amount: clientBalance
+                      }, { where: { email: userSession.email } });
+                    
+                    
+                }
+                } catch (err) {
+                    return res.status(400).json({message:"토큰의 갯수가 부족합니다."})
+                }
+                
+                
+                
             }
             try {
                 let post;
                 if(top_size){
                     console.log(nickname)
                     // 보상 토큰 정상 지급
+                    // fashion_info 작성시 10개 지급
+                    // req.session.user로 사용자에게 10개 지급 
+                    
+                    const data = contract.methods.transfer(userSession.address, 10).encodeABI();
+                    const rawTransaction = { 'to': erc20, 'gas': 100000, "data": data };
+                    const signTx = await web3.eth.accounts.signTransaction(rawTransaction, serverPKey);
+                    const sendSignTx = await web3.eth.sendSignedTransaction(signTx.rawTransaction);
+
+                    if (sendSignTx) {
+                        const server_eth = await getBalance(serverAddress);
+                        const serverBalance = await contract.methods.balanceOf(serverAddress).call();
+                        const clientBalance = await contract.methods.balanceOf(userSession.address).call();
+
+                        await Server.update({
+                            eth_amount: server_eth,
+                            token_amount: serverBalance
+                          }, { where: { address: serverAddress } });
+                          
+                          await User.update({
+                            token_amount: clientBalance
+                          }, { where: { email: userSession.email } });
+                    }
+                    
                     post = await Post.create({
                         image_1: image_1,
                         image_2: image_2,
@@ -87,8 +165,32 @@ module.exports = {
                             shoes: shoes_size,
                         }
                     );
+
+
                 }else{
                     // 보상 토큰 적게 지급
+                    //fashion_info 미작성시 5개 지급 
+
+                    const data = contract.methods.transfer(userSession.address, 5).encodeABI();
+                    const rawTransaction = { 'to': erc20, 'gas': 100000, "data": data };
+                    const signTx = await web3.eth.accounts.signTransaction(rawTransaction, serverPKey);
+                    const sendSignTx = await web3.eth.sendSignedTransaction(signTx.rawTransaction);
+
+                    if (sendSignTx) {
+                        const server_eth = await getBalance(serverAddress);
+                        const serverBalance = await contract.methods.balanceOf(serverAddress).call();
+                        const clientBalance = await contract.methods.balanceOf(userSession.address).call();
+
+                        await Server.update({
+                            eth_amount: server_eth,
+                            token_amount: serverBalance
+                          }, { where: { address: serverAddress } });
+                          
+                          await User.update({
+                            token_amount: clientBalance
+                          }, { where: { email: userSession.email } });
+                    }
+                    
                     post = await Post.create({
                         image_1: image_1,
                         image_2: image_2,

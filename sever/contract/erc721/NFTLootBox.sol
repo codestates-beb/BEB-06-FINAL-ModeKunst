@@ -3,11 +3,12 @@ pragma solidity ^0.8.0;
 
 
 
-import "/Users/jason/Desktop/BEB-06-FINAL-ModeKunst/sever/node_modules/@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "/Users/jason/Desktop/BEB-06-FINAL-ModeKunst/sever/node_modules/@openzeppelin/contracts/utils/Counters.sol";
-import "/Users/jason/Desktop/BEB-06-FINAL-ModeKunst/sever/node_modules/@openzeppelin/contracts/access/Ownable.sol";
-import "/Users/jason/Desktop/BEB-06-FINAL-ModeKunst/sever/node_modules/@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
-import "/Users/jason/Desktop/BEB-06-FINAL-ModeKunst/sever/node_modules/@openzeppelin/contracts/token/ERC20/IERC20.sol";
+
+import "d:/2022/project-03/BEB-06-FINAL-01/sever/node_modules/@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "d:/2022/project-03/BEB-06-FINAL-01/sever/node_modules/@openzeppelin/contracts/utils/Counters.sol";
+import "d:/2022/project-03/BEB-06-FINAL-01/sever/node_modules/@openzeppelin/contracts/access/Ownable.sol";
+import "d:/2022/project-03/BEB-06-FINAL-01/sever/node_modules/@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
+import "d:/2022/project-03/BEB-06-FINAL-01/sever/node_modules/@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 
 

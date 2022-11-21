@@ -8,18 +8,18 @@ const fs = require("fs");
 const indexRouter = require("./routes/index");
 const { sequelize } = require("./models");
 const { insertServerAddress, deploy20, deploy721 } = require("./contract/Web3");
-const { create, find, send, join } = require('./socket/chatRoom');
+const { create, find, send, join } = require("./socket/chatRoom");
 
 const app = express();
 const port = 8000;
 
-const http = require('http').createServer(app);
-const { Server } = require('socket.io');
+const http = require("http").createServer(app);
+const { Server } = require("socket.io");
 const io = new Server(http, {
-    cors: {
-        origin: "http://localhost:3000",
-        credentials: true
-    }
+  cors: {
+    origin: "http://localhost:3000",
+    credentials: true,
+  },
 });
 
 app.use(
@@ -40,14 +40,14 @@ sequelize
       });
     });
   })
-  .catch((err) => {
+  .catch(err => {
     console.error(err);
   });
 app.use("/profile_img", express.static("profile_img"));
 app.use("/post_img", express.static("post_img"));
 
 app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser(process.env.COOKIE_SECRET));
 
 app.use(
@@ -67,7 +67,6 @@ app.use(
 );
 
 app.use("/", indexRouter);
-
 
 app.use((req, res, next) => {
   const error = new Error(`${req.method} ${req.url} 라우터가 없습니다!`);
@@ -97,7 +96,10 @@ io.on('connection', (socket) => {
         create(sender, receiver).then((a) => {
             console.log(a)
         });
+
     });
+  
+
 
     socket.on('join', (data) => {
         const { sender, receiver, roomId } = data;
@@ -109,6 +111,8 @@ io.on('connection', (socket) => {
         });
 
     });
+  
+
 
     socket.on('send', (data) => {
         const { id, sender, receiver, message } = data;
