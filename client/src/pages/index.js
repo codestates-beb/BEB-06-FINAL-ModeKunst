@@ -9,3 +9,4 @@ export * from "./ForgotPassword";
 export * from "./ResetPassword";
 export * from "./ResetMyInfo";
 export * from "./NotFound";
+export * from './Chat';

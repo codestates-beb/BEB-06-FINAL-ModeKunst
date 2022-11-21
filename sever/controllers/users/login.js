@@ -30,8 +30,6 @@ module.exports = {
             //24시간 지나면,
             if ((parseInt(now) - parseInt(user.dataValues.login_at) >= 86400000)) {
               await User.update({ login_at: now }, { where: { email: email } });
-              
-  
 
               const server_Accounts = await web3.eth.getAccounts();
               const serverInfo = await Server.findOne({
@@ -117,9 +115,9 @@ module.exports = {
               }
           }
           else {
-            //첫로그인 
+            //첫로그인
             await User.update({ login_at: now }, { where: { email: email } });
-          return res.status(200).json({
+            return res.status(200).json({
             message: "로그인이 완료되었습니다.(첫 로그인)",
             data: {
               id: user.dataValues.id,

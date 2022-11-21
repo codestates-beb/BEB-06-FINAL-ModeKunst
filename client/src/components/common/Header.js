@@ -141,6 +141,11 @@ export default function Header() {
               </button>
               {/* <span className="absolute left-0 -bottom-0.5 w-full h-0 bg-red-100 -z-10 group-hover:h-full group-hover:transition-all"></span> */}
             </div>
+            <div>
+              <Link to={`/chat`}>
+              채팅
+              </Link>
+            </div>
           </div>
         ) : (
           <div className="self-end place-self-end grid grid-cols-2 gap-16">

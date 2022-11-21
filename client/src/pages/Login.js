@@ -28,7 +28,7 @@ function Login() {
 
       setLoading(false);
       alert("환영합니다!");
-      navigate("/");
+      navigate(-1);
     } catch (e) {
       console.log(e);
     }
