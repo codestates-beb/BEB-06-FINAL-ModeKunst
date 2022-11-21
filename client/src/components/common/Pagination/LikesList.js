@@ -3,11 +3,12 @@ import Pagination from "react-js-pagination";
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 // 참고용으로 넣어 놓은 더미데이터
-import posts from "./MOCK_DATA.json";
 
-export default function LikesList() {
+
+export default function LikesList(props) {
   // navigate로 pagination 목록별로 클릭 후 이동 가능
   const navigate = useNavigate();
+  const posts = props.props
   const [pageNum, setPageNum] = useState(1);
   const POSTS_PER_PAGE = 7;
   const pagesVisited = (pageNum - 1) * POSTS_PER_PAGE;
