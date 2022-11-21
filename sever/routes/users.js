@@ -59,6 +59,7 @@ router.post("/:email/pwupdate", usersController.pwupdate.post);
 // 채팅방 목록
 router.get('/chatRoom/:nickname', isLoggedIn,usersController.chat.find);
 
+
 // 채팅방 입장
 router.get('/chatRoom/:chatId/:receiver', isLoggedIn,usersController.chat.join);
 

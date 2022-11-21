@@ -6,6 +6,7 @@ module.exports = {
 
     // 좋아요
     like: async (req, res) => {
+
         //로그인한 사용자
         const nickname = req.session.user?.nickname;
         const { postId } = req.params;
@@ -20,7 +21,7 @@ module.exports = {
         const erc20 = serverInfo.dataValues.erc20;
         const contract = await new web3.eth.Contract(abi20, erc20);
         
-            
+
         if(nickname){
             try {
                 const like = await Like.findOne({
@@ -37,6 +38,7 @@ module.exports = {
                             include: [{model: Product_brand, attributes: ['outer', 'top', 'pants', 'shoes']}, { model: Product_name, attributes: ['outer', 'top', 'pants', 'shoes']}, { model: Product_size, attributes: ['outer', 'top', 'pants', 'shoes']}, ],
                             attributes: ['price', 'UserNickname']
                         });
+
                         //이게 작성자에 대한정보를 빼올 수 있는 것 
                         console.log(post.dataValues.price);
                         const writer = await User.findOne({ where: { nickname: post.dataValues.UserNickname } }); //작성자 
@@ -88,6 +90,7 @@ module.exports = {
                             } else {
                                 return res.status(400).json({ message: "토큰의 갯수가 부족합니다. 좋아요를 할 수 없습니다." });
                              }
+
 
                         if(!(post.dataValues.UserNickname === nickname)){
                             await Like.create({ UserNickname: nickname, PostId: postId });
