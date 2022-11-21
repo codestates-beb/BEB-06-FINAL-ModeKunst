@@ -64,13 +64,15 @@ contract ICToken is ERC20Interface {
     }
     // spender 에게 value 만큼의 토큰을 인출할 권리를 부여. 
     // 이용시 반드시 Approval 이벤트 함수를 호출해야 함.
-    function approve(address spender, uint amount) external virtual override returns (bool) {
-        uint256 currentAllownace = _allowances[msg.sender][spender];
+    // user 은 토큰의 주인임 (사용자들)
+    function approve(address tokenowner, uint amount) external virtual override returns (bool) {
+        uint256 currentAllownace = _allowances[tokenowner][msg.sender];
         require(amount >= currentAllownace, "ERC20: Transfer amount exceeds allowance");
-        _approve(msg.sender, spender, currentAllownace, amount);
+        _approve(tokenowner, msg.sender, currentAllownace, amount);
         return true;
     }
     // spender가 거래 가능하도록 양도 받은 토큰을 전송
+    // 인자는 (tokenOnwer의 주소, 수령자 주소, 토큰양) --> 트랜잭션은 대리자가 발생
     function transferFrom(address sender, address recipient, uint256 amount) external virtual override returns (bool) {
         _transfer(sender, recipient, amount);
         emit Transfer(msg.sender, sender, recipient, amount);

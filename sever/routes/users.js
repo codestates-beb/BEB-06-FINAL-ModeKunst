@@ -2,7 +2,7 @@ const router = require("express").Router();
 const { usersController } = require("../controllers");
 const { profile_upload } = require("../middleware/multer/profile");
 const { limiter } = require("../middleware/limiter"); // DOS 공격 대비
-const { isLoggedIn } = require("../middleware/auth");
+const { isLoggedIn,isNotLoggedIn } = require("../middleware/auth");
 const { addFollowing, removeFollower } = require("../middleware/follow");
 
 // 회원 가입
@@ -33,7 +33,7 @@ router.get("/pwfind/:email/:phonenumber", usersController.find.password);
 router.get("/search/:nickname", usersController.search.get);
 
 //로그인
-router.post("/login", usersController.login.post);
+router.post("/login", isNotLoggedIn,usersController.login.post);
 
 //보유 토큰 양
 router.get("/tokens/:nickname", usersController.tokens.get);
@@ -57,13 +57,13 @@ router.post("/pwcheck", isLoggedIn, usersController.pwcheck.post);
 router.post("/:email/pwupdate", usersController.pwupdate.post);
 
 // 채팅방 목록
-router.get('/chatRoom', usersController.chat.find);
+router.get('/chatRoom', isLoggedIn,usersController.chat.find);
 
 // 채팅방 입장
-router.get('/chatRoom/:chatId/:receiver', usersController.chat.join);
+router.get('/chatRoom/:chatId/:receiver', isLoggedIn,usersController.chat.join);
 
 // 채팅방 생성
-router.post('/chatRoom/:receiver', usersController.chat.create);
+router.post('/chatRoom/:receiver', isLoggedIn,usersController.chat.create);
 
 // 메세지 보내기
 router.post('/message', usersController.chat.send);

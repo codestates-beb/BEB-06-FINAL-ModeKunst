@@ -104,7 +104,7 @@ function WritePost() {
       formData.append("image", image_5);
       console.log(1);
       axios
-        .post("http://localhost:8000/posts/board", formData)
+        .post("http://localhost:8000/posts/board", formData,{ withCredentials: true })
         .then(result => {
           console.log(result);
           navigate("/");
