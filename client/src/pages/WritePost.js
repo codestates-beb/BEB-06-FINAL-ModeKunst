@@ -5,7 +5,7 @@ import { useSelector } from "react-redux";
 import axios from "axios";
 
 //📌 to do
-//1. formData append 데이터 싹 정리해놓기
+//1. formData append 데이터 싹 정리해놓기 (v)
 //2. 작성한 data를 redux로 관리할것인지?
 //2-1. upstream = true 일 경우 fashion info 모든 값이 null 값이 아니어야됨
 //3. 사진 누르면 배열에서 요소 삭제하기
@@ -15,7 +15,7 @@ import axios from "axios";
 
 function WritePost() {
   const userInfo = useSelector(state => state.user);
-  const isLoggedIn = useSelector(state => state.user.isLoggedIn);
+  const isLoggedIn = userInfo.isLoggedIn;
   const navigate = useNavigate();
 
   const {
@@ -140,8 +140,9 @@ function WritePost() {
           withCredentials: true,
         })
         .then(result => {
-          console.log(result);
-          navigate("/");
+          const data = result.data;
+          alert(data.message);
+          navigate(`/post/${data.data.postId}`);
         })
         .catch(e => {
           console.log(e);

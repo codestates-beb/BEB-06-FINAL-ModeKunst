@@ -27,7 +27,6 @@ module.exports = {
           })
         }else{
 
-
           await Follow.create({ follower: follower, following: following });
 
           const followers = await Follow.findAll({

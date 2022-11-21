@@ -4,7 +4,8 @@ module.exports = {
 
     // 리뷰 작성
     post: async (req, res) => {
-        const { nickname, postId } = req.params;
+        const nickname = req.session.user?.nickname;
+        const { postId } = req.params;
         const { content } = req.body;
         console.log(`입력받은 nickname: ${nickname}, postId: ${postId}, content: ${content}`);
         try {
@@ -86,7 +87,8 @@ module.exports = {
 
     // 리뷰 수정
     put: async (req, res) => {
-        const { nickname, postId } = req.params;
+        const nickname = req.session.user?.nickname;
+        const { postId } = req.params;
         const { content } = req.body;
 
         try {
@@ -95,7 +97,7 @@ module.exports = {
                 { where: { UserNickname: nickname, PostId: postId}}
             );
 
-            const review_counts = await Review.count({
+            const reviews_counts = await Review.count({
                 where: { PostId: postId }
             });
 
@@ -108,7 +110,7 @@ module.exports = {
             res.status(200).json({
                 message: '리뷰가 수정되었습니다.',
                 data: {
-                    review_counts: review_counts,
+                    reviews_counts: reviews_counts,
                     reviews: reviews
                 }
             })
@@ -120,7 +122,8 @@ module.exports = {
 
     // 리뷰 삭제
     delete: async (req, res) => {
-        const { nickname, postId } = req.params;
+        const nickname = req.session.user?.nickname;
+        const { postId } = req.params;
         const { content } = req.body;
 
         try {

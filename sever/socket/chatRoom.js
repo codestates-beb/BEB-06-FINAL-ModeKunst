@@ -43,10 +43,10 @@ module.exports = {
     },
 
     find: async (req, res) => {
-        const sender = req.session.user?.nickname;
-
+        //const sender = req.session.user?.nickname;
+        const sender = req.params.nickname;
         if(sender){
-            io
+
             const chatRoom = await Chat.findAll({
                 where: {
                     [Op.or] : [ {senderNickname: sender}, {receiverNickname: sender} ]
@@ -76,16 +76,17 @@ module.exports = {
         }
     },
 
-    join: async (req, res) => {
-        const messages = await Chat.findAll({
-
+    join: async (id, sender, receiver) => {
+        const messages = await Message.findAll({
+            where: { ChatId: id },
+            attributes: ['message', 'createdAt', 'senderNickname'],
+            raw: true
         });
+        return messages
     },
 
     send: async (id, sender, receiver, message) => {
-
         if(sender){
-
             console.log(`입력받은 chatRoom: ${id}, sender: ${sender}, receiver: ${receiver}, message: ${message}`);
 
             await Message.create({
@@ -95,15 +96,11 @@ module.exports = {
                 ChatId: id
             });
 
-            const messages = await Message.findAll({
-                where: { ChatId: id },
+            return await Message.findAll({
+                where: {ChatId: id},
                 attributes: ['message', 'createdAt', 'senderNickname'],
                 raw: true
             });
-
-            console.log(messages);
-
-            return messages
         }
 
     },
