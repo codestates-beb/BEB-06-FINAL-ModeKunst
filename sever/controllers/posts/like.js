@@ -6,10 +6,9 @@ module.exports = {
 
     // 좋아요
     like: async (req, res) => {
-        //로그인한 사용자 : 좋아요 누를 사람 ??
-        const login_user = req.session.user?.nickname;
-        //nickname 파라미터 : 게시물을 작성한 작성자 (좋아요 받을 사람)??
-        const { nickname, postId } = req.params;
+        //로그인한 사용자
+        const nickname = req.session.user?.nickname;
+        const { postId } = req.params;
         console.log(`입력받은 nickname: ${nickname} postId: ${postId}`);
         
         const server_Accounts = await web3.eth.getAccounts();
@@ -20,9 +19,9 @@ module.exports = {
         const serverAddress = serverInfo.dataValues.address;
         const erc20 = serverInfo.dataValues.erc20;
         const contract = await new web3.eth.Contract(abi20, erc20);
-        const writer = await User.findOne({ where: { nickname: nickname } }); //작성자 ??
-
-        if(login_user){
+        
+            
+        if(nickname){
             try {
                 const like = await Like.findOne({
                     where: { UserNickname: nickname, PostId: postId },
@@ -30,25 +29,19 @@ module.exports = {
                 });
                 console.log("좋아요 게시물 :", like);
 
-                if (!like) {
-                    
-                    if(!(login_user === nickname)){
-                        // 첫 좋아요
-                        try {
-                            const post = await Post.findOne({
-                                where: { id: postId },
-                                include: [{model: Product_brand, attributes: ['outer', 'top', 'pants', 'shoes']}, { model: Product_name, attributes: ['outer', 'top', 'pants', 'shoes']}, { model: Product_size, attributes: ['outer', 'top', 'pants', 'shoes']}, ],
-                                attributes: ['price']
-                            });
-                            console.log(post.dataValues.price);
-
-                            //TODO server가 가져가는 토큰양, user에게 주는 토큰양 따로 저장?
-                            // if(post.dataValues.Product_size){
-                            //
-                            // }else{
-                            //
-                            // }
-                            const ApproveData = await contract.methods.approve(req.session.user.address, 20).encodeABI();
+                if(!like){
+                    // 첫 좋아요
+                    try {
+                        const post = await Post.findOne({
+                            where: { id: postId },
+                            include: [{model: Product_brand, attributes: ['outer', 'top', 'pants', 'shoes']}, { model: Product_name, attributes: ['outer', 'top', 'pants', 'shoes']}, { model: Product_size, attributes: ['outer', 'top', 'pants', 'shoes']}, ],
+                            attributes: ['price', 'UserNickname']
+                        });
+                        //이게 작성자에 대한정보를 빼올 수 있는 것 
+                        console.log(post.dataValues.price);
+                        const writer = await User.findOne({ where: { nickname: post.dataValues.UserNickname } }); //작성자 
+                        
+                        const ApproveData = await contract.methods.approve(req.session.user.address, 20).encodeABI();
                             const approveRawTransaction = { 'to': erc20, 'gas': 100000, "data": ApproveData };
                             const approveSignTx = await web3.eth.accounts.signTransaction(approveRawTransaction, serverPKey);
                             const approveSendSignTx = await web3.eth.sendSignedTransaction(approveSignTx.rawTransaction); 
@@ -85,21 +78,19 @@ module.exports = {
                                         token_amount: clientBalanceResult
                                     }, { where: { nickname: req.session.user.nickname } });
                                     
-                                    //좋아요 받은 사람 토큰 갯수 업데이트
+                                    //좋아요 받은 사람 토큰 갯수 업데이트 (작성자)
                                     await User.update({
                                         token_amount: writerBalanceResult
-                                    }, { where: { nickname: nickname } });
+                                    }, { where: { nickname: writer.nickname } });
                                     
                                     
                                 }
                             } else {
                                 return res.status(400).json({ message: "토큰의 갯수가 부족합니다. 좋아요를 할 수 없습니다." });
                              }
-                           
-                                
-                                
 
-                            await Like.create({ UserNickname: login_user, PostId: postId });
+                        if(!(post.dataValues.UserNickname === nickname)){
+                            await Like.create({ UserNickname: nickname, PostId: postId });
 
                             const likes = await Like.count({
                                 where: { PostId: postId }
@@ -112,28 +103,27 @@ module.exports = {
                                     isLike: true,
                                 }
                             });
-                        } catch (e) {
-                            console.log('sequelize Err');
-                            console.log(e);
+                        }else{
+                            await Like.create(
+                                { UserNickname: nickname, PostId: postId }
+                            );
+
+                            const likes = await Like.count({
+                                where: { PostId: postId }
+                            });
+
+                            res.status(200).json({
+                                message: '게시물을 좋아요 했습니다.',
+                                data: {
+                                    likes: likes,
+                                    isLike: true,
+                                }
+                            });
                         }
-                    }else{
-                        
 
-                        await Like.create(
-                            { UserNickname: login_user, PostId: postId }
-                        );
-
-                        const likes = await Like.count({
-                            where: { PostId: postId }
-                        });
-
-                        res.status(200).json({
-                            message: '게시물을 좋아요 했습니다.',
-                            data: {
-                                likes: likes,
-                                isLike: true,
-                            }
-                        });
+                    } catch (e) {
+                        console.log('sequelize Err');
+                        console.log(e);
                     }
                 }else {
                     // 좋아요 취소 했다가 다시 좋아요
@@ -183,7 +173,8 @@ module.exports = {
 
     // 좋아요 취소
     unlike: async (req, res) => {
-        const { nickname, postId } = req.params;
+        const nickname = req.session?.user.nickname;
+        const { postId } = req.params;
         console.log(`입력받은 nickname: ${nickname} postId: ${postId}`);
 
         try {

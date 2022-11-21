@@ -2,12 +2,11 @@ import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { logout } from "../../store/user";
-
 import logo from "../../assets/mode.png";
 import SearchBar from "./SearchBar";
 
 export default function Header() {
-  const userInfo = useSelector((state) => state.user);
+  const userInfo = useSelector(state => state.user);
   const dispatch = useDispatch();
   const showInfo = () => {
     console.log(userInfo);
@@ -140,6 +139,11 @@ export default function Header() {
                 </svg>
               </button>
               {/* <span className="absolute left-0 -bottom-0.5 w-full h-0 bg-red-100 -z-10 group-hover:h-full group-hover:transition-all"></span> */}
+            </div>
+            <div>
+              <Link to={`/chat`}>
+              채팅
+              </Link>
             </div>
           </div>
         ) : (

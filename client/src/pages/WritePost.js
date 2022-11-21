@@ -13,7 +13,8 @@ import axios from "axios";
 //6. 유효성 검사(최소 내용 글자 수, fashion info)
 
 function WritePost() {
-  const isLoggedIn = useSelector(state => state.user.isLoggedIn);
+  const user = useSelector(state => state.user);
+  const isLoggedIn = user.isLoggedIn;
   const navigate = useNavigate();
 
   const {
@@ -87,12 +88,14 @@ function WritePost() {
       const formData = new FormData();
       const { title, contents, category, upstream } = data;
 
+      const writer = user.userInfo.nickname;
       const image_1 = data.image[0];
       const image_2 = data.image[1];
       const image_3 = data.image[2];
       const image_4 = data.image[3];
       const image_5 = data.image[4];
 
+      formData.append('nickname', writer);
       formData.append("title", title);
       formData.append("content", contents);
       formData.append("category", category);
@@ -102,12 +105,12 @@ function WritePost() {
       formData.append("image", image_3);
       formData.append("image", image_4);
       formData.append("image", image_5);
-      console.log(1);
       axios
         .post("http://localhost:8000/posts/board", formData,{ withCredentials: true })
         .then(result => {
-          console.log(result);
-          navigate("/");
+          const data = result.data;
+          alert(data.message);
+          navigate(`/post/${data.data.postId}`);
         })
         .catch(e => {
           console.log(e);

@@ -50,7 +50,15 @@ module.exports = class Post extends Sequelize.Model {
                 top_post: {
                     type: Sequelize.BOOLEAN,
                     defaultValue: false,
-                }
+                },
+                likes_num: {
+                    type: Sequelize.BIGINT,
+                    defaultValue: 0,
+                },
+                reviews_num: {
+                    type: Sequelize.BIGINT,
+                    defaultValue: 0,
+                },
             },
             {
                 sequelize,

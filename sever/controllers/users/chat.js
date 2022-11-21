@@ -79,10 +79,12 @@ module.exports = {
     },
 
     find: async (req, res) => {
-        const sender = req.session.user?.nickname;
+        //const sender = req.session.user?.nickname;
+        const sender = req.params.nickname;
+        //console.log(req.session)
 
         if(sender){
-            io
+
             const chatRoom = await Chat.findAll({
                 where: {
                     [Op.or] : [ {senderNickname: sender}, {receiverNickname: sender} ]

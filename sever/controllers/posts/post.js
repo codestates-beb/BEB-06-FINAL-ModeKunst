@@ -6,6 +6,7 @@ const { web3, abi20, serverPKey, getBalance } = require('../../contract/Web3');
 
 
 const { literal , Op } = require('sequelize');
+const { one } = require('../function/createdAt');
 
 module.exports = {
 
@@ -59,6 +60,7 @@ module.exports = {
                 // 사용자에게 approve 받아서 서버가 transferfrom 사용하여 본인에게 전송
                 const test = await contract.methods.allowance(userSession.address, serverAddress).call();
                 console.log(test); //approve 받은 갯수 확인 
+                console.log('사용자 토큰 갯수 : ',await contract.methods.balanceOf(userSession.address).call())
                 
                 const ApproveData = await contract.methods.approve(userSession.address, 20).encodeABI();
                 const approveRawTransaction = { 'to': erc20, 'gas': 100000, "data": ApproveData };
@@ -98,6 +100,7 @@ module.exports = {
             try {
                 let post;
                 if(top_size){
+                    console.log(nickname)
                     // 보상 토큰 정상 지급
                     // fashion_info 작성시 10개 지급
                     // req.session.user로 사용자에게 10개 지급 
@@ -231,7 +234,6 @@ module.exports = {
                     message: '게시물이 등록 되었습니다.',
                     data: {
                         postId: post.dataValues.id,
-                        nickname
                     }
                 })
             } catch (e) {
@@ -251,25 +253,27 @@ module.exports = {
      */
     get: async (req, res) => {
         const loginNickname = req.session.user?.nickname
-        const { nickname, postId } = req.params;
+        const { postId } = req.params;
         // postId의 작성자의 nft들
-        console.log(`입력 받은 loginNickname: ${loginNickname}, nickname: ${nickname}, postId: ${postId}`)
+        console.log(`입력 받은 loginNickname: ${loginNickname}, postId: ${postId}`)
         try {
             await Post.increment({ views: 1 }, {where: { id: postId }});
-            const userData = await User.findOne({
-                where: { nickname: loginNickname },
-                attributes: ['nickname', 'height', 'weight', 'gender', 'sns_url'],
-            });
-
-            const user = userData.dataValues;
 
             const post = await Post.findOne({
                 where: { id: postId },
                 include: [{model: Product_brand, attributes: ['outer', 'top', 'pants', 'shoes']}, { model: Product_name, attributes: ['outer', 'top', 'pants', 'shoes']}, { model: Product_size, attributes: ['outer', 'top', 'pants', 'shoes']}, ],
-                attributes: ['image_1', 'image_2', 'image_3', 'image_4', 'image_5', 'title', 'content', 'category', 'views'],
+                attributes: ['image_1', 'image_2', 'image_3', 'image_4', 'image_5', 'title', 'content', 'category', 'views', 'createdAt', 'UserNickname'],
             });
 
-            const { image_1, image_2, image_3, image_4, image_5, title, content, category, views } = post.dataValues;
+            const { image_1, image_2, image_3, image_4, image_5, title, content, category, views, UserNickname } = post.dataValues;
+            const createdAt = one(post.dataValues?.createdAt);
+
+            const userData = await User.findOne({
+                where: { nickname: UserNickname },
+                attributes: ['nickname', 'height', 'weight', 'sns_url', 'profile_img'],
+            });
+
+            const user = userData.dataValues;
 
             const similarLook = await Post.findAll({
                 where: { category: category, id: { [Op.ne]: postId }},
@@ -279,7 +283,7 @@ module.exports = {
                 raw: true
             });
 
-            const review_counts = await Review.count({
+            const reviews_counts = await Review.count({
                 where: { PostId: postId }
             });
 
@@ -287,6 +291,10 @@ module.exports = {
                 attributes: ['id', 'content', 'createdAt', 'UserNickname'],
                 where: { PostId: postId },
                 raw: true,
+            });
+
+            const likes_counts = await Like.count({
+                where: { PostId: postId }
             });
 
             if(loginNickname){
@@ -298,25 +306,29 @@ module.exports = {
                     const isLike = !!like;
 
                     const following  = await Follow.findOne({
-                        where: { follower: loginNickname, following: nickname },
+                        where: { follower: loginNickname, following: UserNickname },
+                        paranoid: false,
                         raw: true
                     });
 
                     const isFollow = !!following;
-                    if(loginNickname === nickname){
+
+                    if(loginNickname === UserNickname){
                         // 자기가 쓴 게시물 detail 페이지는 isOwner
                         res.status(200).json({
                             message: `${title}의 디테일 페이지`,
                             data: {
-                                post: { image_1, image_2, image_3, image_4, image_5, title, content, category, views },
-                                user: user,
+                                post: { image_1, image_2, image_3, image_4, image_5, title, content, category, views, createdAt },
+                                user,
                                 product_brand: post.Product_brand?.dataValues,
                                 product_name: post.Product_name?.dataValues,
                                 product_size: post.Product_size?.dataValues,
-                                review_counts: review_counts,
-                                reviews: reviews,
-                                similarLook: similarLook,
-                                isLike: isLike,
+                                likes_counts,
+                                reviews_counts,
+                                reviews,
+                                similarLook,
+                                isLike,
+                                isFollow: true,
                                 isOwner: true,
                             }
                         });
@@ -325,32 +337,36 @@ module.exports = {
                             res.status(200).json({
                                 message: `${title}의 디테일 페이지`,
                                 data: {
-                                    post: { image_1, image_2, image_3, image_4, image_5, title, content, category, views },
+                                    post: { image_1, image_2, image_3, image_4, image_5, title, content, category, views, createdAt },
                                     user: user,
                                     product_brand: post.Product_brand?.dataValues,
                                     product_name: post.Product_name?.dataValues,
                                     product_size: post.Product_size?.dataValues,
-                                    review_counts: review_counts,
+                                    likes_counts,
+                                    reviews_counts: reviews_counts,
                                     reviews: reviews,
                                     similarLook: similarLook,
                                     isFollow: isFollow,
-                                    isLike: isLike
+                                    isLike: isLike,
+                                    isOwner: false,
                                 }
                             });
                         }else{
                             res.status(200).json({
                                 message: `${title}의 디테일 페이지`,
                                 data: {
-                                    post: { image_1, image_2, image_3, image_4, image_5, title, content, category, views },
+                                    post: { image_1, image_2, image_3, image_4, image_5, title, content, category, views, createdAt },
                                     user: user,
                                     product_brand: post.Product_brand?.dataValues,
                                     product_name: post.Product_name?.dataValues,
                                     product_size: post.Product_size?.dataValues,
-                                    review_counts: review_counts,
+                                    likes_counts,
+                                    reviews_counts: reviews_counts,
                                     reviews: reviews,
                                     similarLook: similarLook,
                                     isFollow: false,
-                                    isLike: isLike
+                                    isLike: isLike,
+                                    isOwner: false,
                                 }
                             });
                         }
@@ -362,16 +378,18 @@ module.exports = {
                 res.status(200).json({
                     message: `${title}의 디테일 페이지`,
                     data: {
-                        post: { image_1, image_2, image_3, image_4, image_5, title, content, category, views },
+                        post: { image_1, image_2, image_3, image_4, image_5, title, content, category, views, createdAt },
                         user: user,
                         product_brand: post.Product_brand?.dataValues,
                         product_name: post.Product_name?.dataValues,
                         product_size: post.Product_size?.dataValues,
-                        review_counts: review_counts,
+                        likes_counts,
+                        reviews_counts: reviews_counts,
                         reviews: reviews,
                         similarLook: similarLook,
                         isFollow: false,
                         isLike: false,
+                        isOwner: false,
                     }
                 });
             }

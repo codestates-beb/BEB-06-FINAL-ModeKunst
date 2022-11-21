@@ -1,9 +1,10 @@
-import { useState } from "react";
-import { useParams } from "react-router-dom";
+import {useEffect, useState} from "react";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import Slider from "react-slick";
+import axios from "axios";
 
 const dummyData = {
   id: 1,
@@ -33,9 +34,44 @@ const similarLooks = [
 ];
 
 function ReadPost() {
-  const userInfo = useSelector(state => state.user);
-  const [like, setLike] = useState(false);
   const { id } = useParams();
+  const userInfo = useSelector(state => state.user);
+
+  const [writer, setWriter] = useState('');
+  const [post, setPost] = useState('');
+  const [likeCount, setLikeCount] = useState('');
+  const [review, setReview] = useState('');
+  const [reviewCount, setReviewCount] = useState('');
+  const [similarLook, setSimilarLook] = useState('');
+
+  const [isLike, setIsLike] = useState(false);
+  const [isOwner, setIsOwner] = useState(false);
+  const [isFollow, setIsFollow] = useState(false);
+
+  const [myReview, setMyReview] = useState('');
+
+  const navigator = useNavigate();
+
+  useEffect(() => {
+    axios.get(`http://localhost:8000/posts/${id}`)
+        .then((result) => {
+          console.log(result.data.data);
+          const data = result.data.data;
+          setWriter(data.user);
+          setPost(data.post);
+          setLikeCount(data.likes_counts);
+          setReview(data.reviews);
+          setReviewCount(data.reviews_counts);
+          setSimilarLook(data.similarLook);
+          setIsOwner(data.isOwner);
+          setIsFollow(data.isFollow);
+          setIsLike(data.isLike);
+        })
+        .catch((e) => {
+          console.log(e);
+        })
+  }, [navigator])
+
 
   const settings = {
     dots: true,
@@ -46,13 +82,95 @@ function ReadPost() {
     centerPadding: "0px",
   };
 
-  const likeHandler = e => {
+  const sendMessage = () => {
+
+  };
+
+  const likeHandler = () => {
     alert(
       "좋아요를 누르시면 5토큰이 차감되며, 좋아요를 취소하셔도 반환되지 않습니다."
     );
-    setLike(true);
+    if(!isLike){
+      axios.post(`http://localhost:8000/posts/like/${id}`)
+          .then((result) => {
+            const data = result.data;
+            setLikeCount(data.data.likes);
+            setIsLike(data.data.isLike);
+            alert(data.message);
+          }).catch((e) => {
+            alert(e.response.data.message);
+            navigator('/login')
+          })
+    }else{
+      axios.post(`http://localhost:8000/posts/unlike/${id}`)
+          .then((result) => {
+            const data = result.data;
+            setLikeCount(data.data.likes);
+            setIsLike(data.data.isLike);
+            alert(data.message);
+          }).catch((e) => {
+        alert(e.response.data.message);
+        navigator('/login')
+      })
+    }
   };
 
+  const writeReview = e => {
+    setMyReview(e.target.value);
+  }
+
+  const sendReview = () => {
+    if(myReview.length <= 15){
+      alert('15글자 이상 작성해주세요!')
+    }else{
+      axios.post(`http://localhost:8000/posts/review/${id}`,{
+        content: myReview
+      }).then((reuslt) => {
+        const data = reuslt.data.data;
+        setReviewCount(data.reviews_counts);
+        setReview(data.reviews);
+      }).catch((e) =>{
+        alert(e.response.data.message)
+      })
+    }
+  }
+
+  const  deleteReview = (e) => {
+    axios.delete(`http://localhost:8000/posts/review/${id}`)
+        .then((result) => {
+          const data = result.data;
+          setReviewCount(data.data.reviews_counts);
+          setReview(data.data.reviews);
+          alert(data.message);
+        });
+  }
+
+  const moveTopPost = () => {
+    axios.post(`http://localhost:8000/posts/upstream`,{
+      id: id
+    }).then((result) => {
+      alert(result.data.message);
+    }).catch((e) => {
+      alert(e.response.data.message);
+    })
+  }
+
+  const moveUpdate = () => {
+    // 업데이트 창 주소로 이동
+    // navigator();
+  }
+
+  const deletePost = () => {
+    axios.delete(`http://localhost:8000/posts/${id}`)
+        .then((result) => {
+          alert(result.data.message);
+          navigator('/');
+        });
+  }
+
+  const moveToDetail = e => {
+    navigator(`/post/${e.target.id}`)
+  }
   const settingsSimilar = {
     dots: false,
     arrows: true,
@@ -63,38 +181,48 @@ function ReadPost() {
 
   //📌 이미지가 null 값인 경우에는 배열에 안들어가게 해야하는지
   //아니면 처음부터 받아올 때 백에서 처리가 되어있는지?
-  const imageList = [dummyData.image_1, dummyData.image_2, dummyData.image_3];
+  const imageList = [post.image_1, post.image_2, post.image_3, post?.image_4, post?.image_5].filter((item) =>{
+    if(item) return item;
+  });
+
 
   return (
     <div className="mt-8 flex flex-col justify-center items-center">
       <div className="flex flex-col">
         {/* 🟠포스팅 제목 및 카테고리 */}
         <div className="self-start inline-block text-xs px-2 py-1 w-fit font-bold bg-amber-200 rounded-full drop-shadow-sm">
-          {dummyData.category}
+          {post.category}
         </div>
         <h1 className="m-2 text-3xl font-bold text-start">
-          {dummyData.title}{" "}
+          {post.title}{" "}
         </h1>
         <div className="m-1 border-b-[2px] border-black" />
 
         <div className="w-full flex flex-row">
           {/* 🟠포스팅 정보 수정 관련: 작성한 유저만 볼 수 있게 */}
+          {
+            isOwner
+              ?
+                <div className="flex">
+                  <button className="m-1 inline-flex w-fit px-3 py-1 bg-gray-200 hover:bg-gray-300 text-gray-800 text-sm font-medium rounded-md" onClick={moveTopPost}>
+                    상단 게시물
+                  </button>
+                  <button className="m-1 inline-flex w-fit px-3 py-1 bg-gray-200 hover:bg-gray-300 text-gray-800 text-sm font-medium rounded-md" onClick={deletePost}>
+                    삭제
+                  </button>
+                  <button className="m-1 inline-flex w-fit px-3 py-1 bg-gray-200 hover:bg-gray-300 text-gray-800 text-sm font-medium rounded-md">
+                    수정
+                  </button>
+                </div>
+              :
+                <div></div>
+          }
+
           <div className="flex">
-            <button className="m-1 inline-flex w-fit px-3 py-1 bg-gray-200 hover:bg-gray-300 text-gray-800 text-sm font-medium rounded-md">
-              상단 게시물
-            </button>
-            <button className="m-1 inline-flex w-fit px-3 py-1 bg-gray-200 hover:bg-gray-300 text-gray-800 text-sm font-medium rounded-md">
-              삭제
-            </button>
-            <button className="m-1 inline-flex w-fit px-3 py-1 bg-gray-200 hover:bg-gray-300 text-gray-800 text-sm font-medium rounded-md">
-              수정
-            </button>
-          </div>
-          <div className="flex">
-            <div className="text-sm font-medium">{dummyData.createdAt}</div>
+            <div className="text-sm font-medium">{post.createdAt}</div>
             {/* 🟠조회수: 예쁘게 보이게 하기 */}
             <div className="text-sm font-medium">
-              조회수: {dummyData.views}회
+              조회수: {post.views}회
             </div>
           </div>
         </div>
@@ -119,14 +247,21 @@ function ReadPost() {
                 {...settingsSimilar}
                 className="max-w-xs max-h-fit border-2 border-gray-800 flex items-center justify-center"
               >
-                {similarLooks.map((item, idx) => (
-                  <div>
-                    <img className="h-48 justify-center" src={item}></img>
-                    <div className="absolute text-white text-center text-lg w-full h-full bottom-0 bg-black opacity-0 hover:h-full hover:opacity-30 duration-500 cursor-pointer">
-                      페이지 이동
-                    </div>
-                  </div>
-                ))}
+                {
+                  similarLook
+                    ?
+                      similarLook.map((item, idx) => (
+                          <div>
+                            <img className="h-48 justify-center" src={item.image_1}></img>
+
+                              <div className="absolute text-white text-center text-lg w-full h-full bottom-0 bg-black opacity-0 hover:h-full hover:opacity-30 duration-500 cursor-pointer" id={item.id} onClick={moveToDetail}>
+                                페이지 이동
+                              </div>
+
+                          </div>
+                      ))
+                    : <div></div>
+                }
               </Slider>
             </div>
           </div>
@@ -137,14 +272,16 @@ function ReadPost() {
             <div className="flex flex-row px-2 py-1">
               <img
                 className="w-16 h-16 flex rounded-full"
-                src="https://i.pinimg.com/564x/86/fe/af/86feaf5b773fb076244fb7a7330dc2d8.jpg"
+                src={writer.profile_img}
               ></img>
 
               <div className="flex flex-col ml-3">
                 <div className="h-min flex flex-row">
-                  <div className="text-lg font-bold">
-                    {dummyData.UserNickname}
-                  </div>
+                  <Link to={`/user/${writer.nickname}`}>
+                    <div className="text-lg font-bold">
+                      {writer.nickname}
+                    </div>
+                  </Link>
                   <div className='"self-start inline-block text-xs px-2 py-1 w-fit font-light text-white bg-blue-900 rounded-full drop-shadow-sm"'>
                     팔로워 12.0k
                   </div>
@@ -166,9 +303,10 @@ function ReadPost() {
               </div>
             </div>
             <div className="mt-4 mx-2 border-b-[1px] border-slate-400" />
-            <div className="mx-2 mt-2 mb-4">{dummyData.content}</div>
+            <div className="mx-2 mt-2 mb-4">{post.content}</div>
+            <div>{likeCount}</div>
             <button onClick={likeHandler}>
-              {like ? (
+              {isLike ? (
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="bg-red"
@@ -213,36 +351,58 @@ function ReadPost() {
           </div>
 
           {/* 🟠review */}
-          <div className="mt-8 text-2xl font-bold">#Review</div>
+          <div className="mt-8 text-2xl font-bold">#Review 리뷰 개수:{reviewCount ? reviewCount : 0}</div>
           <div className="w-96 px-2 py-2 flex flex-col bg-slate-300 border-2 border-black rounded-md drop-shadow-sm ">
             {userInfo.isLoggedIn ? (
               <div>
-                <div className="flex flex-col">
-                  <div className="flex flex-row">
-                    <img
-                      className="w-6 h-6 rounded-full"
-                      src="https://i.pinimg.com/564x/86/fe/af/86feaf5b773fb076244fb7a7330dc2d8.jpg"
-                    ></img>
-                    <div className="font-bold">
-                      {userInfo.userInfo.nickname}
-                    </div>
-                  </div>
-                  <input
-                    type="text"
-                    placeholder="리뷰는 최소 15자 이상 작성해주세요."
-                    className="rounded-md h-12 inner-shadow"
-                  ></input>
-                  <button className="m-1 self-end inline-flex w-fit px-3 py-1 bg-violet-700 hover:bg-violet-900 text-white text-sm font-medium rounded-md">
-                    작성하기
-                  </button>
-                </div>
+                {
+                  isOwner
+                      ?
+                        <div></div>
+                      :
+                        <div className="flex flex-col">
+                          <div className="flex flex-row">
+                            <img
+                                className="w-6 h-6 rounded-full"
+                                src={userInfo.userInfo.profile_img}
+                            />
+                            <div className="font-bold">
+                              {userInfo.userInfo.nickname}
+                            </div>
+                          </div>
+                          <input
+                              type="text"
+                              placeholder="리뷰는 최소 15자 이상 작성해주세요."
+                              className="rounded-md h-12 inner-shadow"
+                              onChange={writeReview}
+                          />
+                          <button className="m-1 self-end inline-flex w-fit px-3 py-1 bg-violet-700 hover:bg-violet-900 text-white text-sm font-medium rounded-md" onClick={sendReview}>
+                            작성하기
+                          </button>
+                        </div>
+                }
                 <div>
-                  <div className="mt-4 font-bold">Jason Kim</div>
-                  <div>아우터 정보 찾고 있었는데 감사합니당 </div>
-                  <div className="mt-4 font-bold">jangsam</div>
-                  <div>로그인해야 댓글 볼 수 있게 해주세용!</div>
-                  <div className="mt-4 font-bold">성장하는 괴물 이현종</div>
-                  <div>시원하게 정보 공개해주셔서 감사합니다</div>
+                  {
+                    review.length
+                      ?
+                        review.map((a) => {
+                          return(
+                              <div>
+                                <div>
+                                  <Link to={`/user/${a.UserNickname}`}><div className="mt-4 font-bold">{a.UserNickname}</div></Link>
+                                  <div>{a.createdAt}</div>
+                                  <div>{a.content}</div>
+                                </div>
+                                <div>
+                                  <button>수정</button>
+                                  <button onClick={deleteReview}>삭제</button>
+                                </div>
+                              </div>
+                          )
+                        })
+                      :
+                        <div>리뷰가 없습니다.</div>
+                  }
                 </div>
               </div>
             ) : (
