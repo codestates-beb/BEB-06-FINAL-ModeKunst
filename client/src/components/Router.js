@@ -1,6 +1,9 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import {Login, Main, Signup, WritePost, ReadPost, User, NotFound, Chat, ChatRoom} from "../pages";
+
+import {Login, Main, Signup, WritePost, ReadPost, User, NotFound, Chat } from "../pages";
+
 import Header from "./common/Header";
+import UserRoutes from "./Routes/UserRoutes";
 import ForgotRoutes from "./Routes/ForgotRoutes";
 import ResetRoutes from "./Routes/ResetRoutes";
 
@@ -19,7 +22,7 @@ export default function Router() {
         <Route path="/login" element={<Login />} />
         <Route path="/write" element={<WritePost />} />
         <Route path="/post/:id" element={<ReadPost />} />
-        <Route path="/user/:id" element={<User />} />
+        <Route path="/user/:id/*" element={<UserRoutes />} />
         <Route path="/forgot/*" element={<ForgotRoutes />} />
         <Route path="/reset/*" element={<ResetRoutes />} />
         <Route path="*" element={<NotFound />} />
