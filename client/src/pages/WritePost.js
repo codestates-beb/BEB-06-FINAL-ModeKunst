@@ -1,6 +1,6 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useForm } from "react-hook-form";
+import { set, useForm } from "react-hook-form";
 import { useSelector } from "react-redux";
 import axios from "axios";
 
@@ -28,28 +28,41 @@ function WritePost() {
   const [isChecked, setIsChecked] = useState(false);
   const [isAdded, setIsAdded] = useState(false);
   const [imagePreview, setImagePreview] = useState();
-  const multipleImages = watch("image");
-  const imgRef = useRef(null);
+  const [multipleImages, setMultipleImages] = useState([]);
+  const imgArr = [];
+
+  const uploadImageHandler = e => {
+    const images = e.target.files;
+    if (images) {
+      for (let img of images) {
+        imgArr.push(img);
+      }
+      console.log(imgArr);
+    }
+    setMultipleImages(imgArr);
+  };
 
   useEffect(() => {
-    if (multipleImages) {
-      const previewM = Object.values(multipleImages).map(a => {
-        return URL.createObjectURL(a);
-      });
-      setImagePreview(previewM);
-    }
+    const previewM = multipleImages.map(a => {
+      return URL.createObjectURL(a);
+    });
+    setImagePreview(previewM);
   }, [multipleImages]);
 
   const removeImageHandler = e => {
-    console.log(e.target);
-    const multipleImgArr = Object.values(multipleImages);
+    console.log(e.target.name);
+    const idx = e.target.name;
     if (multipleImages) {
-      const newMultipleImages = multipleImgArr.filter(item => {
-        //모르겠다...
-      });
-      console.log(newMultipleImages);
+      const before = multipleImages.slice(0, idx);
+      const after = multipleImages.slice(idx + 1);
+      const newMultipleImg = [...before, ...after];
+
+      console.log(newMultipleImg);
+      setMultipleImages(newMultipleImg);
     }
   };
+
+  console.log(multipleImages);
 
   const render = data => {
     return data.map((image, i) => {
@@ -63,7 +76,11 @@ function WritePost() {
             key={image}
             onClick={removeImageHandler}
           />
-          <div className="absolute text-white text-center w-full h-full bottom-0 bg-black opacity-0 hover:h-full hover:opacity-50 duration-500 cursor-pointer">
+          <div
+            name={i}
+            onClick={removeImageHandler}
+            className="absolute text-white text-center w-full h-full bottom-0 bg-black opacity-0 hover:h-full hover:opacity-50 duration-500 cursor-pointer"
+          >
             <div className="self-center justify-center w-full h-full">
               삭제하기
             </div>
@@ -85,6 +102,7 @@ function WritePost() {
   };
 
   const onValid = data => {
+    console.log(data);
     try {
       const formData = new FormData();
       const {
@@ -106,11 +124,13 @@ function WritePost() {
         shoes_size,
       } = data;
 
-      const image_1 = data.image[0];
-      const image_2 = data.image[1];
-      const image_3 = data.image[2];
-      const image_4 = data.image[3];
-      const image_5 = data.image[4];
+      console.log(top_brand);
+
+      const image_1 = multipleImages[0];
+      const image_2 = multipleImages[1];
+      const image_3 = multipleImages[2];
+      const image_4 = multipleImages[3];
+      const image_5 = multipleImages[4];
 
       formData.append("title", title);
       formData.append("content", contents);
@@ -141,8 +161,9 @@ function WritePost() {
         })
         .then(result => {
           const data = result.data;
+          console.log(formData);
           alert(data.message);
-          navigate(`/post/${data.data.postId}`);
+          // navigate(`/post/${data.data.postId}`);
         })
         .catch(e => {
           console.log(e);
@@ -152,8 +173,6 @@ function WritePost() {
       console.log(e);
     }
   };
-
-  console.log(watch("image"));
 
   if (!isLoggedIn) {
     alert("로그인 후 이용해주세요.");
@@ -237,13 +256,15 @@ function WritePost() {
                         accept="image/*"
                         multiple
                         className="hidden"
-                        {...register(
-                          "image",
-                          {
-                            required: "이미지를 업로드해주세요",
-                          },
-                          { shouldFocus: true }
-                        )}
+                        onChange={uploadImageHandler}
+                        required
+                        // {...register(
+                        //   "image",
+                        //   {
+                        //     required: "이미지를 업로드해주세요",
+                        //   },
+                        //   { shouldFocus: true }
+                        // )}
                       />
                       <span className="text-xs text-red-500 font-semibold">
                         {errors?.image?.message}
