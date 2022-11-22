@@ -100,7 +100,7 @@ module.exports = {
             }
             try {
                 let post;
-                if(top_size){
+                if(!top_size){
                     console.log(nickname)
                     // 보상 토큰 정상 지급
                     // fashion_info 작성시 10개 지급
@@ -140,6 +140,8 @@ module.exports = {
                         UserNickname: nickname,
                     });
 
+                    const id = post.dataValues.id
+
                     // 옷 정보
                     await Product_brand.create(
                         {
@@ -147,6 +149,7 @@ module.exports = {
                             top: top_brand,
                             pants: pants_brand,
                             shoes: shoes_brand,
+                            PostId: id
                         }
                     );
                     await Product_name.create(
@@ -155,6 +158,7 @@ module.exports = {
                             top: top_name,
                             pants: pants_name,
                             shoes: shoes_name,
+                            PostId: id
                         }
                     );
                     await Product_size.create(
@@ -163,6 +167,7 @@ module.exports = {
                             top: top_size,
                             pants: pants_size,
                             shoes: shoes_size,
+                            PostId: id
                         }
                     );
 
@@ -204,31 +209,6 @@ module.exports = {
                         UserNickname: nickname,
                     });
 
-                    // 옷 정보
-                    await Product_brand.create(
-                        {
-                            outer: outer_brand,
-                            top: top_brand,
-                            pants: pants_brand,
-                            shoes: shoes_brand,
-                        }
-                    );
-                    await Product_name.create(
-                        {
-                            outer: outer_name,
-                            top: top_name,
-                            pants: pants_name,
-                            shoes: shoes_name,
-                        }
-                    );
-                    await Product_size.create(
-                        {
-                            outer: outer_size,
-                            top: top_size,
-                            pants: pants_size,
-                            shoes: shoes_size,
-                        }
-                    );
                 }
 
                 res.status(200).json({
