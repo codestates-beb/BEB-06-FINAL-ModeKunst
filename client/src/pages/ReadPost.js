@@ -6,6 +6,11 @@ import "slick-carousel/slick/slick-theme.css";
 import Slider from "react-slick";
 import axios from "axios";
 
+//📌to do
+//1. 좋아요 누르니까 로그인했는데 로그인 하라고 하면서 로그아웃 됨
+//2. 비슷한 룩 선택할 때 css 이상하게 들어감
+//3.
+
 function ReadPost() {
   const { id } = useParams();
   const userInfo = useSelector(state => state.user);
@@ -287,7 +292,7 @@ function ReadPost() {
 
                 <div className="text-sm">자연스럽게 예쁜 룩을 추구합니다:)</div>
                 {/* 🟠nft 정보: nft 보유 여부에 따라 map */}
-                <div classNAme="flex flex-row">
+                <div className="flex flex-row">
                   <div className="self-start inline-block text-xs px-2 py-1 w-fit font-bold bg-amber-200 rounded-full drop-shadow-sm">
                     캐주얼 top
                   </div>
