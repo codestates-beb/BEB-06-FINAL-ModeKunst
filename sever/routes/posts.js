@@ -28,7 +28,7 @@ router.post('/like/:postId', isLoggedIn,postsController.like.like);
 router.post('/unlike/:postId', isLoggedIn,postsController.like.unlike);
 
 // 리뷰 작성
-router.post('/review/:postId', postsController.review.post);
+router.post('/review/:postId', isLoggedIn ,postsController.review.post);
 
 // 리뷰 수정
 router.put('/review/:postId', postsController.review.put);
@@ -38,5 +38,9 @@ router.delete('/review/:postId', postsController.review.delete);
 
 // 검색
 router.get('/search/:name', postsController.search.search);
+
+//리뷰 목록
+router.get('/review/:postId', postsController.review.get);
+
 
 module.exports = router;
