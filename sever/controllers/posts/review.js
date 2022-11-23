@@ -1,4 +1,6 @@
 const { Review } = require('../../models');
+const {review} = require("./index");
+const {many} = require('../function/createdAt');
 
 module.exports = {
 
@@ -82,6 +84,47 @@ module.exports = {
             console.log(`sequelize Err`);
             console.log(e)
         }
+
+    },
+
+    get: async (req,res) => {
+        //전체 리뷰 가져오기 findAll
+
+        let {postId} = req.params;
+        let pageNum = req.query.page; //무한스크롤 페이지네이션
+        let offset = 0;//초기 오프셋
+
+        if(pageNum >1){
+            offset = 8 * (pageNum -1);
+        }
+
+
+        const reviewList = await Review.findAll({
+            offset: offset,
+            limit: 8,
+            order:[['createdAt','DESC']],
+            where:{ Postid : postId }
+        });
+
+        console.log('리뷰 목록',reviewList);
+
+        const dateFormatReviews= reviewList.map((review)=>{
+            return new Date(review.createdAt);
+        });
+
+        let diff = many(dateFormatReviews);
+
+        const reviews = reviewList.map((el,idx)=>{
+            return {
+                id: el.id,
+                nickname : el.UserNickname,
+                content: el.content,
+                create_at: diff[idx],
+            }
+        })
+
+        return res.status(200).json({reviews});
+
 
     },
 
