@@ -285,6 +285,9 @@ function ReadPost() {
                   <Link to={`/user/${writer}`}>
                     <div className="text-lg font-bold">{writer}</div>
                   </Link>
+                  <Link to={'/chat'} state={writer.nickname}>
+                    <button>채팅</button>
+                  </Link>
                   <div className='"self-start inline-block text-xs px-2 py-1 w-fit font-light text-white bg-blue-900 rounded-full drop-shadow-sm"'>
                     팔로워 12.0k
                   </div>

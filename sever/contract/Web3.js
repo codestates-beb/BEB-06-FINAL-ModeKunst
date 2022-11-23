@@ -2,7 +2,7 @@ require("dotenv").config();
 const Web3 = require("web3");
 const fs = require("fs");
 const path = require("path");
-const { Server } = require("../models");
+const { Server, Token_price } = require("../models");
 const rpcUrl = process.env.RPC_URL;
 const serverPKey = process.env.SERVER_PKEY;
 
@@ -86,6 +86,10 @@ module.exports = {
               address: server_addr,
               eth_amount: server_eth,
             },
+          });
+
+          await Token_price.findOrCreate({
+            where: { id : 1},
           });
 
           if (create[1]) {

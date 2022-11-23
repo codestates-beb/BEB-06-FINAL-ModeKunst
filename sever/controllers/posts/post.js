@@ -1,5 +1,6 @@
 const fs = require("fs");
 const path = require("path");
+
 const {
   User,
   Follow,
@@ -10,9 +11,14 @@ const {
   Product_name,
   Product_brand,
   Product_size,
+  Server,
+  Token_price,
 } = require("../../models");
+const { web3, abi20, serverPKey, getBalance } = require("../../contract/Web3");
+
 const { literal, Op } = require("sequelize");
 const { one } = require("../function/createdAt");
+const { add } = require("nodemon/lib/rules");
 
 module.exports = {
   // 게시물 작성
@@ -67,13 +73,12 @@ module.exports = {
         pants_size,
         shoes_size,
       } = req.body;
-
       if (top_post) {
         // token 지불
       }
       try {
         let post;
-        if (!top_size) {
+        if (top_size) {
           console.log(nickname);
           // 보상 토큰 정상 지급
           post = await Post.create({
@@ -90,29 +95,24 @@ module.exports = {
             UserNickname: nickname,
           });
 
-          const id = post.dataValues.id;
-
           // 옷 정보
           await Product_brand.create({
             outer: outer_brand,
             top: top_brand,
             pants: pants_brand,
             shoes: shoes_brand,
-            PostId: id,
           });
           await Product_name.create({
             outer: outer_name,
             top: top_name,
             pants: pants_name,
             shoes: shoes_name,
-            PostId: id,
           });
           await Product_size.create({
             outer: outer_size,
             top: top_size,
             pants: pants_size,
             shoes: shoes_size,
-            PostId: id,
           });
         } else {
           // 보상 토큰 적게 지급
