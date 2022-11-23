@@ -67,9 +67,10 @@ module.exports = {
     const { nickname } = req.params;
     console.log(`입력받은 nickname : ${nickname}`);
 
-    const user = User.findOne({
+    const user = await User.findOne({
       where: { nickname: nickname },
     });
+
 
     if (!user) {
       res.status(200).json({

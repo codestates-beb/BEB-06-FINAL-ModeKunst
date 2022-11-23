@@ -86,19 +86,30 @@ http.listen(port, () => {
   console.log("Listening...");
 });
 
-
 let count = 0;
 
 io.on('connection', (socket) => {
     count++;
-    socket.on('create', (data) => {
+    socket.on('dm', (data) => {
         const { sender, receiver } = data;
-        create(sender, receiver).then((a) => {
-            console.log(a)
+        create(sender, receiver).then((data) => {
+            let roomId;
+            let messages;
+            if(data?.messages){
+                roomId = data.chatRoom;
+                messages = data.messages;
+            }else{
+                roomId = data;
+            }
+
+            socket.join(roomId);
+
+            io.to(roomId).emit('dm', { roomId, messages })
+
         });
 
     });
-  
+
 
 
     socket.on('join', (data) => {
@@ -107,11 +118,12 @@ io.on('connection', (socket) => {
         socket.join(roomId)
 
         join(roomId).then((data) => {
+            console.log(data);
             io.to(roomId).emit('chatRoom', data);
         });
 
     });
-  
+
 
 
     socket.on('send', (data) => {
@@ -122,4 +134,3 @@ io.on('connection', (socket) => {
         })
     })
 })
-

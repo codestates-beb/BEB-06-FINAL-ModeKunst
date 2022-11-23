@@ -67,7 +67,7 @@ contract ICToken is ERC20Interface {
     // user 은 토큰의 주인임 (사용자들)
     function approve(address tokenowner, uint amount) external virtual override returns (bool) {
         uint256 currentAllownace = _allowances[tokenowner][msg.sender];
-        // require(amount >= currentAllownace, "ERC20: Transfer amount exceeds allowance");
+         require(amount >= currentAllownace, "ERC20: Transfer amount exceeds allowance");
         _approve(tokenowner, msg.sender, currentAllownace, amount);
         return true;
     }

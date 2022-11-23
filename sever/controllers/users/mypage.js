@@ -1,5 +1,5 @@
 const { User, Follow, Post, Token, Like } = require("../../models");
-const { literal  } = require('sequelize');
+const { literal, Op  } = require('sequelize');
 const { many } = require('../function/createdAt');
 
 module.exports = {
@@ -14,7 +14,7 @@ module.exports = {
       //유저 정보 가져오기
       const user = await User.findOne({
         where: { nickname: nickname },
-        attributes: ['nickname', 'profile_img', 'height', 'weight', 'gender', 'sns_url'],
+        attributes: ['nickname', 'profile_img', 'height', 'weight', 'gender', 'sns_url', 'followers_num'],
         raw: true
       });
 
@@ -24,14 +24,10 @@ module.exports = {
 
       isFollow = !!isFollow;
 
-      const follow_amount = await Follow.count({
-        where: { following: nickname }
-      })
-
       const posts = await Post.findAll({
         where: {UserNickname: nickname},
-        order: literal('views DESC'),
-        attributes: ['id', 'image_1', 'title', 'content', 'category', 'views', 'createdAt', 'UserNickname'],
+        order: literal('likes_num DESC'),
+        attributes: ['id', 'image_1', 'title', 'content', 'category', 'views', 'createdAt', 'UserNickname', 'likes_num', 'reviews_num'],
         raw: true
       });
 
@@ -46,11 +42,15 @@ module.exports = {
         post.createdAt = diff[i]
       });
 
+
+      //TODO 다시 짜야함
       const likePosts = await Post.findAll({
-        include: [ { model: Like, where: { UserNickname: nickname }, attributes: ['PostId'] } ],
-        attributes: ['id', 'image_1', 'title', 'content', 'category', 'views', 'createdAt', 'UserNickname'],
+        include: [ { model: Like, where: { UserNickname: nickname } }, { model: User, where: { nickname: nickname }, attributes: ['profile_img'] } ],
+        attributes: ['id', 'image_1', 'title', 'content', 'category', 'views', 'createdAt', 'UserNickname', 'likes_num', 'reviews_num'],
+         where: {UserNickname : { [Op.ne]: nickname}},
         raw: true
       });
+
 
       const dateFormatLikePosts = likePosts.map((post) =>{
         return new Date(post.createdAt);
@@ -114,7 +114,6 @@ module.exports = {
             message: `${nickname}님의 마이페이지`,
             data: {
                 user,
-                follow_amount,
                 posts,
                 likePosts,
                 followers: realFollowers,
