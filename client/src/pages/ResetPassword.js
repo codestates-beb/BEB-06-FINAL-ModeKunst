@@ -39,11 +39,11 @@ function ResetPassword() {
         .post(`http://localhost:8000/users/${email}/pwupdate`, data, {
           withCredentials: true,
         })
-        .then(console.log(result));
+        .then(console.log(res));
       if (result.status === 200) {
         Swal.fire({
           icon: "success",
-          text: `${res.data.message}`,
+          text: `${result.data.message}`,
         });
         // .then(() => navigate("/"));
       }
