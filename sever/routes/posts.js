@@ -36,4 +36,7 @@ router.put('/review/:postId', postsController.review.put);
 // 리뷰 삭제
 router.delete('/review/:postId', postsController.review.delete);
 
+// 검색
+router.get('/search/:name', postsController.search.search);
+
 module.exports = router;
