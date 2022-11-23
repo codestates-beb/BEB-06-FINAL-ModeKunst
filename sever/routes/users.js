@@ -33,7 +33,7 @@ router.get("/pwfind/:email/:phonenumber", usersController.find.password);
 router.get("/search/:nickname", usersController.search.get);
 
 //로그인
-router.post("/login", isNotLoggedIn,usersController.login.post);
+router.post("/login", isNotLoggedIn, usersController.login.post);
 
 //보유 토큰 양
 router.get("/tokens/:nickname", usersController.tokens.get);

@@ -132,9 +132,12 @@ function WritePost() {
       const image_4 = multipleImages[3];
       const image_5 = multipleImages[4];
 
+
+
       formData.append("title", title);
       formData.append("content", contents);
       formData.append("category", category);
+      formData.append('haveInfo', isChecked);
       formData.append("top_post", upstream);
       formData.append("outer_brand", outer_brand);
       formData.append("outer_name", outer_name);
@@ -153,7 +156,7 @@ function WritePost() {
       formData.append("image", image_3);
       formData.append("image", image_4);
       formData.append("image", image_5);
-      formData.append("nickname", userInfo.userInfo.nickname);
+
 
       axios
         .post("http://localhost:8000/posts/board", formData, {

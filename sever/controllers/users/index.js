@@ -1,7 +1,6 @@
 module.exports = {
     check: require('./check'),
     delete: require('./delete'),
-    following: require('./following'),
     login: require('./login'),
     logout: require('./logout'),
     mypage: require('./mypage'),

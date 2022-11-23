@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 
-const { User, Follow, Token, Like, Review, Post, Product_name, Product_brand, Product_size,Server } = require('../../models');
+const { User, Follow, Token, Like, Review, Post, Product_name, Product_brand, Product_size,Server, Token_price} = require('../../models');
 const { web3, abi20, serverPKey, getBalance } = require('../../contract/Web3');
 
 
@@ -56,7 +56,9 @@ module.exports = {
             const { address, erc20 } = serverInfo;
 
             const contract = await new web3.eth.Contract(abi20, erc20);
-
+            const price = await Token_price.findOne({ where: { id: 1 }, attributes: [ 'write_post_info', 'write_post', 'top_post', 'like_user_price', 'like_sever_price' ], raw: true });
+            const top_post_price = price.top_post;
+            const { write_post_info, write_post, like_sever_price, like_user_price } = price;
             if (top_post) {
                 // token 지불
                 // 게시물 상단 노출은 토큰 20 개 지불 
@@ -65,13 +67,13 @@ module.exports = {
                     const { token_amount } = await User.findOne({ where: { nickname: nickname}, attributes: ['token_amount'], raw: true });
                     if(token_amount >= 20){
                         try{
-                            const ApproveData = contract.methods.approve(userSession.address, 20).encodeABI();
+                            const ApproveData = contract.methods.approve(userSession.address, top_post_price).encodeABI();
                             const approveRawTransaction = { 'to': erc20, 'gas': 100000, "data": ApproveData };
                             const approveSignTx = await web3.eth.accounts.signTransaction(approveRawTransaction, serverPKey);
                             await web3.eth.sendSignedTransaction(approveSignTx.rawTransaction);
 
                             try{
-                                const transferFromData =  contract.methods.transferFrom(userSession.address, address, 20).encodeABI();
+                                const transferFromData =  contract.methods.transferFrom(userSession.address, address, top_post_price).encodeABI();
                                 const transferRawTransaction = { 'to': erc20, 'gas': 100000, "data": transferFromData };
                                 const transferSignTx = await web3.eth.accounts.signTransaction(transferRawTransaction, serverPKey);
                                 await web3.eth.sendSignedTransaction(transferSignTx.rawTransaction);
@@ -83,7 +85,7 @@ module.exports = {
                                     if(haveInfo){
                                         // 보상 토큰 정상 지급 fashion_info 작성시 10개 지급 req.session.user로 사용자에게 10개 지급
 
-                                        const data = contract.methods.transfer(userSession.address, 10).encodeABI();
+                                        const data = contract.methods.transfer(userSession.address, write_post_info).encodeABI();
                                         const rawTransaction = { 'to': erc20, 'gas': 100000, "data": data };
                                         const signTx = await web3.eth.accounts.signTransaction(rawTransaction, serverPKey);
                                         const sendSignTx = await web3.eth.sendSignedTransaction(signTx.rawTransaction);
@@ -112,10 +114,10 @@ module.exports = {
                                             title: title,
                                             content: content,
                                             category: category,
-                                            server_price: 1,
-                                            user_price: 1,
+                                            server_price: like_sever_price,
+                                            user_price: like_user_price,
                                             top_post: top_post,
-                                            haveInfo: haveInfo,
+                                            have_info: haveInfo,
                                             UserNickname: nickname,
                                         });
 
@@ -155,7 +157,7 @@ module.exports = {
                                         // 보상 토큰 적게 지급
                                         //fashion_info 미작성시 5개 지급
 
-                                        const data = contract.methods.transfer(userSession.address, 5).encodeABI();
+                                        const data = contract.methods.transfer(userSession.address, write_post).encodeABI();
                                         const rawTransaction = { 'to': erc20, 'gas': 100000, "data": data };
                                         const signTx = await web3.eth.accounts.signTransaction(rawTransaction, serverPKey);
                                         const sendSignTx = await web3.eth.sendSignedTransaction(signTx.rawTransaction);
@@ -184,7 +186,7 @@ module.exports = {
                                             title: title,
                                             content: content,
                                             category: category,
-                                            server_price: 1,
+                                            server_price: like_sever_price,
                                             UserNickname: nickname,
                                         });
                                     }
@@ -219,7 +221,7 @@ module.exports = {
                     if(haveInfo){
                         // 보상 토큰 정상 지급 fashion_info 작성시 10개 지급 req.session.user로 사용자에게 10개 지급
 
-                        const data = contract.methods.transfer(userSession.address, 10).encodeABI();
+                        const data = contract.methods.transfer(userSession.address, write_post_info).encodeABI();
                         const rawTransaction = { 'to': erc20, 'gas': 100000, "data": data };
                         const signTx = await web3.eth.accounts.signTransaction(rawTransaction, serverPKey);
                         const sendSignTx = await web3.eth.sendSignedTransaction(signTx.rawTransaction);
@@ -248,10 +250,10 @@ module.exports = {
                             title: title,
                             content: content,
                             category: category,
-                            server_price: 1,
-                            user_price: 1,
+                            server_price: like_sever_price,
+                            user_price: like_user_price,
                             top_post: top_post,
-                            haveInfo: haveInfo,
+                            have_info: haveInfo,
                             UserNickname: nickname,
                         });
 
@@ -291,7 +293,7 @@ module.exports = {
                         // 보상 토큰 적게 지급
                         //fashion_info 미작성시 5개 지급
 
-                        const data = contract.methods.transfer(userSession.address, 5).encodeABI();
+                        const data = contract.methods.transfer(userSession.address, write_post).encodeABI();
                         const rawTransaction = { 'to': erc20, 'gas': 100000, "data": data };
                         const signTx = await web3.eth.accounts.signTransaction(rawTransaction, serverPKey);
                         const sendSignTx = await web3.eth.sendSignedTransaction(signTx.rawTransaction);
@@ -320,7 +322,7 @@ module.exports = {
                             title: title,
                             content: content,
                             category: category,
-                            server_price: 1,
+                            server_price: like_sever_price,
                             UserNickname: nickname,
                         });
                     }
@@ -360,16 +362,15 @@ module.exports = {
             if(have_info){
                 post = await Post.findOne({
                     where: { id: postId },
-                    attributes: ['image_1', 'image_2', 'image_3', 'image_4', 'image_5', 'title', 'content', 'category', 'views', 'top_post', 'likes_num', 'reviews_num', 'createdAt', 'UserNickname'],
-                })
-            }else{
-                post = await Post.findOne({
-                    where: { id: postId },
                     include: [{model: Product_brand, attributes: ['outer', 'top', 'pants', 'shoes']}, { model: Product_name, attributes: ['outer', 'top', 'pants', 'shoes']}, { model: Product_size, attributes: ['outer', 'top', 'pants', 'shoes']}, ],
                     attributes: ['image_1', 'image_2', 'image_3', 'image_4', 'image_5', 'title', 'content', 'category', 'views', 'top_post', 'likes_num', 'reviews_num', 'createdAt', 'UserNickname'],
                 });
+            }else{
+                post = await Post.findOne({
+                    where: { id: postId },
+                    attributes: ['image_1', 'image_2', 'image_3', 'image_4', 'image_5', 'title', 'content', 'category', 'views', 'top_post', 'likes_num', 'reviews_num', 'createdAt', 'UserNickname'],
+                })
             }
-
 
             const { image_1, image_2, image_3, image_4, image_5, title, content, category, views, UserNickname, likes_num, reviews_num, top_post } = post.dataValues;
             const createdAt = one(post.dataValues?.createdAt);
