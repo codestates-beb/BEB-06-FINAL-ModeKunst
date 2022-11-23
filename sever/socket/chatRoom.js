@@ -12,7 +12,7 @@ module.exports = {
                 },
                 raw: true
             })
-
+            console.log(hasChat)
             if(!hasChat){
                 try{
                     const chatRoom = await Chat.create({
@@ -37,14 +37,14 @@ module.exports = {
                 });
 
                 console.log('이미 존재하는 방 입니다.');
-                return chatRoom;
+                return { chatRoom, messages};
             }
         }
     },
 
-    find: async (req, res) => {
+    find: async (sender) => {
         //const sender = req.session.user?.nickname;
-        const sender = req.params.nickname;
+
         if(sender){
 
             const chatRoom = await Chat.findAll({
@@ -62,12 +62,7 @@ module.exports = {
                 }
             });
 
-            res.status(200).json({
-                message: `${sender}님의 채팅방 목록`,
-                data: {
-                    chatRoomName
-                }
-            });
+            return chatRoomName
 
         }else{
             res.status(401).json({

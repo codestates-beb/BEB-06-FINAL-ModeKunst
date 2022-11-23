@@ -1,6 +1,6 @@
 const { User, Post } = require('../../models');
 const {literal} = require("sequelize");
-
+const { many } = require('../function/createdAt');
 module.exports = {
 
     // 검색
@@ -10,41 +10,23 @@ module.exports = {
 
         const user = await User.findOne({
             where: { nickname: nickname },
+            attributes: ['nickname', 'profile_img', 'height', 'weight', 'gender', 'sns_url', 'followers_num', 'followings_num']
         });
 
         if(user) {
             const posts = await Post.findAll({
                 where: {UserNickname: nickname},
-                order: literal('views DESC'),
-                attributes: ['id', 'image_1', 'title', 'content', 'category', 'views', 'createdAt', 'UserNickname'],
+                order: literal('likes_num DESC'),
+                attributes: ['id', 'image_1', 'title', 'content', 'category', 'views', 'createdAt', 'UserNickname', 'likes_num', 'reviews_num'],
                 raw: true
             });
 
-            // 현재 시간
-            const today = new Date();
 
             const dateFormatPosts = posts.map((post) =>{
                 return new Date(post.createdAt);
             });
 
-            //console.log(dateFormatPosts);
-
-            const diff = dateFormatPosts.map((time) => {
-                const sec = Math.floor((today - time) / 1000);
-                if(sec < 60) return '방금 전'
-                const min = sec / 60
-                if(min < 60) return `${Math.floor(min)}분 전`
-                const hour = min / 60
-                if(hour < 24) return `${Math.floor(hour)}시간 전`
-                const day = hour / 24
-                if(day / 7) return `${Math.floor(day)}일 전`
-                const week = day / 7
-                if(week < 5) return `${Math.floor(week)}주 전`
-                const month = day / 30
-                if(month < 12) return `${Math.floor(month)}개월 전`
-                const year = day / 365
-                return `${Math.floor(year)}`
-            });
+            const diff = many(dateFormatPosts);
 
 
             posts.map((post, i) => {
@@ -56,8 +38,8 @@ module.exports = {
                 res.status(200).json({
                     message: `${nickname}님의 게시물 목록`,
                     data: {
-                        nickname: nickname,
-                        posts : posts,
+                        user,
+                        posts
                     }
                 });
             }else {
@@ -72,3 +54,4 @@ module.exports = {
         }
     }
 }
+

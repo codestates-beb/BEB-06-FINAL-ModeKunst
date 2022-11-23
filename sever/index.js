@@ -47,7 +47,7 @@ app.use("/profile_img", express.static("profile_img"));
 app.use("/post_img", express.static("post_img"));
 
 app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser(process.env.COOKIE_SECRET));
 
 app.use(
@@ -88,34 +88,49 @@ http.listen(port, () => {
 
 let count = 0;
 
-io.on("connection", socket => {
-  count++;
-  socket.on("create", data => {
-    const { sender, receiver } = data;
-    create(sender, receiver).then(a => {
-      console.log(a);
-    });
-  });
+io.on('connection', (socket) => {
+    count++;
+    socket.on('dm', (data) => {
+        const { sender, receiver } = data;
+        create(sender, receiver).then((data) => {
+            let roomId;
+            let messages;
+            if(data?.messages){
+                roomId = data.chatRoom;
+                messages = data.messages;
+            }else{
+                roomId = data;
+            }
 
-  socket.on("join", data => {
-    const { sender, receiver, roomId } = data;
-    console.log(
-      `입력받은 sender ${sender}, receiver: ${receiver}, roomId: ${roomId}`
-    );
-    socket.join(roomId);
+            socket.join(roomId);
 
-    join(roomId).then(data => {
-      io.to(roomId).emit("chatRoom", data);
-    });
-  });
+            io.to(roomId).emit('dm', { roomId, messages })
 
-  socket.on("send", data => {
-    const { id, sender, receiver, message } = data;
-    console.log(
-      `입력받은 id: ${id} sender: ${sender} receiver: ${receiver} message: ${message}`
-    );
-    send(id, sender, receiver, message).then(result => {
-      io.to(id).emit("messages", result);
+        });
+
     });
-  });
-});
+
+
+
+    socket.on('join', (data) => {
+        const { sender, receiver, roomId } = data;
+        console.log(`입력받은 sender ${sender}, receiver: ${receiver}, roomId: ${roomId}`)
+        socket.join(roomId)
+
+        join(roomId).then((data) => {
+            console.log(data);
+            io.to(roomId).emit('chatRoom', data);
+        });
+
+    });
+
+
+
+    socket.on('send', (data) => {
+        const { id, sender, receiver, message } = data;
+        console.log(`입력받은 id: ${id} sender: ${sender} receiver: ${receiver} message: ${message}`);
+        send(id, sender, receiver, message).then((result) => {
+            io.to(id).emit('messages', result);
+        })
+    })
+})
