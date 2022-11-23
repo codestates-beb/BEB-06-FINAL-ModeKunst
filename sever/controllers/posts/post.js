@@ -2,12 +2,13 @@ const fs = require('fs');
 const path = require('path');
 
 
-const { User, Follow, Token, Like, Review, Post, Product_name, Product_brand, Product_size,Server } = require('../../models');
+const { User, Follow, Token, Like, Review, Post, Product_name, Product_brand, Product_size,Server, Token_price} = require('../../models');
 const { web3, abi20, serverPKey, getBalance } = require('../../contract/Web3');
 
 
 const { literal , Op } = require('sequelize');
 const { one } = require('../function/createdAt');
+const {add} = require("nodemon/lib/rules");
 
 module.exports = {
 
@@ -18,7 +19,6 @@ module.exports = {
         if(req.files.length <= 2){
             req.files.map((file) => {
                 if(fs.existsSync(path.join(__dirname, '..', '..', 'post_img', `${file.filename}`))){
-                //console.log(fs.existsSync(path.join(__dirname, '..', '..', 'post_img', `${file.filename}`)));;
                     try{
                         fs.unlinkSync(path.join(__dirname, '..', '..', 'post_img', `${file.filename}`));
                     } catch (e) {
@@ -43,183 +43,300 @@ module.exports = {
 
             const [image_1, image_2, image_3, image_4, image_5] = imagePathList;
 
-            const { nickname, title, content, category, top_post } = req.body;
+            const userSession = req.session.user; //사용자의 세션 정보
+
+            const nickname = userSession.nickname
+            let { title, content, category, top_post, haveInfo } = req.body;
             const { outer_brand, top_brand, pants_brand, shoes_brand, outer_name, top_name, pants_name, shoes_name, outer_size, top_size, pants_size, shoes_size } = req.body;
 
-            const userSession = req.session.user; //사용자의 세션 정보 
-            const server_Accounts = await web3.eth.getAccounts();
-            const serverInfo = await Server.findOne({
-                        attributes: ['address', 'erc20'],
-                        where: { address: server_Accounts[0] }
-                    });
-            const serverAddress = serverInfo.dataValues.address;
-            const erc20 = serverInfo.dataValues.erc20;
+            top_post = top_post === 'true';
+            haveInfo = haveInfo === 'true';
+
+            const serverInfo = await Server.findOne({ attributes: ['address', 'erc20'], raw: true });
+            const { address, erc20 } = serverInfo;
+
             const contract = await new web3.eth.Contract(abi20, erc20);
-            if (Number(top_post)) {
+            const price = await Token_price.findOne({ where: { id: 1 }, attributes: [ 'write_post_info', 'write_post', 'top_post', 'like_user_price', 'like_sever_price' ], raw: true });
+            const top_post_price = price.top_post;
+            const { write_post_info, write_post, like_sever_price, like_user_price } = price;
+            if (top_post) {
                 // token 지불
                 // 게시물 상단 노출은 토큰 20 개 지불 
                 // 사용자에게 approve 받아서 서버가 transferfrom 사용하여 본인에게 전송
-                const test = await contract.methods.allowance(userSession.address, serverAddress).call();
-                console.log(test); //approve 받은 갯수 확인 
-                console.log('사용자 토큰 갯수 : ',await contract.methods.balanceOf(userSession.address).call())
-                
-                const ApproveData = await contract.methods.approve(userSession.address, 20).encodeABI();
-                const approveRawTransaction = { 'to': erc20, 'gas': 100000, "data": ApproveData };
-                const approveSignTx = await web3.eth.accounts.signTransaction(approveRawTransaction, serverPKey);
-                const approveSendSignTx = await web3.eth.sendSignedTransaction(approveSignTx.rawTransaction); 
-                
-                try { 
-                const transferfromData = await contract.methods.transferFrom(userSession.address, serverAddress, 20).encodeABI();
-                const transferRawTransaction = { 'to': erc20, 'gas': 100000, "data": transferfromData };
-                const transferSignTx = await web3.eth.accounts.signTransaction(transferRawTransaction, serverPKey);
-                const transferSendSignTx = await web3.eth.sendSignedTransaction(transferSignTx.rawTransaction);
-                //사용자 보유 토큰이 20개가 넘어가야함 
-                    
-                if (approveSendSignTx && transferSendSignTx) {
-                    const server_eth = await getBalance(serverAddress);
-                    const serverBalance = await contract.methods.balanceOf(serverAddress).call();
-                    const clientBalance = await contract.methods.balanceOf(userSession.address).call();
+                try{
+                    const { token_amount } = await User.findOne({ where: { nickname: nickname}, attributes: ['token_amount'], raw: true });
+                    if(token_amount >= 20){
+                        try{
+                            const ApproveData = contract.methods.approve(userSession.address, top_post_price).encodeABI();
+                            const approveRawTransaction = { 'to': erc20, 'gas': 100000, "data": ApproveData };
+                            const approveSignTx = await web3.eth.accounts.signTransaction(approveRawTransaction, serverPKey);
+                            await web3.eth.sendSignedTransaction(approveSignTx.rawTransaction);
 
-                    await Server.update({
-                        eth_amount: server_eth,
-                        token_amount: serverBalance
-                      }, { where: { address: serverAddress } });
-                      
-                      await User.update({
-                        token_amount: clientBalance
-                      }, { where: { email: userSession.email } });
-                    
-                    
-                }
-                } catch (err) {
-                    return res.status(400).json({message:"토큰의 갯수가 부족합니다."})
-                }
-                
-                
-                
-            }
-            try {
-                let post;
-                if(!top_size){
-                    console.log(nickname)
-                    // 보상 토큰 정상 지급
-                    // fashion_info 작성시 10개 지급
-                    // req.session.user로 사용자에게 10개 지급 
-                    
-                    const data = contract.methods.transfer(userSession.address, 10).encodeABI();
-                    const rawTransaction = { 'to': erc20, 'gas': 100000, "data": data };
-                    const signTx = await web3.eth.accounts.signTransaction(rawTransaction, serverPKey);
-                    const sendSignTx = await web3.eth.sendSignedTransaction(signTx.rawTransaction);
+                            try{
+                                const transferFromData =  contract.methods.transferFrom(userSession.address, address, top_post_price).encodeABI();
+                                const transferRawTransaction = { 'to': erc20, 'gas': 100000, "data": transferFromData };
+                                const transferSignTx = await web3.eth.accounts.signTransaction(transferRawTransaction, serverPKey);
+                                await web3.eth.sendSignedTransaction(transferSignTx.rawTransaction);
 
-                    if (sendSignTx) {
-                        const server_eth = await getBalance(serverAddress);
-                        const serverBalance = await contract.methods.balanceOf(serverAddress).call();
-                        const clientBalance = await contract.methods.balanceOf(userSession.address).call();
 
-                        await Server.update({
-                            eth_amount: server_eth,
-                            token_amount: serverBalance
-                          }, { where: { address: serverAddress } });
-                          
-                          await User.update({
-                            token_amount: clientBalance
-                          }, { where: { email: userSession.email } });
-                    }
-                    
-                    post = await Post.create({
-                        image_1: image_1,
-                        image_2: image_2,
-                        image_3: image_3,
-                        image_4: image_4,
-                        image_5: image_5,
-                        title: title,
-                        content: content,
-                        category: category,
-                        price: 2,
-                        top_post: top_post,
-                        UserNickname: nickname,
-                    });
+                                try {
+                                    let post;
 
-                    const id = post.dataValues.id
+                                    if(haveInfo){
+                                        // 보상 토큰 정상 지급 fashion_info 작성시 10개 지급 req.session.user로 사용자에게 10개 지급
 
-                    // 옷 정보
-                    await Product_brand.create(
-                        {
-                            outer: outer_brand,
-                            top: top_brand,
-                            pants: pants_brand,
-                            shoes: shoes_brand,
-                            PostId: id
+                                        const data = contract.methods.transfer(userSession.address, write_post_info).encodeABI();
+                                        const rawTransaction = { 'to': erc20, 'gas': 100000, "data": data };
+                                        const signTx = await web3.eth.accounts.signTransaction(rawTransaction, serverPKey);
+                                        const sendSignTx = await web3.eth.sendSignedTransaction(signTx.rawTransaction);
+
+                                        if (sendSignTx) {
+                                            const server_eth = await getBalance(address);
+                                            const serverBalance = await contract.methods.balanceOf(address).call();
+                                            const clientBalance = await contract.methods.balanceOf(userSession.address).call();
+
+                                            await Server.update({
+                                                eth_amount: server_eth,
+                                                token_amount: serverBalance
+                                            }, { where: { address: address } });
+
+                                            await User.update({
+                                                token_amount: clientBalance
+                                            }, { where: { email: userSession.email } });
+                                        }
+
+                                        post = await Post.create({
+                                            image_1: image_1,
+                                            image_2: image_2,
+                                            image_3: image_3,
+                                            image_4: image_4,
+                                            image_5: image_5,
+                                            title: title,
+                                            content: content,
+                                            category: category,
+                                            server_price: like_sever_price,
+                                            user_price: like_user_price,
+                                            top_post: top_post,
+                                            have_info: haveInfo,
+                                            UserNickname: nickname,
+                                        });
+
+                                        const id = post.dataValues.id
+
+                                        // 옷 정보
+                                        await Product_brand.create(
+                                            {
+                                                outer: outer_brand,
+                                                top: top_brand,
+                                                pants: pants_brand,
+                                                shoes: shoes_brand,
+                                                PostId: id
+                                            }
+                                        );
+                                        await Product_name.create(
+                                            {
+                                                outer: outer_name,
+                                                top: top_name,
+                                                pants: pants_name,
+                                                shoes: shoes_name,
+                                                PostId: id
+                                            }
+                                        );
+                                        await Product_size.create(
+                                            {
+                                                outer: outer_size,
+                                                top: top_size,
+                                                pants: pants_size,
+                                                shoes: shoes_size,
+                                                PostId: id
+                                            }
+                                        );
+
+
+                                    }else{
+                                        // 보상 토큰 적게 지급
+                                        //fashion_info 미작성시 5개 지급
+
+                                        const data = contract.methods.transfer(userSession.address, write_post).encodeABI();
+                                        const rawTransaction = { 'to': erc20, 'gas': 100000, "data": data };
+                                        const signTx = await web3.eth.accounts.signTransaction(rawTransaction, serverPKey);
+                                        const sendSignTx = await web3.eth.sendSignedTransaction(signTx.rawTransaction);
+
+                                        if (sendSignTx) {
+                                            const server_eth = await getBalance(address);
+                                            const serverBalance = await contract.methods.balanceOf(address).call();
+                                            const clientBalance = await contract.methods.balanceOf(userSession.address).call();
+
+                                            await Server.update({
+                                                eth_amount: server_eth,
+                                                token_amount: serverBalance
+                                            }, { where: { address: address } });
+
+                                            await User.update({
+                                                token_amount: clientBalance
+                                            }, { where: { email: userSession.email } });
+                                        }
+
+                                        post = await Post.create({
+                                            image_1: image_1,
+                                            image_2: image_2,
+                                            image_3: image_3,
+                                            image_4: image_4,
+                                            image_5: image_5,
+                                            title: title,
+                                            content: content,
+                                            category: category,
+                                            server_price: like_sever_price,
+                                            UserNickname: nickname,
+                                        });
+                                    }
+
+                                    res.status(200).json({
+                                        message: '게시물이 등록 되었습니다.',
+                                        data: {
+                                            postId: post.dataValues.id,
+                                        }
+                                    })
+                                } catch (e) {
+                                    console.log('Sequelize err');
+                                    console.log(e);
+                                }
+                            }catch (e) {
+                                console.log('transferFrom Err')
+                            }
+                        } catch (e) {
+                            console.log('approve Err')
                         }
-                    );
-                    await Product_name.create(
-                        {
-                            outer: outer_name,
-                            top: top_name,
-                            pants: pants_name,
-                            shoes: shoes_name,
-                            PostId: id
-                        }
-                    );
-                    await Product_size.create(
-                        {
-                            outer: outer_size,
-                            top: top_size,
-                            pants: pants_size,
-                            shoes: shoes_size,
-                            PostId: id
-                        }
-                    );
 
-
-                }else{
-                    // 보상 토큰 적게 지급
-                    //fashion_info 미작성시 5개 지급 
-
-                    const data = contract.methods.transfer(userSession.address, 5).encodeABI();
-                    const rawTransaction = { 'to': erc20, 'gas': 100000, "data": data };
-                    const signTx = await web3.eth.accounts.signTransaction(rawTransaction, serverPKey);
-                    const sendSignTx = await web3.eth.sendSignedTransaction(signTx.rawTransaction);
-
-                    if (sendSignTx) {
-                        const server_eth = await getBalance(serverAddress);
-                        const serverBalance = await contract.methods.balanceOf(serverAddress).call();
-                        const clientBalance = await contract.methods.balanceOf(userSession.address).call();
-
-                        await Server.update({
-                            eth_amount: server_eth,
-                            token_amount: serverBalance
-                          }, { where: { address: serverAddress } });
-                          
-                          await User.update({
-                            token_amount: clientBalance
-                          }, { where: { email: userSession.email } });
+                    }else{
+                        return res.status(400).json({message:"토큰의 갯수가 부족합니다."})
                     }
-                    
-                    post = await Post.create({
-                        image_1: image_1,
-                        image_2: image_2,
-                        image_3: image_3,
-                        image_4: image_4,
-                        image_5: image_5,
-                        title: title,
-                        content: content,
-                        category: category,
-                        top_post: top_post,
-                        UserNickname: nickname,
-                    });
-
+                } catch (e) {
+                    console.log('Sequelize Err')
                 }
+            }else{
+                try {
+                    let post;
 
-                res.status(200).json({
-                    message: '게시물이 등록 되었습니다.',
-                    data: {
-                        postId: post.dataValues.id,
+                    if(haveInfo){
+                        // 보상 토큰 정상 지급 fashion_info 작성시 10개 지급 req.session.user로 사용자에게 10개 지급
+
+                        const data = contract.methods.transfer(userSession.address, write_post_info).encodeABI();
+                        const rawTransaction = { 'to': erc20, 'gas': 100000, "data": data };
+                        const signTx = await web3.eth.accounts.signTransaction(rawTransaction, serverPKey);
+                        const sendSignTx = await web3.eth.sendSignedTransaction(signTx.rawTransaction);
+
+                        if (sendSignTx) {
+                            const server_eth = await getBalance(address);
+                            const serverBalance = await contract.methods.balanceOf(address).call();
+                            const clientBalance = await contract.methods.balanceOf(userSession.address).call();
+
+                            await Server.update({
+                                eth_amount: server_eth,
+                                token_amount: serverBalance
+                            }, { where: { address: address } });
+
+                            await User.update({
+                                token_amount: clientBalance
+                            }, { where: { email: userSession.email } });
+                        }
+
+                        post = await Post.create({
+                            image_1: image_1,
+                            image_2: image_2,
+                            image_3: image_3,
+                            image_4: image_4,
+                            image_5: image_5,
+                            title: title,
+                            content: content,
+                            category: category,
+                            server_price: like_sever_price,
+                            user_price: like_user_price,
+                            top_post: top_post,
+                            have_info: haveInfo,
+                            UserNickname: nickname,
+                        });
+
+                        const id = post.dataValues.id
+
+                        // 옷 정보
+                        await Product_brand.create(
+                            {
+                                outer: outer_brand,
+                                top: top_brand,
+                                pants: pants_brand,
+                                shoes: shoes_brand,
+                                PostId: id
+                            }
+                        );
+                        await Product_name.create(
+                            {
+                                outer: outer_name,
+                                top: top_name,
+                                pants: pants_name,
+                                shoes: shoes_name,
+                                PostId: id
+                            }
+                        );
+                        await Product_size.create(
+                            {
+                                outer: outer_size,
+                                top: top_size,
+                                pants: pants_size,
+                                shoes: shoes_size,
+                                PostId: id
+                            }
+                        );
+
+
+                    }else{
+                        // 보상 토큰 적게 지급
+                        //fashion_info 미작성시 5개 지급
+
+                        const data = contract.methods.transfer(userSession.address, write_post).encodeABI();
+                        const rawTransaction = { 'to': erc20, 'gas': 100000, "data": data };
+                        const signTx = await web3.eth.accounts.signTransaction(rawTransaction, serverPKey);
+                        const sendSignTx = await web3.eth.sendSignedTransaction(signTx.rawTransaction);
+
+                        if (sendSignTx) {
+                            const server_eth = await getBalance(address);
+                            const serverBalance = await contract.methods.balanceOf(address).call();
+                            const clientBalance = await contract.methods.balanceOf(userSession.address).call();
+
+                            await Server.update({
+                                eth_amount: server_eth,
+                                token_amount: serverBalance
+                            }, { where: { address: address } });
+
+                            await User.update({
+                                token_amount: clientBalance
+                            }, { where: { email: userSession.email } });
+                        }
+
+                        post = await Post.create({
+                            image_1: image_1,
+                            image_2: image_2,
+                            image_3: image_3,
+                            image_4: image_4,
+                            image_5: image_5,
+                            title: title,
+                            content: content,
+                            category: category,
+                            server_price: like_sever_price,
+                            UserNickname: nickname,
+                        });
                     }
-                })
-            } catch (e) {
-                console.log('Sequelize err');
-                console.log(e);
+
+                    res.status(200).json({
+                        message: '게시물이 등록 되었습니다.',
+                        data: {
+                            postId: post.dataValues.id,
+                        }
+                    })
+                } catch (e) {
+                    console.log('Sequelize err');
+                    console.log(e);
+                }
             }
         }
     },
@@ -239,14 +356,23 @@ module.exports = {
         console.log(`입력 받은 loginNickname: ${loginNickname}, postId: ${postId}`)
         try {
             await Post.increment({ views: 1 }, {where: { id: postId }});
+            const { have_info } = await Post.findOne({where: {id: postId}, attributes: ['have_info'], raw: true});
+            let post;
 
-            const post = await Post.findOne({
-                where: { id: postId },
-                include: [{model: Product_brand, attributes: ['outer', 'top', 'pants', 'shoes']}, { model: Product_name, attributes: ['outer', 'top', 'pants', 'shoes']}, { model: Product_size, attributes: ['outer', 'top', 'pants', 'shoes']}, ],
-                attributes: ['image_1', 'image_2', 'image_3', 'image_4', 'image_5', 'title', 'content', 'category', 'views', 'createdAt', 'UserNickname'],
-            });
+            if(have_info){
+                post = await Post.findOne({
+                    where: { id: postId },
+                    include: [{model: Product_brand, attributes: ['outer', 'top', 'pants', 'shoes']}, { model: Product_name, attributes: ['outer', 'top', 'pants', 'shoes']}, { model: Product_size, attributes: ['outer', 'top', 'pants', 'shoes']}, ],
+                    attributes: ['image_1', 'image_2', 'image_3', 'image_4', 'image_5', 'title', 'content', 'category', 'views', 'top_post', 'likes_num', 'reviews_num', 'createdAt', 'UserNickname'],
+                });
+            }else{
+                post = await Post.findOne({
+                    where: { id: postId },
+                    attributes: ['image_1', 'image_2', 'image_3', 'image_4', 'image_5', 'title', 'content', 'category', 'views', 'top_post', 'likes_num', 'reviews_num', 'createdAt', 'UserNickname'],
+                })
+            }
 
-            const { image_1, image_2, image_3, image_4, image_5, title, content, category, views, UserNickname } = post.dataValues;
+            const { image_1, image_2, image_3, image_4, image_5, title, content, category, views, UserNickname, likes_num, reviews_num, top_post } = post.dataValues;
             const createdAt = one(post.dataValues?.createdAt);
 
             const userData = await User.findOne({
@@ -264,19 +390,12 @@ module.exports = {
                 raw: true
             });
 
-            const reviews_counts = await Review.count({
-                where: { PostId: postId }
-            });
-
             const reviews = await Review.findAll({
                 attributes: ['id', 'content', 'createdAt', 'UserNickname'],
                 where: { PostId: postId },
                 raw: true,
             });
 
-            const likes_counts = await Like.count({
-                where: { PostId: postId }
-            });
 
             if(loginNickname){
                 try {
@@ -304,13 +423,14 @@ module.exports = {
                                 product_brand: post.Product_brand?.dataValues,
                                 product_name: post.Product_name?.dataValues,
                                 product_size: post.Product_size?.dataValues,
-                                likes_counts,
-                                reviews_counts,
+                                likes_num,
+                                reviews_num,
                                 reviews,
                                 similarLook,
                                 isLike,
                                 isFollow: true,
                                 isOwner: true,
+                                top_post,
                             }
                         });
                     }else{
@@ -323,13 +443,14 @@ module.exports = {
                                     product_brand: post.Product_brand?.dataValues,
                                     product_name: post.Product_name?.dataValues,
                                     product_size: post.Product_size?.dataValues,
-                                    likes_counts,
-                                    reviews_counts: reviews_counts,
+                                    likes_num,
+                                    reviews_num,
                                     reviews: reviews,
                                     similarLook: similarLook,
                                     isFollow: isFollow,
                                     isLike: isLike,
                                     isOwner: false,
+                                    top_post,
                                 }
                             });
                         }else{
@@ -341,13 +462,14 @@ module.exports = {
                                     product_brand: post.Product_brand?.dataValues,
                                     product_name: post.Product_name?.dataValues,
                                     product_size: post.Product_size?.dataValues,
-                                    likes_counts,
-                                    reviews_counts: reviews_counts,
+                                    likes_num,
+                                    reviews_num,
                                     reviews: reviews,
                                     similarLook: similarLook,
                                     isFollow: false,
                                     isLike: isLike,
                                     isOwner: false,
+                                    top_post,
                                 }
                             });
                         }
@@ -364,13 +486,14 @@ module.exports = {
                         product_brand: post.Product_brand?.dataValues,
                         product_name: post.Product_name?.dataValues,
                         product_size: post.Product_size?.dataValues,
-                        likes_counts,
-                        reviews_counts: reviews_counts,
+                        likes_num,
+                        reviews_num,
                         reviews: reviews,
                         similarLook: similarLook,
                         isFollow: false,
                         isLike: false,
                         isOwner: false,
+                        top_post,
                     }
                 });
             }
