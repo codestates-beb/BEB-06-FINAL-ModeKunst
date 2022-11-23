@@ -54,6 +54,14 @@ module.exports = class User extends Sequelize.Model {
           type: Sequelize.BIGINT,
           defaultValue: 0,
         },
+        followers_num: {
+          type: Sequelize.BIGINT,
+          defaultValue: 0,
+        },
+        followings_num: {
+          type: Sequelize.BIGINT,
+          defaultValue: 0,
+        }
       },
       {
         sequelize,
