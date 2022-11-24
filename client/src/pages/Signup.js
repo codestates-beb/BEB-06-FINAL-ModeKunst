@@ -43,7 +43,7 @@ function Signup() {
     }
   }, [image]);
 
-  const onValid = async data => {
+  const onValid = async () => {
     if (emailVerified && phoneVerified && nicknameChecked) {
       const formData = new FormData();
       formData.append("profile_image", watch("profile_image")[0]);
@@ -114,7 +114,7 @@ function Signup() {
               <img
                 src={imagePreview}
                 alt="profile_image_preview"
-                className="w-52 h-52 object-cover rounded-full shadow-xl select-none"
+                className="w-52 h-52 object-bottom rounded-full shadow-xl select-none"
               />
               <button
                 onClick={() => setImagePreview("")}

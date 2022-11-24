@@ -27,7 +27,6 @@ function Login() {
       setValue("password", "");
 
       setLoading(false);
-      alert("환영합니다!");
       navigate(-1);
     } catch (e) {
       console.log(e);

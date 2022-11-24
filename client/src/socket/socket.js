@@ -1,9 +1,12 @@
-import { io } from "socket.io-client";
+import io from "socket.io-client";
 
-export let socket = io("http://localhost:8000", { transports: ["websocket"] });
-export const initSocketConnection = () => {
-    if (socket) return;
-    socket.connect();
+let socket = io( 'http://localhost:8000',{ cors: { origin: '*' } } );
+
+export const initSocketConnection = (socket) => {
+    if (!socket){
+        socket = io( 'http://localhost:8000',{ cors: { origin: '*' } } );
+        return socket;
+    }
 };
 
 export const disconnectSocket = () => {
