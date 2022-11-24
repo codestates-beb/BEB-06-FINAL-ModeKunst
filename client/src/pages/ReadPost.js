@@ -36,7 +36,7 @@ function ReadPost() {
 
   useEffect(() => {
     axios
-      .get(`http://localhost:8000/posts/${id}`)
+      .get(`http://localhost:8000/posts/${id}`, { withCredentials: true })
       .then(result => {
         console.log(result.data.data);
         const data = result.data.data;
@@ -53,6 +53,7 @@ function ReadPost() {
         setBrand(data.product_brand);
         setSize(data.product_size);
         setNames(data.product_name);
+        console.log(data.post);
       })
       .catch(e => {
         console.log(e);
@@ -285,7 +286,7 @@ function ReadPost() {
                   <Link to={`/user/${writer}`}>
                     <div className="text-lg font-bold">{writer}</div>
                   </Link>
-                  <Link to={'/chat'} state={writer.nickname}>
+                  <Link to={"/chat"} state={writer.nickname}>
                     <button>채팅</button>
                   </Link>
                   <div className='"self-start inline-block text-xs px-2 py-1 w-fit font-light text-white bg-blue-900 rounded-full drop-shadow-sm"'>
@@ -345,90 +346,104 @@ function ReadPost() {
               )}
             </button>
           </div>
-
           {/* 🟠fashion info */}
           {isOwner || isLike || isFollow ? (
             <div>
-              <div className="mt-8 text-2xl font-bold">#Looks Info</div>
-              <div className="w-96 p-2 flex flex-col border-2 border-black bg-slate-300 rounded-md">
-                <div className="self-start flex flex-row px-2">
-                  <div className="font-bold text-lg text-center">OUTER</div>
-                  {brand.outer ? (
-                    <div className="ml-3"> 정보 없음 </div>
-                  ) : (
-                    <div>
-                      <div className="ml-3"> {brand.outer}</div>
-                      <div className="ml-2"> {names.outer}</div>
-                      <div className="ml-2">사이즈 {size.outer}</div>
+              {brand && (
+                <div>
+                  <div className="mt-8 text-2xl font-bold">#Looks Info</div>
+                  <div className="w-96 p-2 flex flex-col border-2 border-black bg-slate-300 rounded-md">
+                    <div className="self-start flex flex-row px-2">
+                      <div className="font-bold text-lg text-center">OUTER</div>
+                      {brand.outer ? (
+                        <div className="ml-3"> 정보 없음 </div>
+                      ) : (
+                        <div>
+                          <div className="ml-3"> {brand.outer}</div>
+                          <div className="ml-2"> {names.outer}</div>
+                          <div className="ml-2">사이즈 {size.outer}</div>
+                        </div>
+                      )}
                     </div>
-                  )}
+                    <div className="self-start flex flex-row px-2">
+                      <div className="font-bold text-lg text-center">TOP</div>
+                      <div className="ml-3">브랜드 {brand.top}</div>
+                      <div className="ml-2">이름 {names.top}</div>
+                      <div className="ml-2">사이즈 {size.top}</div>
+                    </div>
+                    <div className="self-start flex flex-row px-2">
+                      <div className="font-bold text-lg text-center">
+                        BOTTOM
+                      </div>
+                      <div className="ml-3">브랜드 {brand.pants}</div>
+                      <div className="ml-2">이름 {names.pants}</div>
+                      <div className="ml-2">사이즈 {size.pants}</div>
+                    </div>
+                    <div className="self-start flex flex-row px-2">
+                      <div className="font-bold text-lg text-center">SHOES</div>
+                      <div className="ml-3">브랜드 {brand.shoes}</div>
+                      <div className="ml-2">이름 {names.shoes}</div>
+                      <div className="ml-2">사이즈 {size.shoes}</div>
+                    </div>
+                  </div>
                 </div>
-                <div className="self-start flex flex-row px-2">
-                  <div className="font-bold text-lg text-center">TOP</div>
-                  <div className="ml-3">브랜드 {brand.top}</div>
-                  <div className="ml-2">이름 {names.top}</div>
-                  <div className="ml-2">사이즈 {size.top}</div>
-                </div>
-                <div className="self-start flex flex-row px-2">
-                  <div className="font-bold text-lg text-center">BOTTOM</div>
-                  <div className="ml-3">브랜드 {brand.pants}</div>
-                  <div className="ml-2">이름 {names.pants}</div>
-                  <div className="ml-2">사이즈 {size.pants}</div>
-                </div>
-                <div className="self-start flex flex-row px-2">
-                  <div className="font-bold text-lg text-center">SHOES</div>
-                  <div className="ml-3">브랜드 {brand.shoes}</div>
-                  <div className="ml-2">이름 {names.shoes}</div>
-                  <div className="ml-2">사이즈 {size.shoes}</div>
-                </div>
-              </div>
+              )}
             </div>
           ) : (
             <div>
-              <div className="mt-8 text-2xl font-bold">#Looks Info</div>
-              <div className="w-96 px-2 py-2 flex flex-col drop-shadow-sm border-2 border-black bg-slate-300 rounded-md">
-                <div className="blur-sm w-96 flex flex-col">
-                  <div className="self-start flex flex-row px-2">
-                    <div className="font-bold text-lg text-center">OUTER</div>
-                    {brand.outer ? (
-                      <div className="ml-3"> 정보 없음 </div>
-                    ) : (
-                      <div>
-                        <div className="ml-3"> {brand.outer}</div>
-                        <div className="ml-2"> {names.outer}</div>
-                        <div className="ml-2">사이즈 {size.outer}</div>
-                      </div>
-                    )}
-                  </div>
-                  <div className="self-start flex flex-row px-2">
-                    <div className="font-bold text-lg text-center">TOP</div>
-                    <div className="ml-3">브랜드 {brand.top}</div>
-                    <div className="ml-2">이름 {names.top}</div>
-                    <div className="ml-2">사이즈 {size.top}</div>
-                  </div>
-                  <div className="self-start flex flex-row px-2">
-                    <div className="font-bold text-lg text-center">BOTTOM</div>
-                    <div className="ml-3">브랜드 {brand.pants}</div>
-                    <div className="ml-2">이름 {names.pants}</div>
-                    <div className="ml-2">사이즈 {size.pants}</div>
-                  </div>
-                  <div className="self-start flex flex-row px-2">
-                    <div className="font-bold text-lg text-center">SHOES</div>
-                    <div className="ml-3">브랜드 {brand.shoes}</div>
-                    <div className="ml-2">이름 {names.shoes}</div>
-                    <div className="ml-2">사이즈 {size.shoes}</div>
-                  </div>
-                </div>
+              {brand && (
                 <div>
-                  <div className="m-auto align-middle py-4 text-sm font-bold fixed top-0 right-0 bottom-0 left-0 w-60 h-12 rounded-md text-center bg-white drop-shadow-md">
-                    좋아요를 누르고 정보를 확인해보세요!
-                    <div className="w-full h-full bg-cyan-200 rounded-b-md"></div>
+                  <div className="mt-8 text-2xl font-bold">#Looks Info</div>
+                  <div className="w-96 px-2 py-2 flex flex-col drop-shadow-sm border-2 border-black bg-slate-300 rounded-md">
+                    <div className="blur-sm w-96 flex flex-col">
+                      <div className="self-start flex flex-row px-2">
+                        <div className="font-bold text-lg text-center">
+                          OUTER
+                        </div>
+                        {brand.outer ? (
+                          <div className="ml-3"> 정보 없음 </div>
+                        ) : (
+                          <div>
+                            <div className="ml-3"> {brand.outer}</div>
+                            <div className="ml-2"> {names.outer}</div>
+                            <div className="ml-2">사이즈 {size.outer}</div>
+                          </div>
+                        )}
+                      </div>
+                      <div className="self-start flex flex-row px-2">
+                        <div className="font-bold text-lg text-center">TOP</div>
+                        <div className="ml-3">브랜드 {brand.top}</div>
+                        <div className="ml-2">이름 {names.top}</div>
+                        <div className="ml-2">사이즈 {size.top}</div>
+                      </div>
+                      <div className="self-start flex flex-row px-2">
+                        <div className="font-bold text-lg text-center">
+                          BOTTOM
+                        </div>
+                        <div className="ml-3">브랜드 {brand.pants}</div>
+                        <div className="ml-2">이름 {names.pants}</div>
+                        <div className="ml-2">사이즈 {size.pants}</div>
+                      </div>
+                      <div className="self-start flex flex-row px-2">
+                        <div className="font-bold text-lg text-center">
+                          SHOES
+                        </div>
+                        <div className="ml-3">브랜드 {brand.shoes}</div>
+                        <div className="ml-2">이름 {names.shoes}</div>
+                        <div className="ml-2">사이즈 {size.shoes}</div>
+                      </div>
+                    </div>
+                    <div>
+                      <div className="m-auto align-middle py-4 text-sm font-bold fixed top-0 right-0 bottom-0 left-0 w-60 h-12 rounded-md text-center bg-white drop-shadow-md">
+                        좋아요를 누르고 정보를 확인해보세요!
+                        <div className="w-full h-full bg-cyan-200 rounded-b-md"></div>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
             </div>
           )}
-
           {/* 🟠review */}
           <div className="mt-8 text-2xl font-bold">
             #Review
