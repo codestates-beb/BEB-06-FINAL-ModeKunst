@@ -30,7 +30,7 @@ router.get("/emailfind/:nickname/:phonenumber", usersController.find.email);
 router.get("/pwfind/:email/:phonenumber", usersController.find.password);
 
 //검색
-router.get("/search/:nickname/:category", usersController.search.get);
+router.get("/search/:nickname", usersController.search.get);
 
 //로그인
 router.post("/login", usersController.login.post);

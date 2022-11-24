@@ -39,7 +39,11 @@ module.exports = class Post extends Sequelize.Model {
                     type: Sequelize.STRING,
                     allowNull: false,
                 },
-                price: {
+                server_price: {
+                    type: Sequelize.INTEGER,
+                    defaultValue: 0,
+                },
+                user_price: {
                     type: Sequelize.INTEGER,
                     defaultValue: 0,
                 },
@@ -50,7 +54,19 @@ module.exports = class Post extends Sequelize.Model {
                 top_post: {
                     type: Sequelize.BOOLEAN,
                     defaultValue: false,
-                }
+                },
+                have_info: {
+                  type: Sequelize.BOOLEAN,
+                  defaultValue: false,
+                },
+                likes_num: {
+                    type: Sequelize.BIGINT,
+                    defaultValue: 0,
+                },
+                reviews_num: {
+                    type: Sequelize.BIGINT,
+                    defaultValue: 0,
+                },
             },
             {
                 sequelize,

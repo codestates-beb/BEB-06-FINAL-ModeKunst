@@ -2,7 +2,7 @@ require("dotenv").config();
 const Web3 = require("web3");
 const fs = require("fs");
 const path = require("path");
-const { Server } = require("../models");
+const { Server, Token_price } = require("../models");
 const rpcUrl = process.env.RPC_URL;
 const serverPKey = process.env.SERVER_PKEY;
 
@@ -41,7 +41,7 @@ async function getGanacheAddress(num) {
 
 async function getBalance(addr) {
   try {
-    return await web3.eth.getBalance(addr).then((bal) => {
+    return await web3.eth.getBalance(addr).then(bal => {
       return web3.utils.fromWei(bal, "ether");
     });
   } catch (e) {
@@ -62,7 +62,7 @@ module.exports = {
   faucet_token_amount,
   getBalance,
 
-  getAddress: async (password) => {
+  getAddress: async password => {
     try {
       console.log(`입력받은 password : ${password}`);
       return await web3.eth.personal.newAccount(password);
@@ -86,6 +86,10 @@ module.exports = {
               address: server_addr,
               eth_amount: server_eth,
             },
+          });
+
+          await Token_price.findOrCreate({
+            where: { id : 1},
           });
 
           if (create[1]) {
@@ -120,7 +124,7 @@ module.exports = {
           await contract20
             .deploy({ data: byte20, arguments: [tokenName, tokenSymbol] })
             .send({ from: server_addr, gas: 1416733 })
-            .then((result) => (ca = result._address));
+            .then(result => (ca = result._address));
 
           contract20 = await new web3.eth.Contract(abi20, ca);
 
@@ -178,7 +182,7 @@ module.exports = {
           await contract721
             .deploy({ data: byte721, arguments: [tokenName, tokenSymbol] })
             .send({ from: server_addr, gas: 3054460 })
-            .then((result) => (ca = result._address));
+            .then(result => (ca = result._address));
 
           contract721 = await new web3.eth.Contract(abi721, ca);
           const server_eth = await getBalance(server_addr);

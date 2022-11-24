@@ -1,5 +1,5 @@
-const { User, Follow, Post, Token } = require("../../models");
-const { literal  } = require('sequelize');
+const { User, Follow, Post, Token, Like } = require("../../models");
+const { literal, Op  } = require('sequelize');
 const { many } = require('../function/createdAt');
 
 module.exports = {
@@ -7,20 +7,27 @@ module.exports = {
   get: async (req, res) => {
     //TODO 1. 유저 정보 가져오기
     //TODO 2. 팔로워 숫자 팔로잉 한 정보들 가져오기
+    const login_user = req.session.user?.nickname;
     const nickname = req.params.nickname;
     console.log(`입력 받은 nickname: ${nickname}`);
     try {
       //유저 정보 가져오기
       const user = await User.findOne({
         where: { nickname: nickname },
-        attributes: ['nickname', 'profile_img', 'height', 'weight', 'gender', 'sns_url'],
+        attributes: ['nickname', 'profile_img', 'height', 'weight', 'gender', 'sns_url', 'followers_num'],
         raw: true
       });
 
+      let isFollow = await Follow.findOne({
+        where: { follower: login_user, following: nickname}
+      });
+
+      isFollow = !!isFollow;
+
       const posts = await Post.findAll({
         where: {UserNickname: nickname},
-        order: literal('views DESC'),
-        attributes: ['id', 'image_1', 'title', 'content', 'category', 'views', 'createdAt', 'UserNickname'],
+        order: literal('likes_num DESC'),
+        attributes: ['id', 'image_1', 'title', 'content', 'category', 'views', 'createdAt', 'UserNickname', 'likes_num', 'reviews_num'],
         raw: true
       });
 
@@ -29,20 +36,46 @@ module.exports = {
         return new Date(post.createdAt);
       });
 
-      const diff = many(dateFormatPosts);
-      console.log(diff)
+      let diff = many(dateFormatPosts);
+
       posts.map((post, i) => {
         post.createdAt = diff[i]
       });
 
+
+
+      const likePosts = await Post.findAll({
+        include: [ { model: Like, attributes: { exclude: ['id', 'createdAt', 'updatedAt', 'deletedAt', 'UserNickname', 'PostId'] }, where: { UserNickname: nickname } }, { model: User, attributes: ['profile_img'] } ],
+        attributes: ['id', 'image_1', 'title', 'content', 'category', 'views', 'createdAt', 'UserNickname', 'likes_num', 'reviews_num'],
+        where: {UserNickname : { [Op.ne]: nickname}},
+        raw: true,
+      });
+      
+
+      const dateFormatLikePosts = likePosts.map((post) =>{
+        return new Date(post.createdAt);
+      });
+
+      diff = many(dateFormatLikePosts);
+
+      likePosts.map((post, i) => {
+        post.createdAt = diff[i]
+      })
+
       if(user){
         try{
-          const followers = await Follow.findAll({
+          let followers = await Follow.findAll({
             where: { following: req.params.nickname },
             include: { model: User, attributes:['profile_img'], as: 'Follower'},
             attributes: ['Follower'],
             raw: true
           });
+          followers = followers.map((a) => {
+            let data = { profile_img : a['Follower.profile_img']}
+            delete (a['Follower.profile_img']);
+            let format =  {...a, ...data}
+            return(format)
+          })
 
           const realFollowers = [];
           for(const follower of followers){
@@ -53,12 +86,19 @@ module.exports = {
             }
           }
 
-          const followings = await Follow.findAll({
+          let followings = await Follow.findAll({
             where: { follower: req.params.nickname },
             include: { model: User, attributes:['profile_img'], as: 'Following'},
             attributes: ['Following'],
             raw: true
           });
+
+          followings = followings.map((a) => {
+            let data = { profile_img : a['Following.profile_img']}
+            delete (a['Following.profile_img']);
+            let format =  {...a, ...data}
+            return(format)
+          })
 
           const realFollowings = [];
           for(const following of followings){
@@ -68,7 +108,6 @@ module.exports = {
               realFollowings.push(data);
             }
           }
-          console.log(realFollowings)
 
 
           return res.status(200).json({
@@ -76,8 +115,10 @@ module.exports = {
             data: {
                 user,
                 posts,
+                likePosts,
                 followers: realFollowers,
                 followings: realFollowings,
+                isFollow
             }
           });
         } catch (e) {

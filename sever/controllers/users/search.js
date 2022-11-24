@@ -1,36 +1,24 @@
 const { User, Post } = require('../../models');
-const { literal } = require("sequelize");
-const { many } = require('../function/createdAt');
+const {literal} = require("sequelize");
 
 module.exports = {
 
     // 검색
     get: async (req, res) => {
-        const { nickname, category } = req.params;
+        const { nickname } = req.params;
         console.log(`입력받은 nickname: ${nickname}`);
 
         const user = await User.findOne({
             where: { nickname: nickname },
-            attributes: ['nickname', 'profile_img', 'height', 'weight', 'gender', 'sns_url']
         });
 
         if(user) {
-            let posts
-            if(category){
-                posts = await Post.findAll({
-                    where: { UserNickname: nickname, category: category },
-                    order: literal('views DESC'),
-                    attributes: ['id', 'image_1', 'title', 'content', 'category', 'views', 'createdAt', 'UserNickname'],
-                    raw: true
-                })
-            }else{
-                posts = await Post.findAll({
-                    where: {UserNickname: nickname},
-                    order: literal('views DESC'),
-                    attributes: ['id', 'image_1', 'title', 'content', 'category', 'views', 'createdAt', 'UserNickname'],
-                    raw: true
-                });
-            }
+            const posts = await Post.findAll({
+                where: {UserNickname: nickname},
+                order: literal('views DESC'),
+                attributes: ['id', 'image_1', 'title', 'content', 'category', 'views', 'createdAt', 'UserNickname'],
+                raw: true
+            });
 
             // 현재 시간
             const today = new Date();
@@ -39,8 +27,24 @@ module.exports = {
                 return new Date(post.createdAt);
             });
 
+            //console.log(dateFormatPosts);
 
-            const diff = many(dateFormatPosts);
+            const diff = dateFormatPosts.map((time) => {
+                const sec = Math.floor((today - time) / 1000);
+                if(sec < 60) return '방금 전'
+                const min = sec / 60
+                if(min < 60) return `${Math.floor(min)}분 전`
+                const hour = min / 60
+                if(hour < 24) return `${Math.floor(hour)}시간 전`
+                const day = hour / 24
+                if(day / 7) return `${Math.floor(day)}일 전`
+                const week = day / 7
+                if(week < 5) return `${Math.floor(week)}주 전`
+                const month = day / 30
+                if(month < 12) return `${Math.floor(month)}개월 전`
+                const year = day / 365
+                return `${Math.floor(year)}`
+            });
 
 
             posts.map((post, i) => {
@@ -52,8 +56,8 @@ module.exports = {
                 res.status(200).json({
                     message: `${nickname}님의 게시물 목록`,
                     data: {
-                        user,
-                        posts
+                        nickname: nickname,
+                        posts : posts,
                     }
                 });
             }else {
