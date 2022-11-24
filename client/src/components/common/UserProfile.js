@@ -31,7 +31,8 @@ export default function UserProfile() {
     async function fetchData() {
       try {
         const result = await axios.get(
-          `http://localhost:8000/users/mypage/${nickname}`
+          `http://localhost:8000/users/mypage/${nickname}`,
+          { withCredentials: true }
         );
         const {
           user,

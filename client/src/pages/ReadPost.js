@@ -1,41 +1,48 @@
+import { useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { useSelector } from "react-redux";
+import axios from "axios";
+import Swal from "sweetalert2";
+import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import Slider from "react-slick";
-import axios from "axios";
 
 function ReadPost() {
+  // 전역정보
   const { id } = useParams();
   const userInfo = useSelector(state => state.user);
+  const navigate = useNavigate();
 
-  const [writer, setWriter] = useState("");
-  const [writerProfile, setWriterProfile] = useState("");
-  const [post, setPost] = useState("");
-  const [likeCount, setLikeCount] = useState("");
-  const [reviews, setReviews] = useState([]);
-  const [reviewsCount, setReviewsCount] = useState("");
-  const [similarLook, setSimilarLook] = useState("");
+  // 포스트, 리뷰 관련 state
   const [brand, setBrand] = useState("");
   const [size, setSize] = useState("");
   const [names, setNames] = useState("");
-
+  const [pageNum, setPageNum] = useState(1);
+  const [reviews, setReviews] = useState([]);
+  const [reviewsCount, setReviewsCount] = useState("");
+  const [likeCount, setLikeCount] = useState("");
+  const [similarLook, setSimilarLook] = useState("");
+  const [post, setPost] = useState("");
+  const [writer, setWriter] = useState("");
+  const [writerProfile, setWriterProfile] = useState("");
   const [isLike, setIsLike] = useState(false);
   const [isOwner, setIsOwner] = useState(false);
   const [isFollow, setIsFollow] = useState(false);
-
   const [myReview, setMyReview] = useState("");
 
-  const [pageNum, setPageNum] = useState(1);
-
-  const navigator = useNavigate();
+  // 리뷰 수정 관련 state
+  // isEditReview -> 리뷰 수정 모드 ON/OFF
+  // editTargetReview -> 수정한 리뷰 내용(content)
+  const [isEditReview, setIsEditReview] = useState(false);
+  const [editTargetReview, setEditTargetReview] = useState("");
 
   useEffect(() => {
     axios
       .get(`http://localhost:8000/posts/${id}`)
       .then(result => {
+        console.log(result);
         const data = result.data.data;
+
         setWriter(data.user.nickname);
         setWriterProfile(data.user.profile_img);
         setPost(data.post);
@@ -52,8 +59,9 @@ function ReadPost() {
       .catch(e => {
         console.log(e);
       });
-  }, [navigator]);
+  }, [id]);
 
+  // 리뷰 페이지 펼치기 눌렀을 때(pageNum 증가)
   useEffect(() => {
     axios
       .get(`http://localhost:8000/posts/review/${id}/?page=${pageNum}`)
@@ -61,8 +69,6 @@ function ReadPost() {
         setReviews(prevReviews => [...prevReviews, ...result.data.reviews]);
       });
   }, [pageNum]);
-
-  console.log(reviews);
 
   const settings = {
     dots: true,
@@ -90,7 +96,7 @@ function ReadPost() {
         })
         .catch(e => {
           alert(e.response.data.message);
-          navigator("/login");
+          navigate("/login");
         });
     } else {
       axios
@@ -103,15 +109,12 @@ function ReadPost() {
         })
         .catch(e => {
           alert(e.response.data.message);
-          navigator("/login");
+          navigate("/login");
         });
     }
   };
 
-  const writeReview = e => {
-    setMyReview(e.target.value);
-  };
-
+  // 리뷰 작성
   const sendReview = () => {
     if (myReview.length <= 15) {
       alert("15글자 이상 작성해주세요!");
@@ -132,15 +135,35 @@ function ReadPost() {
     }
   };
 
-  const deleteReview = e => {
+  // 리뷰 수정
+  const editReview = rev => {
+    if (editTargetReview.length < 15) {
+      Swal.fire({ icon: "warning", text: "리뷰는 15자 이상 작성해주세요." });
+    } else {
+      const newReviews = reviews.map(review => {
+        if (review.id === rev.id) {
+          const editedReview = { ...review, content: editTargetReview };
+          return editedReview;
+        }
+        return review;
+      });
+      setReviews(newReviews);
+      setIsEditReview(false);
+    }
+    // 👇🏻 axios
+  };
+
+  // 리뷰 삭제
+  const deleteReview = rev => {
+    const newReviews = reviews.filter(review => review.id !== rev.id);
+    setReviews(newReviews);
     axios.delete(`http://localhost:8000/posts/review/${id}`).then(result => {
-      const data = result.data;
-      setReviewsCount(data.data.reviews_counts);
-      setReviews(data.data.reviews);
-      alert(data.message);
+      // 📍📍 데이터 오는거 확인해야 함
+      // setReviewsCount(result.data.)
     });
   };
 
+  // 해당 게시물 메인 페이지 탑으로 이동
   const moveTopPost = () => {
     axios
       .post(`http://localhost:8000/posts/upstream`, {
@@ -162,12 +185,12 @@ function ReadPost() {
   const deletePost = () => {
     axios.delete(`http://localhost:8000/posts/${id}`).then(result => {
       alert(result.data.message);
-      navigator("/");
+      navigate("/");
     });
   };
 
   const moveToDetail = e => {
-    navigator(`/post/${e.target.id}`);
+    navigate(`/post/${e.target.id}`);
   };
   const settingsSimilar = {
     dots: false,
@@ -243,7 +266,12 @@ function ReadPost() {
             className="max-w-xs max-h-fit border-2 border-gray-800 flex items-center justify-center"
           >
             {imageList.map((item, idx) => (
-              <img className="h-96" src={item}></img>
+              <img
+                key={idx}
+                className="h-96"
+                alt="post_images"
+                src={item}
+              ></img>
             ))}
           </Slider>
           {/* 🟠비슷한 룩: 데이터 어떻게 가져와야하지 */}
@@ -258,7 +286,9 @@ function ReadPost() {
                   similarLook.map((item, idx) => (
                     <div>
                       <img
+                        key={idx}
                         className="h-48 justify-center"
+                        alt="similar_looks"
                         src={item.image_1}
                       ></img>
                       <div
@@ -283,6 +313,7 @@ function ReadPost() {
             <div className="flex flex-row px-2 py-1">
               <img
                 className="w-16 h-16 flex rounded-full"
+                alt="write_profile"
                 src={writerProfile}
               ></img>
 
@@ -442,7 +473,7 @@ function ReadPost() {
               {reviewsCount ? `총 ${reviewsCount}개의 리뷰` : "총 0개의 리뷰"}
             </span>
           </div>
-          <div className="w-96 px-2 py-2 flex flex-col bg-slate-300 border-2 border-black rounded-md drop-shadow-sm ">
+          <div className="w-96 px-2 py-2 flex flex-col bg-slate-300 border-2 border-black rounded-md drop-shadow-sm">
             {userInfo.isLoggedIn ? (
               <div>
                 {isOwner ? (
@@ -450,6 +481,7 @@ function ReadPost() {
                     <div className="flex flex-row">
                       <img
                         className="w-6 h-6 rounded-full"
+                        alt="loggedin_user_profile"
                         src={userInfo.userInfo.profile_img}
                       />
                       <div className="font-bold">
@@ -460,7 +492,7 @@ function ReadPost() {
                       type="text"
                       placeholder="리뷰는 최소 15자 이상 작성해주세요."
                       className="rounded-md h-12 inner-shadow"
-                      onChange={writeReview}
+                      onChange={e => setMyReview(e.target.value)}
                     />
                     <button
                       className="m-1 self-end inline-flex w-fit px-3 py-1 bg-violet-700 hover:bg-violet-900 text-white text-sm font-medium rounded-md"
@@ -474,6 +506,7 @@ function ReadPost() {
                     <div className="flex flex-row">
                       <img
                         className="w-6 h-6 rounded-full"
+                        alt="loggedin_user_profile"
                         src={userInfo.userInfo.profile_img}
                       />
                       <div className="font-bold">
@@ -484,7 +517,7 @@ function ReadPost() {
                       type="text"
                       placeholder="리뷰는 최소 15자 이상 작성해주세요."
                       className="rounded-md h-12 inner-shadow"
-                      onChange={writeReview}
+                      onChange={e => setMyReview(e.target.value)}
                     />
                     <button
                       className="m-1 self-end inline-flex w-fit px-3 py-1 bg-violet-700 hover:bg-violet-900 text-white text-sm font-medium rounded-md"
@@ -497,9 +530,9 @@ function ReadPost() {
                 <div>
                   <div>
                     {reviews?.length ? (
-                      reviews.map(review => {
+                      reviews.map((review, idx) => {
                         return (
-                          <div>
+                          <div key={idx}>
                             <div>
                               <Link to={`/user/${review.nickname}`}>
                                 <div className="mt-4 font-bold">
@@ -509,20 +542,58 @@ function ReadPost() {
                               <span className="text-xs font-semibold inline-block px-1 py-0.5 bg-cyan-400 rounded-full text-slate-50">
                                 {review.create_at}
                               </span>
-                              <div>{review.content}</div>
+                              {/* 📍 리뷰 내용 */}
+                              {userInfo.userInfo.nickname === review.nickname &&
+                              isEditReview ? null : (
+                                <div>{review.content}</div>
+                              )}
                             </div>
-                            {/* ⭐️수정, 삭제버튼은 본인만 보이게 수정⭐️ */}
-                            <div className="space-x-2">
-                              <button className="bg-yellow-300 px-2 py-0.5 rounded-full inline-block text-center text-xs text-slate-800">
-                                수정
-                              </button>
-                              <button
-                                className="bg-pink-300 px-2 py-0.5 rounded-full inline-block text-center text-xs text-slate-800"
-                                onClick={deleteReview}
-                              >
-                                삭제
-                              </button>
-                            </div>
+                            {userInfo.userInfo.nickname === review.nickname ? (
+                              <div className="space-x-2">
+                                {/* 📍 수정 버튼 */}
+                                {!isEditReview ? (
+                                  // 수정모드 OFF
+                                  <div>
+                                    <button
+                                      onClick={() => {
+                                        setIsEditReview(true);
+                                        setEditTargetReview(review.content);
+                                      }}
+                                      className="bg-yellow-300 px-2 py-0.5 rounded-full inline-block text-center text-xs text-slate-800"
+                                    >
+                                      수정
+                                    </button>
+                                    <button
+                                      className="bg-pink-300 px-2 py-0.5 rounded-full inline-block text-center text-xs text-slate-800"
+                                      onClick={() => deleteReview(review)}
+                                    >
+                                      삭제
+                                    </button>
+                                  </div>
+                                ) : (
+                                  // 수정모드 ON
+                                  <div>
+                                    <input
+                                      type="text"
+                                      value={editTargetReview}
+                                      onChange={e =>
+                                        setEditTargetReview(e.target.value)
+                                      }
+                                    />
+                                    <button
+                                      onClick={() => {
+                                        setIsEditReview(false);
+                                      }}
+                                    >
+                                      취소
+                                    </button>
+                                    <button onClick={() => editReview(review)}>
+                                      수정
+                                    </button>
+                                  </div>
+                                )}
+                              </div>
+                            ) : null}
                           </div>
                         );
                       })

@@ -163,7 +163,7 @@ function WritePost() {
           const data = result.data;
           console.log(formData);
           alert(data.message);
-          // navigate(`/post/${data.data.postId}`);
+          navigate(`/post/${data.data.postId}`);
         })
         .catch(e => {
           console.log(e);
