@@ -12,7 +12,9 @@ import {
   Collections,
   Followings,
   Followers,
+  // Search,
 } from "../pages";
+import { Search } from "../pages/Search";
 import Header from "./common/Header";
 import ForgotRoutes from "./Routes/ForgotRoutes";
 import ResetRoutes from "./Routes/ResetRoutes";
@@ -40,6 +42,7 @@ export default function Router() {
         <Route path="/reset/*" element={<ResetRoutes />} />
         <Route path="*" element={<NotFound />} />
         <Route path="/chat" element={<Chat />} />
+        <Route path="/search/*" element={<Search />} />
       </Routes>
       {/* Footer 컴포넌트 */}
     </BrowserRouter>
