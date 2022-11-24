@@ -1,8 +1,10 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { useSelector } from "react-redux";
 import axios from "axios";
+
+import Swal from "sweetalert2";
 
 //📌 to do
 // 1. 받아온 이미지 데이터가 blob 객체임 file 객체가 필요함
@@ -80,7 +82,7 @@ function ResetPost() {
 
   useEffect(() => {
     setImagePreview(imageList);
-  }, []);
+  }, [imageList[0]]);
 
   const removeImageHandler = e => {
     console.log(e.target);
@@ -149,8 +151,6 @@ function ResetPost() {
         shoes_size,
       } = data;
 
-      console.log(top_brand);
-
       const image_1 = data.image[0];
       const image_2 = data.image[1];
       const image_3 = data.image[2];
@@ -181,18 +181,23 @@ function ResetPost() {
       formData.append("nickname", userInfo.userInfo.nickname);
 
       axios
-        .post("http://localhost:8000/posts/board", formData, {
+        .post(`http://localhost:8000/posts/${id}`, formData, {
           withCredentials: true,
         })
         .then(result => {
           const data = result.data;
           console.log(formData);
-          alert(data.message);
-          // navigate(`/post/${data.data.postId}`);
+          Swal.fire({
+            icon: "success",
+            text: `${result.data.message}`,
+          }).then(() => navigate(`/post/${data.data.postId}`));
         })
         .catch(e => {
           console.log(e);
-          alert(e.response.data.message);
+          Swal.fire({
+            icon: "failure",
+            text: `${e.response.data.message}`,
+          });
         });
     } catch (e) {
       console.log(e);
@@ -201,7 +206,7 @@ function ResetPost() {
 
   console.log(isChecked);
 
-  if (!isLoggedIn) {
+  if (!isLoggedIn && post.userNickname === userInfo.userInfo.nickname) {
     alert("로그인 후 이용해주세요.");
     navigate("/");
   } else {
@@ -461,25 +466,6 @@ function ResetPost() {
                   )}
                   {!isChecked && <div></div>}
                 </div>
-              </div>
-              <div>
-                <div className="text-lg mt-8 font-bold">
-                  상위 게시물에 등록하시겠습니까?
-                </div>
-                <div>등록 시 50토큰이 소요됩니다.</div>
-                <span>네</span>
-                <input
-                  {...register("upstream", { required: true })}
-                  type="radio"
-                  value="true"
-                  defaultValue={post.upstream}
-                />
-                <span>아니요</span>
-                <input
-                  {...register("upstream", { required: true })}
-                  type="radio"
-                  value="false"
-                />
               </div>
               <button
                 type="submit"
