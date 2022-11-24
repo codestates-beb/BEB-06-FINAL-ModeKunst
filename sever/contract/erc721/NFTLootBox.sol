@@ -26,6 +26,8 @@ contract NFTLootBox is ERC721URIStorage, Ownable{
         _symbol = symbol_;
     }
 
+    //
+   
     function totalSupply() public view virtual  returns (uint256){
         return _totalSupply;
     }
@@ -40,5 +42,8 @@ contract NFTLootBox is ERC721URIStorage, Ownable{
 
         return newItemId;
     }
+
+
+    
 
 }

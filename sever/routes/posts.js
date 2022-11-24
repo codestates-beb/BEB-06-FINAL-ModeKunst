@@ -9,11 +9,17 @@ router.get('/board', postsController.board.get);
 // 게시물 작성
 router.post('/board', isLoggedIn,post_upload.array('image') ,postsController.post.post);
 
+// 게시글 수정창
+router.get('/updatePost/:postId' ,postsController.post.updatePost);
+
 // 게시물 수정
 router.put('/:postId', post_upload.array('image'), postsController.post.put);
 
 // 게시물 삭제
 router.delete('/:postId', postsController.post.delete);
+
+// 리뷰 수정창
+router.post('/updatePost/:postId' ,postsController.post.updatePost);
 
 // 디테일 페이지
 router.get('/:postId', postsController.post.get);
@@ -36,7 +42,11 @@ router.put('/review/:postId', postsController.review.put);
 // 리뷰 삭제
 router.delete('/review/:postId', postsController.review.delete);
 
+// 검색
+router.get('/search/:name', postsController.search.search);
+
 //리뷰 목록
 router.get('/review/:postId', postsController.review.get);
+
 
 module.exports = router;

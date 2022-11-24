@@ -1,5 +1,6 @@
 const Post = require("../../models/post");
 const { many } = require("../function/createdAt");
+const {User} = require("../../models");
 
 module.exports = {
   // 전체 게시물
@@ -20,9 +21,11 @@ module.exports = {
     const postList = await Post.findAll({
       offset: offset,
       limit: 8,
+      include: [ { model: User, attributes: ['profile_img'] } ],
       order: [["createdAt", "DESC"]],
+      raw: true
     });
-    console.log("포스트 목록 ", postList);
+
 
     const dateFormatPosts = postList.map(post => {
       return new Date(post.createdAt);
@@ -33,12 +36,15 @@ module.exports = {
     const posts = postList.map((el, idx) => {
       return {
         id: el.id,
-        img: el.image_1,
+        image_1: el.image_1,
         title: el.title,
+        category: el.category,
         views: el.views,
-        likes: el.likes_num,
-        reviews: el.reviews_num,
-        create_at: diff[idx],
+        likes_num: el.likes_num,
+        reviews_num: el.reviews_num,
+        createdAt: diff[idx],
+        UserNickname: el.UserNickname,
+        profile_img: el['User.profile_img'],
       };
     });
 

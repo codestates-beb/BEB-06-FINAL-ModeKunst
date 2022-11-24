@@ -7,6 +7,7 @@ module.exports = {
   get: async (req, res) => {
     //TODO 1. 유저 정보 가져오기
     //TODO 2. 팔로워 숫자 팔로잉 한 정보들 가져오기
+
     const login_user = req.session.user?.nickname;
     const nickname = req.params.nickname;
     console.log(`입력 받은 nickname: ${nickname}`);
@@ -24,7 +25,7 @@ module.exports = {
 
       isFollow = !!isFollow;
 
-      const posts = await Post.findAll({
+      let posts = await Post.findAll({
         where: {UserNickname: nickname},
         order: literal('likes_num DESC'),
         attributes: ['id', 'image_1', 'title', 'content', 'category', 'views', 'createdAt', 'UserNickname', 'likes_num', 'reviews_num'],
@@ -43,14 +44,13 @@ module.exports = {
       });
 
 
-      //TODO 다시 짜야함
-      const likePosts = await Post.findAll({
-        include: [ { model: Like, where: { UserNickname: nickname } }, { model: User, where: { nickname: nickname }, attributes: ['profile_img'] } ],
-        attributes: ['id', 'image_1', 'title', 'content', 'category', 'views', 'createdAt', 'UserNickname', 'likes_num', 'reviews_num'],
-         where: {UserNickname : { [Op.ne]: nickname}},
-        raw: true
-      });
 
+      let likePosts = await Post.findAll({
+        include: [ { model: Like, attributes: { exclude: ['id', 'createdAt', 'updatedAt', 'deletedAt', 'UserNickname', 'PostId'] }, where: { UserNickname: nickname } }, { model: User, attributes: ['profile_img'] } ],
+        attributes: ['id', 'image_1', 'title', 'content', 'category', 'views', 'createdAt', 'UserNickname', 'likes_num', 'reviews_num'],
+        where: {UserNickname : { [Op.ne]: nickname}},
+        raw: true,
+      });
 
       const dateFormatLikePosts = likePosts.map((post) =>{
         return new Date(post.createdAt);
@@ -61,6 +61,12 @@ module.exports = {
       likePosts.map((post, i) => {
         post.createdAt = diff[i]
       })
+
+      likePosts = likePosts.map((post, i) => {
+        let data = { profile_img: post['User.profile_img']};
+        delete (post['User.profile_img']);
+        return {...post, ...data}
+      });
 
       if(user){
         try{
@@ -73,8 +79,7 @@ module.exports = {
           followers = followers.map((a) => {
             let data = { profile_img : a['Follower.profile_img']}
             delete (a['Follower.profile_img']);
-            let format =  {...a, ...data}
-            return(format)
+            return {...a, ...data}
           })
 
           const realFollowers = [];
@@ -94,10 +99,9 @@ module.exports = {
           });
 
           followings = followings.map((a) => {
-            let data = { profile_img : a['Following.profile_img']}
+            let data = { profile_img : a['Following.profile_img']};
             delete (a['Following.profile_img']);
-            let format =  {...a, ...data}
-            return(format)
+            return  {...a, ...data}
           })
 
           const realFollowings = [];

@@ -8,10 +8,10 @@ module.exports = {
   post: async (req, res) => {
     const email = req.params.email;
     const { firstPassword, secondPassword } = req.body;
+
     try {
       if ((firstPassword, secondPassword)) {
         const user = await User.findOne({ where: { email: email } });
-
         if (user) {
           const salt = bcrypt.genSaltSync(parseInt(SALT_ROUNDS));
           const hash = bcrypt.hashSync(secondPassword, salt);
