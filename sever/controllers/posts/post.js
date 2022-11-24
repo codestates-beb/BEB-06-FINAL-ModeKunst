@@ -478,7 +478,6 @@ module.exports = {
    */
   get: async (req, res) => {
     const loginNickname = req.session.user?.nickname;
-    console.log(req.session);
     const { postId } = req.params;
     // postId의 작성자의 nft들
     console.log(`입력 받은 loginNickname: ${loginNickname}, postId: ${postId}`);
@@ -600,6 +599,7 @@ module.exports = {
           });
 
           const isFollow = !!following;
+
           if (loginNickname === UserNickname) {
             // 자기가 쓴 게시물 detail 페이지는 isOwner
             res.status(200).json({
@@ -731,6 +731,70 @@ module.exports = {
     } catch (e) {
       console.log(e);
     }
+  },
+
+  // 게시물 수정 창
+  updatePost: async (req, res) => {
+    const { postId } = req.params;
+    const { have_info } = await Post.findOne({
+      where: { id: postId },
+      attributes: ["have_info"],
+      raw: true,
+    });
+    let post;
+
+    if (have_info) {
+      post = await Post.findOne({
+        where: { id: postId },
+        include: [
+          {
+            model: Product_brand,
+            attributes: ["outer", "top", "pants", "shoes"],
+          },
+          {
+            model: Product_name,
+            attributes: ["outer", "top", "pants", "shoes"],
+          },
+          {
+            model: Product_size,
+            attributes: ["outer", "top", "pants", "shoes"],
+          },
+        ],
+        attributes: [
+          "image_1",
+          "image_2",
+          "image_3",
+          "image_4",
+          "image_5",
+          "title",
+          "content",
+          "category",
+          "createdAt",
+        ],
+      });
+    } else {
+      post = await Post.findOne({
+        where: { id: postId },
+        attributes: [
+          "image_1",
+          "image_2",
+          "image_3",
+          "image_4",
+          "image_5",
+          "title",
+          "content",
+          "category",
+          "createdAt",
+        ],
+      });
+    }
+
+    res.status(200).json({
+      message: `${postId}의 정보`,
+      data: {
+        post,
+      },
+    });
   },
 
   // 게시물 수정
