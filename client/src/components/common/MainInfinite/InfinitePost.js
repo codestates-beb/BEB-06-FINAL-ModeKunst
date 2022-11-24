@@ -15,7 +15,7 @@ export default function InfinitePost() {
   const fetchData = async () => {
     try {
       const result = await axios.get(
-        `http://localhost:8000/posts/board/?page=${pageNum}`
+        `http://localhost:8000/posts/board/?page=${pageNum}`,{ withCredentials: true }
       );
       console.log(result.data.posts);
       // 📍
