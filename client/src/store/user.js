@@ -6,7 +6,6 @@ export const login = createAsyncThunk("users/login", async (data, thunkAPI) => {
     email: data.email,
     password: data.password,
   }, { withCredentials: true });
-  console.log(result.data.data);
   return result.data.data;
 });
 
