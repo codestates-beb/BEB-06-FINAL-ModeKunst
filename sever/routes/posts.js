@@ -10,7 +10,7 @@ router.get('/board', postsController.board.get);
 router.post('/board', isLoggedIn,post_upload.array('image') ,postsController.post.post);
 
 // 게시글 수정창
-router.post('/updatePost/:postId' ,postsController.post.updatePost);
+router.get('/updatePost/:postId' ,postsController.post.updatePost);
 
 // 게시물 수정
 router.put('/:postId', post_upload.array('image'), postsController.post.put);
