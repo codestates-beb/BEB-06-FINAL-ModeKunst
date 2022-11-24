@@ -37,7 +37,7 @@ router.post('/review/:postId', isLoggedIn ,postsController.review.post);
 router.put('/review/:postId', isLoggedIn,postsController.review.put);
 
 // 리뷰 삭제
-router.delete('/review/:postId', postsController.review.delete);
+router.delete('/review/:postId', isLoggedIn,postsController.review.delete);
 
 // 검색
 router.get('/search/:name', postsController.search.search);
