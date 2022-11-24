@@ -8,7 +8,7 @@ const { web3, abi20, serverPKey, getBalance } = require('../../contract/Web3');
 
 const { literal , Op } = require('sequelize');
 const { one } = require('../function/createdAt');
-const {add} = require("nodemon/lib/rules");
+
 
 module.exports = {
 
@@ -540,28 +540,112 @@ module.exports = {
      * @returns {Promise<void>}
      */
     put: async (req, res) => {
+        const { host } = req.headers;
         const { postId } = req.params;
-        const { title, content, category } = req.body;
-        // const files = req.files;
-        
-        // const images = await Post.findOne({
-        //     attributes: ['image_1', 'image_2', 'image_3', 'image_4', 'image_5'],
-        //     where: { id: postid}
-        // });
 
-        try {
-            await Post.update(
-                {title: title, content: content, category: category},
-                {where: { id: postId }}
-            );
+        let { title, content, category, haveInfo  } = req.body;
+        const { outer_brand, top_brand, pants_brand, shoes_brand, outer_name, top_name, pants_name, shoes_name, outer_size, top_size, pants_size, shoes_size } = req.body;
+        haveInfo = haveInfo === 'true';
 
-            res.status(200).json({
-                message: '게시물이 수정 되었습니다.'
+        const files = req.files;
+        if(files <= 2) {
+            files.map((file) => {
+                if (fs.existsSync(path.join(__dirname, '..', '..', 'post_img', `${file.filename}`))) {
+                    try {
+                        fs.unlinkSync(path.join(__dirname, '..', '..', 'post_img', `${file.filename}`));
+                    } catch (e) {
+                        console.log('multer Err');
+                        console.log(e);
+                    }
+                }
+            });
+            res.status(404).json({
+                message: '3개 이상의 사진을 등록 해주세요.'
             })
-        } catch (e) {
-            console.log('sequelize Err');
-            console.log(e);
+        }else{
+            const images = await Post.findOne({
+                attributes: ['image_1', 'image_2', 'image_3', 'image_4', 'image_5'],
+                where: { id: postId}
+            });
+
+            if(images){
+                let imagePathList = Object.values(images.dataValues);
+
+                const fileNames = imagePathList.map((path) => {
+                    if(path){
+                        return path.slice(31);
+                    }
+                });
+                fileNames.map((name) => {
+                    if(name){
+                        if(fs.existsSync(path.join(__dirname, '..', '..', 'post_img', `${name}`))){
+                            try{
+                                fs.unlinkSync(path.join(__dirname, '..', '..', 'post_img', `${name}`));
+                            } catch (e) {
+                                console.log('multer Err');
+                                console.log(e);
+                            }
+                        }
+                    }
+                });
+
+                let imageList = [];
+                files.map((file) => {
+                    imageList.push(file.path);
+                });
+
+                console.log(imageList);
+                imagePathList = imageList.map((image) => {
+                    return `http://${host}/${image}`;
+                });
+
+                const [image_1, image_2, image_3, image_4, image_5] = imagePathList;
+
+                try {
+                    if(haveInfo){
+                        await Post.update(
+                            { title: title, content: content, category: category, haveInfo: haveInfo, image_1: image_1, image_2: image_2, image_3: image_3, image_4: image_4, image_5: image_5 },
+                            { where: { id: postId } }
+                        );
+                        await Product_brand.update({
+                            outer: outer_brand,
+                            top: top_brand,
+                            pants: pants_brand,
+                            shoes: shoes_brand,
+                        }, { where: { id: postId } });
+                        await Product_name.update({
+                            outer: outer_name,
+                            top: top_name,
+                            pants: pants_name,
+                            shoes: shoes_name,
+                        }, { where: { id: postId } });
+                        await Product_size.update({
+                            outer: outer_size,
+                            top: top_size,
+                            pants: pants_size,
+                            shoes: shoes_size,
+                        }, { where: { id: postId } });
+                    }else{
+                        await Post.update(
+                            { title: title, content: content, category: category, haveInfo: haveInfo, image_1: image_1, image_2: image_2, image_3: image_3, image_4: image_4, image_5: image_5 },
+                            { where: { id: postId } }
+                        );
+                    }
+
+                    res.status(200).json({
+                        message: '게시물이 수정 되었습니다.',
+                        data: {
+                            postId
+                        }
+                    })
+                } catch (e) {
+                    console.log('sequelize Err');
+                    console.log(e);
+                }
+            }
+
         }
+
     },
 
     // 게시물 삭제
