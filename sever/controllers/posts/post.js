@@ -504,7 +504,7 @@ module.exports = {
     },
 
     // 게시물 수정 창
-    updatePage: async (req, res) => {
+    updatePost: async (req, res) => {
         const { postId } = req.params;
         const { have_info } = await Post.findOne({where: {id: postId}, attributes: ['have_info'], raw: true});
 
