@@ -115,9 +115,19 @@ io.on("connection", socket => {
     );
     socket.join(roomId);
 
-    join(roomId).then(data => {
-      console.log(data);
-      io.to(roomId).emit("chatRoom", data);
+    socket.on("join", data => {
+      const { sender, receiver, roomId } = data;
+
+      console.log(
+        `입력받은 sender ${sender}, receiver: ${receiver}, roomId: ${roomId}`
+      );
+
+      socket.join(roomId);
+
+      join(roomId).then(data => {
+        console.log(data);
+        io.to(roomId).emit("chatRoom", data);
+      });
     });
 
     join(roomId).then(data => {

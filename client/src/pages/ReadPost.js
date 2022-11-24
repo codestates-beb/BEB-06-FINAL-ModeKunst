@@ -19,8 +19,8 @@ function ReadPost() {
   const [writerProfile, setWriterProfile] = useState("");
   const [post, setPost] = useState("");
   const [likeCount, setLikeCount] = useState("");
-  const [review, setReview] = useState("");
-  const [reviewCount, setReviewCount] = useState("");
+  const [reviews, setReviews] = useState([]);
+  const [reviewsCount, setReviewsCount] = useState("");
   const [similarLook, setSimilarLook] = useState("");
   const [brand, setBrand] = useState("");
   const [size, setSize] = useState("");
@@ -32,20 +32,20 @@ function ReadPost() {
 
   const [myReview, setMyReview] = useState("");
 
+  const [pageNum, setPageNum] = useState(1);
+
   const navigator = useNavigate();
 
   useEffect(() => {
     axios
       .get(`http://localhost:8000/posts/${id}`, { withCredentials: true })
       .then(result => {
-        console.log(result.data.data);
         const data = result.data.data;
         setWriter(data.user.nickname);
         setWriterProfile(data.user.profile_img);
         setPost(data.post);
         setLikeCount(data.likes_counts);
-        setReview(data.reviews);
-        setReviewCount(data.reviews_counts);
+        setReviewsCount(data.reviews_num);
         setSimilarLook(data.similarLook);
         setIsOwner(data.isOwner);
         setIsFollow(data.isFollow);
@@ -59,6 +59,16 @@ function ReadPost() {
         console.log(e);
       });
   }, [navigator]);
+
+  useEffect(() => {
+    axios
+      .get(`http://localhost:8000/posts/review/${id}/?page=${pageNum}`)
+      .then(result => {
+        setReviews(prevReviews => [...prevReviews, ...result.data.reviews]);
+      });
+  }, [pageNum]);
+
+  console.log(reviews);
 
   const settings = {
     dots: true,
@@ -116,13 +126,14 @@ function ReadPost() {
         .post(`http://localhost:8000/posts/review/${id}`, {
           content: myReview,
         })
-        .then(reuslt => {
-          const data = reuslt.data.data;
-          setReviewCount(data.reviews_counts);
-          setReview(data.reviews);
+        .then(result => {
+          console.log(result);
+          // setReviewsCount(data.reviews_counts);
+          // setReviews(data.reviews);
         })
         .catch(e => {
-          alert(e.response.data.message);
+          // alert(e.response.data.message);
+          console.log(e);
         });
     }
   };
@@ -130,8 +141,8 @@ function ReadPost() {
   const deleteReview = e => {
     axios.delete(`http://localhost:8000/posts/review/${id}`).then(result => {
       const data = result.data;
-      setReviewCount(data.data.reviews_counts);
-      setReview(data.data.reviews);
+      setReviewsCount(data.data.reviews_counts);
+      setReviews(data.data.reviews);
       alert(data.message);
     });
   };
@@ -347,7 +358,7 @@ function ReadPost() {
             </button>
           </div>
           {/* 🟠fashion info */}
-          {isOwner || isLike || isFollow ? (
+          {/* {isOwner || isLike || isFollow ? (
             <div>
               {brand && (
                 <div>
@@ -448,7 +459,7 @@ function ReadPost() {
           <div className="mt-8 text-2xl font-bold">
             #Review
             <span className="text-xs ml-5">
-              {reviewCount ? `총 ${reviewCount}개의 리뷰` : "총 0개의 리뷰"}
+              {reviewsCount ? `총 ${reviewsCount}개의 리뷰` : "총 0개의 리뷰"}
             </span>
           </div>
           <div className="w-96 px-2 py-2 flex flex-col bg-slate-300 border-2 border-black rounded-md drop-shadow-sm ">
@@ -504,47 +515,52 @@ function ReadPost() {
                   </div>
                 )}
                 <div>
-                  {review.length ? (
-                    review.map(a => {
-                      return (
-                        <div>
+                  <div>
+                    {reviews?.length ? (
+                      reviews.map(review => {
+                        return (
                           <div>
-                            <Link to={`/user/${a.UserNickname}`}>
-                              <div className="mt-4 font-bold">
-                                {a.UserNickname}
-                              </div>
-                            </Link>
-                            <div>{a.createdAt}</div>
-                            <div>{a.content}</div>
+                            <div>
+                              <Link to={`/user/${review.nickname}`}>
+                                <div className="mt-4 font-bold">
+                                  {review.nickname}
+                                </div>
+                              </Link>
+                              <span className="text-xs font-semibold inline-block px-1 py-0.5 bg-cyan-400 rounded-full text-slate-50">
+                                {review.create_at}
+                              </span>
+                              <div>{review.content}</div>
+                            </div>
+                            {/* ⭐️수정, 삭제버튼은 본인만 보이게 수정⭐️ */}
+                            <div className="space-x-2">
+                              <button className="bg-yellow-300 px-2 py-0.5 rounded-full inline-block text-center text-xs text-slate-800">
+                                수정
+                              </button>
+                              <button
+                                className="bg-pink-300 px-2 py-0.5 rounded-full inline-block text-center text-xs text-slate-800"
+                                onClick={deleteReview}
+                              >
+                                삭제
+                              </button>
+                            </div>
                           </div>
-                          <div>
-                            <button>수정</button>
-                            <button onClick={deleteReview}>삭제</button>
-                          </div>
-                        </div>
-                      );
-                    })
-                  ) : (
-                    <div>리뷰가 없습니다.</div>
-                  )}
+                        );
+                      })
+                    ) : (
+                      <div>리뷰가 없습니다.</div>
+                    )}
+                  </div>
+                  <div className="flex justify-center">
+                    <button
+                      className="bg-slate-400 px-2 py-1 text-base font-semibold rounded-full shadow-md"
+                      onClick={() => setPageNum(prevPageNum => prevPageNum + 1)}
+                    >
+                      댓글 펼치기
+                    </button>
+                  </div>
                 </div>
               </div>
-            ) : (
-              <div>
-                <div className="blur-sm">
-                  <div className="mt-4 font-bold">Jason Kim</div>
-                  <div>신발 정보 찾고 있었는데 감사합니다! </div>
-                  <div className="mt-4 font-bold">jangsam</div>
-                  <div>와 이 분 팔로워 벌써 십만 넘으셨네여...축하드립니다</div>
-                  <div className="mt-4 font-bold">성장하는 괴물 이현종</div>
-                  <div>오늘도 정보가 시원하네요</div>
-                </div>
-                <div className="m-auto align-middle py-4 text-sm font-bold fixed top-0 right-0 bottom-0 left-0 w-60 h-12 rounded-md text-center bg-white drop-shadow-md">
-                  로그인 후 리뷰를 확인해보세요!
-                  <div className="w-full h-full bg-cyan-200 rounded-b-md"></div>
-                </div>
-              </div>
-            )}
+            ) : null}
           </div>
         </div>
       </div>

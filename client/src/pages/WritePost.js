@@ -171,7 +171,6 @@ function WritePost() {
       formData.append("image", image_3);
       formData.append("image", image_4);
       formData.append("image", image_5);
-      formData.append("nickname", userInfo.userInfo.nickname);
 
       axios
         .post("http://localhost:8000/posts/board", formData, {
