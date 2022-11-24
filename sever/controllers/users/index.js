@@ -7,7 +7,6 @@ module.exports = {
     pwcheck: require('./pwcheck'),
     find: require('./find'),
     pwupdate: require('./pwupdate'),
-    search: require('./search'),
     send: require('./send'),
     signup: require('./signup'),
     tokens: require('./tokens'),

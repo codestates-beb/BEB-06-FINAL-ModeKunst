@@ -43,14 +43,14 @@ module.exports = {
       });
 
 
-      //TODO 다시 짜야함
-      const likePosts = await Post.findAll({
-        include: [ { model: Like, where: { UserNickname: nickname } }, { model: User, where: { nickname: nickname }, attributes: ['profile_img'] } ],
-        attributes: ['id', 'image_1', 'title', 'content', 'category', 'views', 'createdAt', 'UserNickname', 'likes_num', 'reviews_num'],
-         where: {UserNickname : { [Op.ne]: nickname}},
-        raw: true
-      });
 
+      const likePosts = await Post.findAll({
+        include: [ { model: Like, attributes: { exclude: ['id', 'createdAt', 'updatedAt', 'deletedAt', 'UserNickname', 'PostId'] }, where: { UserNickname: nickname } }, { model: User, attributes: ['profile_img'] } ],
+        attributes: ['id', 'image_1', 'title', 'content', 'category', 'views', 'createdAt', 'UserNickname', 'likes_num', 'reviews_num'],
+        where: {UserNickname : { [Op.ne]: nickname}},
+        raw: true,
+      });
+      
 
       const dateFormatLikePosts = likePosts.map((post) =>{
         return new Date(post.createdAt);

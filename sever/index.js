@@ -114,7 +114,9 @@ io.on('connection', (socket) => {
 
     socket.on('join', (data) => {
         const { sender, receiver, roomId } = data;
-        console.log(`입력받은 sender ${sender}, receiver: ${receiver}, roomId: ${roomId}`)
+
+        console.log(`입력받은 sender ${sender}, receiver: ${receiver}, roomId: ${roomId}`);
+
         socket.join(roomId)
 
         join(roomId).then((data) => {

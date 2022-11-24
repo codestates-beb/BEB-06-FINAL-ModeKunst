@@ -29,9 +29,6 @@ router.get("/emailfind/:nickname/:phonenumber", usersController.find.email);
 // 비밀번호 찾기
 router.get("/pwfind/:email/:phonenumber", usersController.find.password);
 
-//검색
-router.get("/search/:nickname", usersController.search.get);
-
 //로그인
 router.post("/login", isNotLoggedIn, usersController.login.post);
 
