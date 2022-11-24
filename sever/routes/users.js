@@ -29,8 +29,6 @@ router.get("/emailfind/:nickname/:phonenumber", usersController.find.email);
 // 비밀번호 찾기
 router.get("/pwfind/:email/:phonenumber", usersController.find.password);
 
-//검색
-router.get("/search/:nickname", usersController.search.get);
 
 //로그인
 router.post("/login", isNotLoggedIn,usersController.login.post);
@@ -45,7 +43,7 @@ router.post("/:nickname/follow", isLoggedIn, addFollowing);
 router.post("/:nickname/unfollow", isLoggedIn, removeFollower);
 
 // 마이 페이지
-router.get("/mypage/:nickname", isLoggedIn, usersController.mypage.get);
+router.get("/mypage/:nickname", usersController.mypage.get);
 
 // 유저 정보 수정
 router.post("/update",isLoggedIn, profile_upload.single("profile_image"), usersController.update.post);
