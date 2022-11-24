@@ -243,7 +243,6 @@ module.exports = {
         message: "리뷰가 삭제되었습니다.",
         data: {
           review_counts: review_counts,
-          reviews: reviews,
         },
       });
     } catch (e) {
