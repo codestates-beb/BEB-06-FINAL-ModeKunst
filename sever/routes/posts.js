@@ -9,6 +9,9 @@ router.get('/board', postsController.board.get);
 // 게시물 작성
 router.post('/board', isLoggedIn,post_upload.array('image') ,postsController.post.post);
 
+// 게시글 수정창
+router.post('/updatePost/:postId' ,postsController.post.updatePost);
+
 // 게시물 수정
 router.put('/:postId', post_upload.array('image'), postsController.post.put);
 
@@ -16,7 +19,7 @@ router.put('/:postId', post_upload.array('image'), postsController.post.put);
 router.delete('/:postId', postsController.post.delete);
 
 // 리뷰 수정창
-router.post('/updatePost/:postId' ,postsController.post.updatePage);
+router.post('/updatePost/:postId' ,postsController.post.updatePost);
 
 // 디테일 페이지
 router.get('/:postId', postsController.post.get);

@@ -4,20 +4,24 @@ import { set, useForm } from "react-hook-form";
 import { useSelector } from "react-redux";
 import axios from "axios";
 
+import Swal from "sweetalert2";
+
 //📌 to do
 //1. formData append 데이터 싹 정리해놓기 (v)
 //2. 작성한 data를 redux로 관리할것인지?
 //2-1. upstream = true 일 경우 fashion info 모든 값이 null 값이 아니어야됨
-//3. 사진 누르면 배열에서 요소 삭제하기
+//3. 사진 누르면 배열에서 요소 삭제하기 (v)
 //4. UI 개선하기
-//5. image 최소 3장, 최대 5장
+//5. image 최소 3장, 최대 5장(v)
 //6. 유효성 검사(최소 내용 글자 수, fashion info)
 
 function WritePost() {
+  //🟠redux 유저 정보
   const userInfo = useSelector(state => state.user);
   const isLoggedIn = userInfo.isLoggedIn;
   const navigate = useNavigate();
 
+  //🟠react-hook-form 라이브러리 설정
   const {
     register,
     handleSubmit,
@@ -25,71 +29,82 @@ function WritePost() {
     watch,
   } = useForm();
 
+  //🟠체크박스, 이미지 input 값 상태관리
   const [isChecked, setIsChecked] = useState(false);
   const [isAdded, setIsAdded] = useState(false);
-  const [imagePreview, setImagePreview] = useState();
+  const [imagePreview, setImagePreview] = useState([]);
   const [multipleImages, setMultipleImages] = useState([]);
-  const imgArr = [];
 
+  //🟠이미지 업로드 함수(onChange)
   const uploadImageHandler = e => {
-    const images = e.target.files;
-    if (images) {
-      for (let img of images) {
-        imgArr.push(img);
+    let reader = new FileReader();
+    if (e.target.files[0]) {
+      reader.readAsDataURL(e.target.files[0]);
+
+      if (multipleImages && multipleImages.length === 5) {
+        Swal.fire({
+          icon: "info",
+          text: "이미지는 5장까지 업로드 가능합니다.",
+        });
+      } else {
+        setMultipleImages([...multipleImages, e.target.files[0]]);
+        console.log(multipleImages);
       }
-      console.log(imgArr);
     }
-    setMultipleImages(imgArr);
+
+    reader.onloadend = () => {
+      console.log(reader);
+      console.log(reader.result);
+      const previewImgUrl = reader.result;
+      if (previewImgUrl) {
+        setImagePreview([...imagePreview, previewImgUrl]);
+      }
+    };
   };
 
-  useEffect(() => {
-    const previewM = multipleImages.map(a => {
-      return URL.createObjectURL(a);
-    });
-    setImagePreview(previewM);
-  }, [multipleImages]);
-
-  const removeImageHandler = e => {
-    console.log(e.target.name);
-    const idx = e.target.name;
-    if (multipleImages) {
-      const before = multipleImages.slice(0, idx);
-      const after = multipleImages.slice(idx + 1);
-      const newMultipleImg = [...before, ...after];
-
-      console.log(newMultipleImg);
-      setMultipleImages(newMultipleImg);
-    }
-  };
-
-  console.log(multipleImages);
-
-  const render = data => {
-    return data.map((image, i) => {
+  //🟠이미지 미리보기 함수
+  const getPrveiwImg = () => {
+    return multipleImages.map((image, index) => {
       return (
-        <div className="relative mt-2 mx-2 w-44 h-44 flex justify-center">
+        <div
+          key={index}
+          className="relative mt-2 mx-2 w-44 h-44 flex justify-center"
+        >
           <img
-            name={i}
-            className="flex drop-shadow-md"
-            src={image}
+            className="flex drop-shadow-md rounded-md"
+            src={imagePreview[index]}
             alt=""
             key={image}
-            onClick={removeImageHandler}
           />
-          <div
-            name={i}
-            onClick={removeImageHandler}
-            className="absolute text-white text-center w-full h-full bottom-0 bg-black opacity-0 hover:h-full hover:opacity-50 duration-500 cursor-pointer"
-          >
-            <div className="self-center justify-center w-full h-full">
-              삭제하기
-            </div>
-          </div>
+          <button onClick={() => removeImageHandler(index)}>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="black"
+              className="w-6 h-6 absolute top-0 right-0 self-end drop-shadow-lg"
+            >
+              <path
+                fillRule="evenodd"
+                d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zm-1.72 6.97a.75.75 0 10-1.06 1.06L10.94 12l-1.72 1.72a.75.75 0 101.06 1.06L12 13.06l1.72 1.72a.75.75 0 101.06-1.06L13.06 12l1.72-1.72a.75.75 0 10-1.06-1.06L12 10.94l-1.72-1.72z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </button>
         </div>
       );
     });
   };
 
+  //🟠이미지 삭제 함수
+  const removeImageHandler = index => {
+    const imgArr = multipleImages.filter((el, i) => i !== index);
+    const imgNameArr = imagePreview.filter((el, i) => i !== index);
+
+    setMultipleImages([...imgArr]);
+    setImagePreview([...imgNameArr]);
+  };
+
+  //🟠fashion info 체크 함수
   const checkHandler = e => {
     setIsChecked(!isChecked);
     if (!isChecked) {
@@ -97,10 +112,12 @@ function WritePost() {
     }
   };
 
+  //🟠아우터 정보 넣을지 말지
   const infoAddHandler = e => {
     setIsAdded(true);
   };
 
+  //🟠onSubmit 시에 데이터 유효하면 실행되는 함수
   const onValid = data => {
     console.log(data);
     try {
@@ -162,11 +179,18 @@ function WritePost() {
         .then(result => {
           const data = result.data;
           console.log(formData);
-          alert(data.message);
-          // navigate(`/post/${data.data.postId}`);
+          Swal.fire({
+            icon: "success",
+            text: `${data.message}`,
+          });
+          navigate(`/post/${data.data.postId}`);
         })
         .catch(e => {
           console.log(e);
+          Swal.fire({
+            icon: "failure",
+            text: "업로드에 실패했습니다.",
+          });
           alert(e.response.data.message);
         });
     } catch (e) {
@@ -174,8 +198,12 @@ function WritePost() {
     }
   };
 
+  //🟠마크업
   if (!isLoggedIn) {
-    alert("로그인 후 이용해주세요.");
+    Swal.fire({
+      icon: "info",
+      text: "로그인 후 이용해주세요.",
+    });
     navigate("/");
   } else {
     return (
@@ -230,20 +258,22 @@ function WritePost() {
                 <label className="text-xl font-bold text-start">images</label>
                 <div className="flex flex-wrap">
                   <div className="flex">
-                    <label className="flex flex-col mt-2 space-y-2 justify-center items-center w-44 h-44 bg-slate border-2 border-dashed border-slate-300 bg-blue-50 hover:bg-blue-100 cursor-pointer">
+                    <label className="flex flex-col mt-2 space-y-2 justify-center items-center w-44 h-44 bg-slate border-2 border-dashed border-slate-300 bg-blue-50 hover:bg-blue-100 rounded-md cursor-pointer">
                       <svg
+                        xmlns="http://www.w3.org/2000/svg"
                         fill="none"
                         viewBox="0 0 24 24"
                         strokeWidth={1.5}
                         stroke="currentColor"
-                        className="w-6 h-8 text-slate-800"
+                        className="w-6 h-6"
                       >
                         <path
                           strokeLinecap="round"
                           strokeLinejoin="round"
-                          d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"
+                          d="M12 4.5v15m7.5-7.5h-15"
                         />
                       </svg>
+
                       <span className="text-xs font-semibold text-slate-800">
                         {multipleImages ? (
                           <div>{multipleImages.length} / 5</div>
@@ -254,26 +284,16 @@ function WritePost() {
                       <input
                         type="file"
                         accept="image/*"
-                        multiple
                         className="hidden"
                         onChange={uploadImageHandler}
                         required
-                        // {...register(
-                        //   "image",
-                        //   {
-                        //     required: "이미지를 업로드해주세요",
-                        //   },
-                        //   { shouldFocus: true }
-                        // )}
                       />
                       <span className="text-xs text-red-500 font-semibold">
                         {errors?.image?.message}
                       </span>
                     </label>
                     {imagePreview && (
-                      <div className="flex flex-row">
-                        {render(imagePreview)}
-                      </div>
+                      <div className="flex">{getPrveiwImg()}</div>
                     )}
                   </div>
                 </div>

@@ -32,7 +32,7 @@ export default function UserProfile() {
       try {
         const result = await axios.get(
           `http://localhost:8000/users/mypage/${nickname}`
-        );
+        , { withCredentials: true });
         const {
           user,
           follow_amount,
@@ -42,10 +42,11 @@ export default function UserProfile() {
           likePosts,
           isFollow,
         } = result.data.data;
+
         dispatch(select("hotposts"));
         navigate(`/user/${nickname}`);
         setUsers(user);
-        setFollowAmount(follow_amount);
+        setFollowAmount(user.followers_num);
         setPosts(posts);
         setCollections(likePosts);
         setFollowers(followers);
@@ -122,6 +123,9 @@ export default function UserProfile() {
                 <span className="text-xs font-semibold px-1 py-0.5 bg-slate-300 rounded-full">
                   {followAmount}
                 </span>
+                <Link to={"/chat"} state={user.nickname}>
+                  <button>채팅</button>
+                </Link>
               </div>
             </div>
           </div>
