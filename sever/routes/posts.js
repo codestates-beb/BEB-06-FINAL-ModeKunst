@@ -9,6 +9,9 @@ router.get('/board', postsController.board.get);
 // 게시물 작성
 router.post('/board', isLoggedIn,post_upload.array('image') ,postsController.post.post);
 
+// 리뷰 수정창
+router.post('/updatePost/:postId' ,postsController.post.updatePage);
+
 // 게시물 수정
 router.put('/:postId', post_upload.array('image'), postsController.post.put);
 
