@@ -503,6 +503,35 @@ module.exports = {
 
     },
 
+    // 게시물 수정 창
+    updatePage: async (req, res) => {
+        const { postId } = req.params;
+        const { have_info } = await Post.findOne({where: {id: postId}, attributes: ['have_info'], raw: true});
+
+        let post;
+
+        if(have_info){
+            post = await Post.findOne({
+                where: { id: postId },
+                include: [{model: Product_brand, attributes: ['outer', 'top', 'pants', 'shoes']}, { model: Product_name, attributes: ['outer', 'top', 'pants', 'shoes']}, { model: Product_size, attributes: ['outer', 'top', 'pants', 'shoes']}, ],
+                attributes: ['image_1', 'image_2', 'image_3', 'image_4', 'image_5', 'title', 'content', 'category', 'createdAt'],
+            });
+        }else{
+            post = await Post.findOne({
+                where: { id: postId },
+                attributes: ['image_1', 'image_2', 'image_3', 'image_4', 'image_5', 'title', 'content', 'category', 'createdAt'],
+            });
+        }
+
+        res.status(200).json({
+            message: `${postId}의 정보`,
+            data: {
+                post
+            }
+        });
+
+    },
+
     // 게시물 수정
     /**
      * 게시물 수정
