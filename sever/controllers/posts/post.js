@@ -500,7 +500,6 @@ module.exports = {
         } catch (e) {
             console.log(e);
         }
-
     },
 
     // 게시물 수정 창
