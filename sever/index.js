@@ -107,31 +107,31 @@ io.on("connection", socket => {
       io.to(roomId).emit("dm", { roomId, messages });
     });
   });
-});
 
-socket.on("join", data => {
-  const { sender, receiver, roomId } = data;
-  console.log(
-    `입력받은 sender ${sender}, receiver: ${receiver}, roomId: ${roomId}`
-  );
-  socket.join(roomId);
+  socket.on("join", data => {
+    const { sender, receiver, roomId } = data;
+    console.log(
+      `입력받은 sender ${sender}, receiver: ${receiver}, roomId: ${roomId}`
+    );
+    socket.join(roomId);
 
-  join(roomId).then(data => {
-    console.log(data);
-    io.to(roomId).emit("chatRoom", data);
+    join(roomId).then(data => {
+      console.log(data);
+      io.to(roomId).emit("chatRoom", data);
+    });
+
+    join(roomId).then(data => {
+      io.to(roomId).emit("chatRoom", data);
+    });
   });
 
-  join(roomId).then(data => {
-    io.to(roomId).emit("chatRoom", data);
-  });
-});
-
-socket.on("send", data => {
-  const { id, sender, receiver, message } = data;
-  console.log(
-    `입력받은 id: ${id} sender: ${sender} receiver: ${receiver} message: ${message}`
-  );
-  send(id, sender, receiver, message).then(result => {
-    io.to(id).emit("messages", result);
+  socket.on("send", data => {
+    const { id, sender, receiver, message } = data;
+    console.log(
+      `입력받은 id: ${id} sender: ${sender} receiver: ${receiver} message: ${message}`
+    );
+    send(id, sender, receiver, message).then(result => {
+      io.to(id).emit("messages", result);
+    });
   });
 });
