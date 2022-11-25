@@ -198,15 +198,16 @@ function ResetPost() {
         shoes_size,
       } = data;
 
-      const image_1 = data.image[0];
-      const image_2 = data.image[1];
-      const image_3 = data.image[2];
-      const image_4 = data.image[3];
-      const image_5 = data.image[4];
+      const image_1 = multipleImages[0];
+      const image_2 = multipleImages[1];
+      const image_3 = multipleImages[2];
+      const image_4 = multipleImages[3];
+      const image_5 = multipleImages[4];
 
       formData.append("title", title);
       formData.append("content", contents);
       formData.append("category", category);
+      formData.append('haveInfo', isChecked);
       formData.append("outer_brand", outer_brand);
       formData.append("outer_name", outer_name);
       formData.append("outer_size", outer_size);
@@ -224,15 +225,12 @@ function ResetPost() {
       formData.append("image", image_3);
       formData.append("image", image_4);
       formData.append("image", image_5);
-      formData.append("nickname", userInfo.userInfo.nickname);
 
       axios
-        .post(`http://localhost:8000/posts/${id}`, formData, {
-          withCredentials: true,
-        })
+        .put(`http://localhost:8000/posts/${id}`, formData )
         .then(result => {
           const data = result.data;
-          console.log(formData);
+          console.log(data);
           Swal.fire({
             icon: "success",
             text: `${result.data.message}`,
@@ -249,8 +247,6 @@ function ResetPost() {
       console.log(e);
     }
   };
-
-  console.log(isChecked);
 
   if (!isLoggedIn && post.userNickname === userInfo.userInfo.nickname) {
     alert("로그인 후 이용해주세요.");
