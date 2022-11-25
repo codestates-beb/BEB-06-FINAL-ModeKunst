@@ -1,4 +1,14 @@
+import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+
 export default function SearchBar({ closeModal }) {
+  const [input, setInput] = useState("");
+  const navigate = useNavigate();
+
+  const changeInputHandler = e => {
+    setInput(e.target.value);
+  };
+
   return (
     <div className="fixed top-0 right-0 bottom-0 left-0 w-screen h-screen">
       <div
@@ -10,7 +20,8 @@ export default function SearchBar({ closeModal }) {
           <button
             className="hover:scale-105"
             onClick={() => {
-              // search DB
+              navigate(`/search/${input}`);
+              closeModal(false);
             }}
           >
             <svg
@@ -30,7 +41,8 @@ export default function SearchBar({ closeModal }) {
 
           <input
             type="text"
-            placeholder="관심있는 유저의 닉네임을 검색해보세요"
+            onChange={changeInputHandler}
+            placeholder="원하시는 포스트를 검색해보세요."
             className="my-3 px-6 py-3 w-1/3 border-2 border-slate-600 rounded-md focus:outline-none hover:bg-slate-100"
           />
 
