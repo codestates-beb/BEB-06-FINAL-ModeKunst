@@ -38,7 +38,9 @@ function ResetPost() {
 
   useEffect(() => {
     axios
-      .get(`http://localhost:8000/posts/updatePost/${id}`,{withCredentials: true})
+      .get(`http://localhost:8000/posts/updatePost/${id}`, {
+        withCredentials: true,
+      })
       .then(result => {
         const data = result.data.data;
         setPost(data.post);
@@ -52,7 +54,7 @@ function ResetPost() {
   }, [navigate]);
 
   useEffect(() => {
-    if (brand.top !== undefined) {
+    if (brand?.top) {
       setIsChecked(true);
     }
   });
@@ -70,26 +72,29 @@ function ResetPost() {
   //image 가져오면 file 객체의 배열로 만들어줌
   useEffect(() => {
     if (imageList) {
-      setImagePreview(imageList)
+      setImagePreview(imageList);
 
       var image_1 = new File([imageList[0]], "image");
       var image_2 = new File([imageList[0]], "image");
       var image_3 = new File([imageList[0]], "image");
-      if(imageList[3]) {
+      if (imageList[3]) {
         var image_4 = new File([imageList[0]], "image");
         if (imageList[4]) {
-        var image_5 = new File([imageList[0]], "image");}}
+          var image_5 = new File([imageList[0]], "image");
+        }
+      }
 
-    fileList = [image_1, image_2,image_3,image_4,image_5].filter(
-      item => {if (item) return item})
-    }}
-  , [imageList[0]]);
+      fileList = [image_1, image_2, image_3, image_4, image_5].filter(item => {
+        if (item) return item;
+      });
+    }
+  }, [imageList[0]]);
 
   useEffect(() => {
     if (fileList) {
-      setMultipleImages(fileList)
+      setMultipleImages(fileList);
     }
-  }, [fileList[0]])
+  }, [fileList[0]]);
 
   //🟠이미지 업로드 함수(onChange)
   const uploadImageHandler = e => {
@@ -306,7 +311,7 @@ function ResetPost() {
                 <div className="flex flex-wrap">
                   <div className="flex">
                     <label className="flex flex-col mt-2 space-y-2 justify-center items-center w-44 h-44 bg-slate border-2 border-dashed border-slate-300 bg-blue-50 hover:bg-blue-100 cursor-pointer rounded-md">
-                    <svg
+                      <svg
                         xmlns="http://www.w3.org/2000/svg"
                         fill="none"
                         viewBox="0 0 24 24"
@@ -339,9 +344,7 @@ function ResetPost() {
                       </span>
                     </label>
                     {imagePreview && (
-                      <div className="flex flex-row">
-                        {getPrveiwImg()}
-                      </div>
+                      <div className="flex flex-row">{getPrveiwImg()}</div>
                     )}
                   </div>
                 </div>
@@ -449,7 +452,7 @@ function ResetPost() {
                       </div>
                       <div onClick={infoAddHandler}>
                         {/* 🟠brand.outer 에러 수정 필요: undefined */}
-                        {(isAdded || brand.outer ) && (
+                        {(isAdded || brand.outer) && (
                           <div>
                             <span>아우터</span>
                             <input
