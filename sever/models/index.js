@@ -3,6 +3,7 @@ const env = process.env.NODE_ENV || "development";
 const config = require(__dirname + "/../config/config.js")[env];
 
 const User = require('./user');
+const Admin = require('./admin');
 const Like = require('./like');
 const Review = require('./review');
 const Post = require('./post');
@@ -29,6 +30,7 @@ const sequelize = new Sequelize(
 
 db.sequelize = sequelize;
 db.User = User;
+db.Admin = Admin;
 db.Like = Like;
 db.Review = Review;
 db.Post = Post;
@@ -45,6 +47,7 @@ db.Follow = Follow;
 db.Token_price = Token_price;
 
 User.init(sequelize);
+Admin.init(sequelize);
 Like.init(sequelize);
 Review.init(sequelize);
 Post.init(sequelize);

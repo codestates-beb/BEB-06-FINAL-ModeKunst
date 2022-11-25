@@ -390,11 +390,11 @@ module.exports = {
                 raw: true
             });
 
-            const reviews = await Review.findAll({
-                attributes: ['id', 'content', 'createdAt', 'UserNickname'],
-                where: { PostId: postId },
-                raw: true,
-            });
+            // const reviews = await Review.findAll({
+            //     attributes: ['id', 'content', 'createdAt', 'UserNickname'],
+            //     where: { PostId: postId },
+            //     raw: true,
+            // });
 
 
             if(loginNickname){
@@ -425,7 +425,7 @@ module.exports = {
                                 product_size: post.Product_size?.dataValues,
                                 likes_num,
                                 reviews_num,
-                                reviews,
+                                // reviews,
                                 similarLook,
                                 isLike,
                                 isFollow: true,
@@ -445,7 +445,7 @@ module.exports = {
                                     product_size: post.Product_size?.dataValues,
                                     likes_num,
                                     reviews_num,
-                                    reviews: reviews,
+                                    // reviews: reviews,
                                     similarLook: similarLook,
                                     isFollow: isFollow,
                                     isLike: isLike,
@@ -464,7 +464,7 @@ module.exports = {
                                     product_size: post.Product_size?.dataValues,
                                     likes_num,
                                     reviews_num,
-                                    reviews: reviews,
+                                    // reviews: reviews,
                                     similarLook: similarLook,
                                     isFollow: false,
                                     isLike: isLike,
@@ -488,7 +488,7 @@ module.exports = {
                         product_size: post.Product_size?.dataValues,
                         likes_num,
                         reviews_num,
-                        reviews: reviews,
+                        // reviews: reviews,
                         similarLook: similarLook,
                         isFollow: false,
                         isLike: false,
