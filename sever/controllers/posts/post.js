@@ -6,7 +6,7 @@ const { User, Follow, Token, Like, Review, Post, Product_name, Product_brand, Pr
 const { web3, abi20, serverPKey, getBalance } = require('../../contract/Web3');
 
 
-const { literal , Op } = require('sequelize');
+const { literal , Op, where} = require('sequelize');
 const { one } = require('../function/createdAt');
 
 
@@ -38,7 +38,7 @@ module.exports = {
             });
 
             const imagePathList = imageList.map((image) => {
-               return `http://${host}/${image}`;
+                return `http://${host}/${image}`;
             });
 
             const [image_1, image_2, image_3, image_4, image_5] = imagePathList;
@@ -52,164 +52,208 @@ module.exports = {
             top_post = top_post === 'true';
             haveInfo = haveInfo === 'true';
 
-            const serverInfo = await Server.findOne({ attributes: ['address', 'erc20'], raw: true });
-            const { address, erc20 } = serverInfo;
+            const { write_count } = await User.findOne( { where: { nickname: nickname },  attributes: ['write_count' ], raw: true } );
 
-            const contract = await new web3.eth.Contract(abi20, erc20);
+            const { address } = await Server.findOne({ attributes: ['address'], raw: true });
+
             const price = await Token_price.findOne({ where: { id: 1 }, attributes: [ 'write_post_info', 'write_post', 'top_post', 'like_user_price', 'like_sever_price' ], raw: true });
             const top_post_price = price.top_post;
             const { write_post_info, write_post, like_sever_price, like_user_price } = price;
+            console.log(top_post)
             if (top_post) {
                 // token 지불
-                // 게시물 상단 노출은 토큰 20 개 지불 
+                // 게시물 상단 노출은 토큰 20 개 지불
                 // 사용자에게 approve 받아서 서버가 transferfrom 사용하여 본인에게 전송
                 try{
-                    const { token_amount } = await User.findOne({ where: { nickname: nickname}, attributes: ['token_amount'], raw: true });
-                    if(token_amount >= 20){
-                        try{
-                            const ApproveData = contract.methods.approve(userSession.address, top_post_price).encodeABI();
-                            const approveRawTransaction = { 'to': erc20, 'gas': 100000, "data": ApproveData };
-                            const approveSignTx = await web3.eth.accounts.signTransaction(approveRawTransaction, serverPKey);
-                            await web3.eth.sendSignedTransaction(approveSignTx.rawTransaction);
+                    const { point_amount } = await User.findOne({ where: { nickname: nickname}, attributes: ['point_amount'], raw: true });
+                    if(point_amount >= top_post_price){
+                        try {
+                            let post;
+                            if(write_count !== 0 ){
+                                if(haveInfo){
+                                    // 보상 토큰 정상 지급 fashion_info 작성시 10개 지급 req.session.user로 사용자에게 10개 지급
+                                    post = await Post.create({
+                                        image_1: image_1,
+                                        image_2: image_2,
+                                        image_3: image_3,
+                                        image_4: image_4,
+                                        image_5: image_5,
+                                        title: title,
+                                        content: content,
+                                        category: category,
+                                        server_price: like_sever_price,
+                                        user_price: like_user_price,
+                                        top_post: top_post,
+                                        have_info: haveInfo,
+                                        UserNickname: nickname,
+                                    });
 
-                            try{
-                                const transferFromData =  contract.methods.transferFrom(userSession.address, address, top_post_price).encodeABI();
-                                const transferRawTransaction = { 'to': erc20, 'gas': 100000, "data": transferFromData };
-                                const transferSignTx = await web3.eth.accounts.signTransaction(transferRawTransaction, serverPKey);
-                                await web3.eth.sendSignedTransaction(transferSignTx.rawTransaction);
+                                    const id = post.dataValues.id
 
-
-                                try {
-                                    let post;
-
-                                    if(haveInfo){
-                                        // 보상 토큰 정상 지급 fashion_info 작성시 10개 지급 req.session.user로 사용자에게 10개 지급
-
-                                        const data = contract.methods.transfer(userSession.address, write_post_info).encodeABI();
-                                        const rawTransaction = { 'to': erc20, 'gas': 100000, "data": data };
-                                        const signTx = await web3.eth.accounts.signTransaction(rawTransaction, serverPKey);
-                                        const sendSignTx = await web3.eth.sendSignedTransaction(signTx.rawTransaction);
-
-                                        if (sendSignTx) {
-                                            const server_eth = await getBalance(address);
-                                            const serverBalance = await contract.methods.balanceOf(address).call();
-                                            const clientBalance = await contract.methods.balanceOf(userSession.address).call();
-
-                                            await Server.update({
-                                                eth_amount: server_eth,
-                                                token_amount: serverBalance
-                                            }, { where: { address: address } });
-
-                                            await User.update({
-                                                token_amount: clientBalance
-                                            }, { where: { email: userSession.email } });
+                                    // 옷 정보
+                                    await Product_brand.create(
+                                        {
+                                            outer: outer_brand,
+                                            top: top_brand,
+                                            pants: pants_brand,
+                                            shoes: shoes_brand,
+                                            PostId: id
                                         }
-
-                                        post = await Post.create({
-                                            image_1: image_1,
-                                            image_2: image_2,
-                                            image_3: image_3,
-                                            image_4: image_4,
-                                            image_5: image_5,
-                                            title: title,
-                                            content: content,
-                                            category: category,
-                                            server_price: like_sever_price,
-                                            user_price: like_user_price,
-                                            top_post: top_post,
-                                            have_info: haveInfo,
-                                            UserNickname: nickname,
-                                        });
-
-                                        const id = post.dataValues.id
-
-                                        // 옷 정보
-                                        await Product_brand.create(
-                                            {
-                                                outer: outer_brand,
-                                                top: top_brand,
-                                                pants: pants_brand,
-                                                shoes: shoes_brand,
-                                                PostId: id
-                                            }
-                                        );
-                                        await Product_name.create(
-                                            {
-                                                outer: outer_name,
-                                                top: top_name,
-                                                pants: pants_name,
-                                                shoes: shoes_name,
-                                                PostId: id
-                                            }
-                                        );
-                                        await Product_size.create(
-                                            {
-                                                outer: outer_size,
-                                                top: top_size,
-                                                pants: pants_size,
-                                                shoes: shoes_size,
-                                                PostId: id
-                                            }
-                                        );
-
-
-                                    }else{
-                                        // 보상 토큰 적게 지급
-                                        //fashion_info 미작성시 5개 지급
-
-                                        const data = contract.methods.transfer(userSession.address, write_post).encodeABI();
-                                        const rawTransaction = { 'to': erc20, 'gas': 100000, "data": data };
-                                        const signTx = await web3.eth.accounts.signTransaction(rawTransaction, serverPKey);
-                                        const sendSignTx = await web3.eth.sendSignedTransaction(signTx.rawTransaction);
-
-                                        if (sendSignTx) {
-                                            const server_eth = await getBalance(address);
-                                            const serverBalance = await contract.methods.balanceOf(address).call();
-                                            const clientBalance = await contract.methods.balanceOf(userSession.address).call();
-
-                                            await Server.update({
-                                                eth_amount: server_eth,
-                                                token_amount: serverBalance
-                                            }, { where: { address: address } });
-
-                                            await User.update({
-                                                token_amount: clientBalance
-                                            }, { where: { email: userSession.email } });
+                                    );
+                                    await Product_name.create(
+                                        {
+                                            outer: outer_name,
+                                            top: top_name,
+                                            pants: pants_name,
+                                            shoes: shoes_name,
+                                            PostId: id
                                         }
+                                    );
+                                    await Product_size.create(
+                                        {
+                                            outer: outer_size,
+                                            top: top_size,
+                                            pants: pants_size,
+                                            shoes: shoes_size,
+                                            PostId: id
+                                        }
+                                    );
 
-                                        post = await Post.create({
-                                            image_1: image_1,
-                                            image_2: image_2,
-                                            image_3: image_3,
-                                            image_4: image_4,
-                                            image_5: image_5,
-                                            title: title,
-                                            content: content,
-                                            category: category,
-                                            server_price: like_sever_price,
-                                            UserNickname: nickname,
-                                        });
-                                    }
+                                    await User.decrement({ point_amount: top_post_price } , { where: { nickname: nickname }});
+
+                                    await Server.increment({ point_amount: write_post_info, used_point: top_post_price }, { where: { address: address } });
+
+                                    await User.increment({ point_amount: write_post_info }, { where: { nickname: nickname } });
+
+                                    await User.decrement({ write_count: 1 } , { where: { nickname: nickname }});
 
                                     res.status(200).json({
-                                        message: '게시물이 등록 되었습니다.',
+                                        message: '게시물이 등록 되었습니다. ( 10 Mode Point를 받았습니다! )',
                                         data: {
                                             postId: post.dataValues.id,
                                         }
-                                    })
-                                } catch (e) {
-                                    console.log('Sequelize err');
-                                    console.log(e);
-                                }
-                            }catch (e) {
-                                console.log('transferFrom Err')
-                            }
-                        } catch (e) {
-                            console.log('approve Err')
-                        }
+                                    });
 
+                                }else{
+                                    // 보상 토큰 적게 지급
+                                    //fashion_info 미작성시 5개 지급
+
+                                    post = await Post.create({
+                                        image_1: image_1,
+                                        image_2: image_2,
+                                        image_3: image_3,
+                                        image_4: image_4,
+                                        image_5: image_5,
+                                        title: title,
+                                        content: content,
+                                        category: category,
+                                        top_post: top_post,
+                                        server_price: like_sever_price,
+                                        UserNickname: nickname,
+                                    });
+
+                                    await User.decrement({ point_amount: top_post_price } , { where: { nickname: nickname }});
+
+                                    await Server.increment({ point_amount: write_post, used_point: top_post_price }, { where: { address: address } });
+
+                                    await User.increment({ point_amount: write_post}, { where: { nickname: nickname } });
+
+                                    await User.decrement({ write_count: 1 } , { where: { nickname: nickname }});
+
+                                    res.status(200).json({
+                                        message: '게시물이 등록 되었습니다. ( 5 Mode Point를 받았습니다! )',
+                                        data: {
+                                            postId: post.dataValues.id,
+                                        }
+                                    });
+                                }
+                            // 보상 포인트 X
+                            }else{
+
+                                if(haveInfo){
+
+                                    post = await Post.create({
+                                        image_1: image_1,
+                                        image_2: image_2,
+                                        image_3: image_3,
+                                        image_4: image_4,
+                                        image_5: image_5,
+                                        title: title,
+                                        content: content,
+                                        category: category,
+                                        server_price: like_sever_price,
+                                        user_price: like_user_price,
+                                        top_post: top_post,
+                                        have_info: haveInfo,
+                                        UserNickname: nickname,
+                                    });
+
+                                    const id = post.dataValues.id
+
+                                    // 옷 정보
+                                    await Product_brand.create(
+                                        {
+                                            outer: outer_brand,
+                                            top: top_brand,
+                                            pants: pants_brand,
+                                            shoes: shoes_brand,
+                                            PostId: id
+                                        }
+                                    );
+                                    await Product_name.create(
+                                        {
+                                            outer: outer_name,
+                                            top: top_name,
+                                            pants: pants_name,
+                                            shoes: shoes_name,
+                                            PostId: id
+                                        }
+                                    );
+                                    await Product_size.create(
+                                        {
+                                            outer: outer_size,
+                                            top: top_size,
+                                            pants: pants_size,
+                                            shoes: shoes_size,
+                                            PostId: id
+                                        }
+                                    );
+
+                                }else{
+
+                                    post = await Post.create({
+                                        image_1: image_1,
+                                        image_2: image_2,
+                                        image_3: image_3,
+                                        image_4: image_4,
+                                        image_5: image_5,
+                                        title: title,
+                                        content: content,
+                                        category: category,
+                                        server_price: like_sever_price,
+                                        UserNickname: nickname,
+                                    });
+
+                                }
+
+                                await User.decrement({ point_amount: top_post_price } , { where: { nickname: nickname }});
+
+                                await Server.increment({ used_point: top_post_price }, { where: { address: address } });
+
+                                res.status(200).json({
+                                    message: '게시물이 등록 되었습니다.',
+                                    data: {
+                                        postId: post.dataValues.id,
+                                    }
+                                })
+                            }
+
+                        } catch (e) {
+                            console.log('Sequelize err');
+                            console.log(e);
+                        }
                     }else{
-                        return res.status(400).json({message:"토큰의 갯수가 부족합니다."})
+                        return res.status(400).json({message:"포인트가 부족합니다."})
                     }
                 } catch (e) {
                     console.log('Sequelize Err')
@@ -217,122 +261,173 @@ module.exports = {
             }else{
                 try {
                     let post;
+                    if(write_count !== 0 ){
+                        if(haveInfo){
+                            // 보상 토큰 정상 지급 fashion_info 작성시 10개 지급 req.session.user로 사용자에게 10개 지급
 
-                    if(haveInfo){
-                        // 보상 토큰 정상 지급 fashion_info 작성시 10개 지급 req.session.user로 사용자에게 10개 지급
+                            post = await Post.create({
+                                image_1: image_1,
+                                image_2: image_2,
+                                image_3: image_3,
+                                image_4: image_4,
+                                image_5: image_5,
+                                title: title,
+                                content: content,
+                                category: category,
+                                server_price: like_sever_price,
+                                user_price: like_user_price,
+                                top_post: top_post,
+                                have_info: haveInfo,
+                                UserNickname: nickname,
+                            });
 
-                        const data = contract.methods.transfer(userSession.address, write_post_info).encodeABI();
-                        const rawTransaction = { 'to': erc20, 'gas': 100000, "data": data };
-                        const signTx = await web3.eth.accounts.signTransaction(rawTransaction, serverPKey);
-                        const sendSignTx = await web3.eth.sendSignedTransaction(signTx.rawTransaction);
+                            const id = post.dataValues.id
 
-                        if (sendSignTx) {
-                            const server_eth = await getBalance(address);
-                            const serverBalance = await contract.methods.balanceOf(address).call();
-                            const clientBalance = await contract.methods.balanceOf(userSession.address).call();
+                            // 옷 정보
+                            await Product_brand.create(
+                                {
+                                    outer: outer_brand,
+                                    top: top_brand,
+                                    pants: pants_brand,
+                                    shoes: shoes_brand,
+                                    PostId: id
+                                }
+                            );
+                            await Product_name.create(
+                                {
+                                    outer: outer_name,
+                                    top: top_name,
+                                    pants: pants_name,
+                                    shoes: shoes_name,
+                                    PostId: id
+                                }
+                            );
+                            await Product_size.create(
+                                {
+                                    outer: outer_size,
+                                    top: top_size,
+                                    pants: pants_size,
+                                    shoes: shoes_size,
+                                    PostId: id
+                                }
+                            );
 
-                            await Server.update({
-                                eth_amount: server_eth,
-                                token_amount: serverBalance
-                            }, { where: { address: address } });
+                            await Server.increment({ point_amount: write_post_info }, { where: { address: address } });
 
-                            await User.update({
-                                token_amount: clientBalance
-                            }, { where: { email: userSession.email } });
+                            await User.increment({ point_amount: write_post_info }, { where: { nickname: nickname } });
+
+                            await User.decrement({ write_count: 1 } , { where: { nickname: nickname }});
+
+                            res.status(200).json({
+                                message: '게시물이 등록 되었습니다. 게시물이 등록 되었습니다. ( 10 Mode Point를 받았습니다! )',
+                                data: {
+                                    postId: post.dataValues.id,
+                                }
+                            });
+
+                        }else{
+                            post = await Post.create({
+                                image_1: image_1,
+                                image_2: image_2,
+                                image_3: image_3,
+                                image_4: image_4,
+                                image_5: image_5,
+                                title: title,
+                                content: content,
+                                category: category,
+                                server_price: like_sever_price,
+                                UserNickname: nickname,
+                            });
+
+                            await Server.increment({ point_amount: write_post }, { where: { address: address } });
+
+                            await User.increment({ point_amount: write_post }, { where: { nickname: nickname } });
+
+                            await User.decrement({ write_count: 1 } , { where: { nickname: nickname }});
+
+                            res.status(200).json({
+                                message: '게시물이 등록 되었습니다. 게시물이 등록 되었습니다. ( 5 Mode Point를 받았습니다! )',
+                                data: {
+                                    postId: post.dataValues.id,
+                                }
+                            });
                         }
-
-                        post = await Post.create({
-                            image_1: image_1,
-                            image_2: image_2,
-                            image_3: image_3,
-                            image_4: image_4,
-                            image_5: image_5,
-                            title: title,
-                            content: content,
-                            category: category,
-                            server_price: like_sever_price,
-                            user_price: like_user_price,
-                            top_post: top_post,
-                            have_info: haveInfo,
-                            UserNickname: nickname,
-                        });
-
-                        const id = post.dataValues.id
-
-                        // 옷 정보
-                        await Product_brand.create(
-                            {
-                                outer: outer_brand,
-                                top: top_brand,
-                                pants: pants_brand,
-                                shoes: shoes_brand,
-                                PostId: id
-                            }
-                        );
-                        await Product_name.create(
-                            {
-                                outer: outer_name,
-                                top: top_name,
-                                pants: pants_name,
-                                shoes: shoes_name,
-                                PostId: id
-                            }
-                        );
-                        await Product_size.create(
-                            {
-                                outer: outer_size,
-                                top: top_size,
-                                pants: pants_size,
-                                shoes: shoes_size,
-                                PostId: id
-                            }
-                        );
-
 
                     }else{
-                        // 보상 토큰 적게 지급
-                        //fashion_info 미작성시 5개 지급
 
-                        const data = contract.methods.transfer(userSession.address, write_post).encodeABI();
-                        const rawTransaction = { 'to': erc20, 'gas': 100000, "data": data };
-                        const signTx = await web3.eth.accounts.signTransaction(rawTransaction, serverPKey);
-                        const sendSignTx = await web3.eth.sendSignedTransaction(signTx.rawTransaction);
+                        if(haveInfo){
+                            // 보상 토큰 정상 지급 fashion_info 작성시 10개 지급 req.session.user로 사용자에게 10개 지급
 
-                        if (sendSignTx) {
-                            const server_eth = await getBalance(address);
-                            const serverBalance = await contract.methods.balanceOf(address).call();
-                            const clientBalance = await contract.methods.balanceOf(userSession.address).call();
+                            post = await Post.create({
+                                image_1: image_1,
+                                image_2: image_2,
+                                image_3: image_3,
+                                image_4: image_4,
+                                image_5: image_5,
+                                title: title,
+                                content: content,
+                                category: category,
+                                server_price: like_sever_price,
+                                user_price: like_user_price,
+                                top_post: top_post,
+                                have_info: haveInfo,
+                                UserNickname: nickname,
+                            });
 
-                            await Server.update({
-                                eth_amount: server_eth,
-                                token_amount: serverBalance
-                            }, { where: { address: address } });
+                            const id = post.dataValues.id
 
-                            await User.update({
-                                token_amount: clientBalance
-                            }, { where: { email: userSession.email } });
+                            // 옷 정보
+                            await Product_brand.create(
+                                {
+                                    outer: outer_brand,
+                                    top: top_brand,
+                                    pants: pants_brand,
+                                    shoes: shoes_brand,
+                                    PostId: id
+                                }
+                            );
+                            await Product_name.create(
+                                {
+                                    outer: outer_name,
+                                    top: top_name,
+                                    pants: pants_name,
+                                    shoes: shoes_name,
+                                    PostId: id
+                                }
+                            );
+                            await Product_size.create(
+                                {
+                                    outer: outer_size,
+                                    top: top_size,
+                                    pants: pants_size,
+                                    shoes: shoes_size,
+                                    PostId: id
+                                }
+                            );
+
+                        }else{
+
+                            post = await Post.create({
+                                image_1: image_1,
+                                image_2: image_2,
+                                image_3: image_3,
+                                image_4: image_4,
+                                image_5: image_5,
+                                title: title,
+                                content: content,
+                                category: category,
+                                server_price: like_sever_price,
+                                UserNickname: nickname,
+                            });
                         }
 
-                        post = await Post.create({
-                            image_1: image_1,
-                            image_2: image_2,
-                            image_3: image_3,
-                            image_4: image_4,
-                            image_5: image_5,
-                            title: title,
-                            content: content,
-                            category: category,
-                            server_price: like_sever_price,
-                            UserNickname: nickname,
-                        });
+                        res.status(200).json({
+                            message: '게시물이 등록 되었습니다.',
+                            data: {
+                                postId: post.dataValues.id,
+                            }
+                        })
                     }
-
-                    res.status(200).json({
-                        message: '게시물이 등록 되었습니다.',
-                        data: {
-                            postId: post.dataValues.id,
-                        }
-                    })
                 } catch (e) {
                     console.log('Sequelize err');
                     console.log(e);
@@ -344,8 +439,7 @@ module.exports = {
 
     /**
      * 디테일 페이지
-     * @todo 토큰 정보 추가
-     * @param req postId
+     * @param req postId: String
      * @param res
      * @returns {Promise<void>} 1. 팔로우 했을 때, 좋아요 했을 때 ( 유저, 게시글, 리뷰, 옷 ) 정보, 좋아요 수, 2. 둘 다 안했을 때 ( 유저, 게시글, 리뷰 ) 정보, 좋아요 수
      */
@@ -393,33 +487,63 @@ module.exports = {
             const reviews = await Review.findAll({
                 attributes: ['id', 'content', 'createdAt', 'UserNickname'],
                 where: { PostId: postId },
+                order: literal('createdAt DESC'),
+                limit: 4,
                 raw: true,
             });
+            let haveReview;
+            let isLike;
+            let isFollow;
+            if(loginNickname) {
+                haveReview = await Review.findOne({
+                    where: { PostId: postId, UserNickname: loginNickname },
+                    raw: true
+                });
 
+                haveReview = !!haveReview;
 
-            if(loginNickname){
-                try {
-                    const like = await Like.findOne({
-                        where: { UserNickname: loginNickname, PostId: postId }
+                isLike = await Like.findOne({
+                    where: { UserNickname: loginNickname, PostId: postId }
+                });
+
+                isLike = !!isLike;
+
+                isFollow = await Follow.findOne({
+                    where: { follower: loginNickname, following: UserNickname },
+                    paranoid: false,
+                    raw: true
+                });
+
+                isFollow = !!isFollow;
+
+                if(loginNickname === UserNickname){
+                    // 자기가 쓴 게시물 detail 페이지는 isOwner
+                    res.status(200).json({
+                        message: `${title}의 디테일 페이지`,
+                        data: {
+                            post: { image_1, image_2, image_3, image_4, image_5, title, content, category, views, createdAt },
+                            user,
+                            product_brand: post.Product_brand?.dataValues,
+                            product_name: post.Product_name?.dataValues,
+                            product_size: post.Product_size?.dataValues,
+                            likes_num,
+                            reviews_num,
+                            reviews,
+                            similarLook,
+                            isLike,
+                            isFollow: true,
+                            isOwner: true,
+                            top_post,
+                            haveReview
+                        }
                     });
-
-                    const isLike = !!like;
-
-                    const following  = await Follow.findOne({
-                        where: { follower: loginNickname, following: UserNickname },
-                        paranoid: false,
-                        raw: true
-                    });
-
-                    const isFollow = !!following;
-
-                    if(loginNickname === UserNickname){
-                        // 자기가 쓴 게시물 detail 페이지는 isOwner
+                }else{
+                    if(isFollow){
                         res.status(200).json({
                             message: `${title}의 디테일 페이지`,
                             data: {
                                 post: { image_1, image_2, image_3, image_4, image_5, title, content, category, views, createdAt },
-                                user,
+                                user: user,
                                 product_brand: post.Product_brand?.dataValues,
                                 product_name: post.Product_name?.dataValues,
                                 product_size: post.Product_size?.dataValues,
@@ -427,57 +551,41 @@ module.exports = {
                                 reviews_num,
                                 reviews,
                                 similarLook,
+                                isFollow,
                                 isLike,
-                                isFollow: true,
-                                isOwner: true,
+                                isOwner: false,
                                 top_post,
+                                haveReview
                             }
                         });
                     }else{
-                        if(following){
-                            res.status(200).json({
-                                message: `${title}의 디테일 페이지`,
-                                data: {
-                                    post: { image_1, image_2, image_3, image_4, image_5, title, content, category, views, createdAt },
-                                    user: user,
-                                    product_brand: post.Product_brand?.dataValues,
-                                    product_name: post.Product_name?.dataValues,
-                                    product_size: post.Product_size?.dataValues,
-                                    likes_num,
-                                    reviews_num,
-                                    reviews: reviews,
-                                    similarLook: similarLook,
-                                    isFollow: isFollow,
-                                    isLike: isLike,
-                                    isOwner: false,
-                                    top_post,
-                                }
-                            });
-                        }else{
-                            res.status(200).json({
-                                message: `${title}의 디테일 페이지`,
-                                data: {
-                                    post: { image_1, image_2, image_3, image_4, image_5, title, content, category, views, createdAt },
-                                    user: user,
-                                    product_brand: post.Product_brand?.dataValues,
-                                    product_name: post.Product_name?.dataValues,
-                                    product_size: post.Product_size?.dataValues,
-                                    likes_num,
-                                    reviews_num,
-                                    reviews: reviews,
-                                    similarLook: similarLook,
-                                    isFollow: false,
-                                    isLike: isLike,
-                                    isOwner: false,
-                                    top_post,
-                                }
-                            });
-                        }
+                        res.status(200).json({
+                            message: `${title}의 디테일 페이지`,
+                            data: {
+                                post: { image_1, image_2, image_3, image_4, image_5, title, content, category, views, createdAt },
+                                user: user,
+                                product_brand: post.Product_brand?.dataValues,
+                                product_name: post.Product_name?.dataValues,
+                                product_size: post.Product_size?.dataValues,
+                                likes_num,
+                                reviews_num,
+                                reviews: reviews,
+                                similarLook: similarLook,
+                                isFollow: false,
+                                isLike: isLike,
+                                isOwner: false,
+                                top_post,
+                                haveReview
+                            }
+                        });
                     }
-                } catch (e) {
-                    console.log(e);
                 }
-            }else{
+
+            }else {
+                haveReview = false;
+                isLike = false;
+                isFollow = false;
+
                 res.status(200).json({
                     message: `${title}의 디테일 페이지`,
                     data: {
@@ -490,9 +598,9 @@ module.exports = {
                         reviews_num,
                         reviews: reviews,
                         similarLook: similarLook,
-                        isFollow: false,
-                        isLike: false,
-                        isOwner: false,
+                        isFollow,
+                        isLike,
+                        isOwner : false,
                         top_post,
                     }
                 });
@@ -525,7 +633,8 @@ module.exports = {
         res.status(200).json({
             message: `${postId}의 정보`,
             data: {
-                post
+                post,
+                have_info
             }
         });
 
@@ -594,10 +703,10 @@ module.exports = {
                     imageList.push(file.path);
                 });
 
-                console.log(imageList);
                 imagePathList = imageList.map((image) => {
                     return `http://${host}/${image}`;
                 });
+
 
                 const [image_1, image_2, image_3, image_4, image_5] = imagePathList;
 

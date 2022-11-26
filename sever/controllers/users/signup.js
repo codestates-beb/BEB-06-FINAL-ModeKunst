@@ -26,7 +26,6 @@ module.exports = {
 
       console.log(hash, "해시화 ");
 
-
       try {
         //회원가입하면 5토큰 주기
         //서버의 정보 가져오기

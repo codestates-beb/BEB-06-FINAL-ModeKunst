@@ -1,4 +1,4 @@
-const { Chat, Message } = require('../../models');
+const { Chat, Message, User } = require('../../models');
 const { Op } = require('sequelize');
 const { Server } = require('socket.io');
 const cors = require("cors");

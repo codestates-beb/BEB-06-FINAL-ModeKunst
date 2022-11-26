@@ -34,42 +34,11 @@ module.exports = {
             attributes: ["address", "erc20"],
             raw: true,
           });
-          const { address, erc20 } = serverInfo;
+          const { address } = serverInfo;
 
-          const contract = await new web3.eth.Contract(abi20, erc20);
+          await Server.increment({ point_amount: review_price }, { where: { address: address } });
 
-          const data = contract.methods
-            .transfer(userAddress, review_price)
-            .encodeABI();
-          const rawTransaction = { to: erc20, gas: 100000, data: data };
-          const signTx = await web3.eth.accounts.signTransaction(
-            rawTransaction,
-            serverPKey
-          );
-          await web3.eth.sendSignedTransaction(signTx.rawTransaction);
-
-          const server_eth = await getBalance(address);
-          //트랜잭션 보내고 서버 주소에서 남은 이더
-
-          const serverBalance = await contract.methods
-            .balanceOf(address)
-            .call();
-          //서버가 보유중인 토큰 양
-
-          const clientBalance = await contract.methods
-            .balanceOf(userAddress)
-            .call();
-          //유저가 보유 중인 토큰 양
-
-          await Server.update(
-            { eth_amount: server_eth, token_amount: serverBalance },
-            { where: { address: address } }
-          );
-
-          await User.update(
-            { token_amount: clientBalance },
-            { where: { nickname: nickname } }
-          );
+          await User.increment({ point_amount: review_price }, { where: { nickname: nickname } });
 
           await Review.create({
             content: content,
@@ -80,6 +49,8 @@ module.exports = {
           const review_counts = await Review.count({
             where: { PostId: postId },
           });
+
+          console.log(review_counts)
 
           await Post.update(
             { reviews_num: review_counts },
@@ -120,6 +91,13 @@ module.exports = {
           const review_counts = await Review.count({
             where: { PostId: postId },
           });
+
+          await Post.update(
+              { reviews_num: review_counts },
+              { where: { id: postId } }
+          );
+
+          console.log(review_counts)
 
           const reviews = await Review.findAll({
             attributes: ["id", "content", "createdAt", "UserNickname"],
@@ -200,6 +178,7 @@ module.exports = {
         where: { PostId: postId },
       });
 
+
       const reviews = await Review.findAll({
         attributes: ["id", "content", "createdAt", "UserNickname"],
         where: { PostId: postId },
@@ -232,6 +211,11 @@ module.exports = {
       const review_counts = await Review.count({
         where: { PostId: postId },
       });
+
+      await Post.update(
+          { reviews_num: review_counts },
+          { where: { id: postId } }
+      );
 
       const reviews = await Review.findAll({
         attributes: ["id", "content", "createdAt", "UserNickname"],

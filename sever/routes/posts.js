@@ -18,9 +18,6 @@ router.put('/:postId', post_upload.array('image'), postsController.post.put);
 // 게시물 삭제
 router.delete('/:postId', postsController.post.delete);
 
-// 리뷰 수정창
-router.post('/updatePost/:postId' ,postsController.post.updatePost);
-
 // 디테일 페이지
 router.get('/:postId', postsController.post.get);
 

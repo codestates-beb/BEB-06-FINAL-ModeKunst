@@ -88,7 +88,35 @@ http.listen(port, () => {
 
 let count = 0;
 
-io.on("test", socket => {
-  socket.emit('test', 1);
+io.on("connection", socket => {
 
+    socket.on('findRooms', (nickname) => {
+        find(nickname).then((chatRooms) => {
+            io.emit('myRooms', chatRooms);
+        });
+    })
+
+    socket.on('enterRooms', (data) => {
+        const { roomId, nickname, receiver } = data;
+        console.log(`입력받은 roomId ${roomId}`)
+        join(roomId, nickname, receiver).then((messages) => {
+            socket.join(roomId);
+            io.to(`${roomId}`).emit('roomData', messages);
+        });
+    });
+
+    socket.on('sendMsg', (data) => {
+        const { joinRoom, message, nickname, receiver } = data;
+        console.log(`입력받은 joinRoom ${joinRoom}`)
+        send(joinRoom, message, nickname, receiver ).then((msg) => {
+            io.to(joinRoom).emit('roomData', msg);
+        });
+
+
+    });
+
+    socket.on('leave', (roomId) => {
+        console.log(`${roomId} 방을 을 나갔습니다.`)
+        socket.leave(roomId);
+    });
 });
