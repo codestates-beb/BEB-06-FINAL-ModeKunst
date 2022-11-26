@@ -15,9 +15,10 @@ export default function InfinitePost() {
   const fetchData = async () => {
     try {
       const result = await axios.get(
-        `http://localhost:8000/posts/board/?page=${pageNum}`,{ withCredentials: true }
+        `http://localhost:8000/posts/board/?page=${pageNum}`,
+        { withCredentials: true }
       );
-      console.log(result.data.posts);
+      // console.log(result.data.posts);
       // 📍
       if (result.data.posts.length === 0) setIsLast(true);
       setMainPosts(prevPosts => [...prevPosts, ...result.data.posts]);

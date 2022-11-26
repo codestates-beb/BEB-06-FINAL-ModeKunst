@@ -1,5 +1,5 @@
 import { useSelector } from "react-redux";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import Swal from "sweetalert2";
@@ -7,13 +7,13 @@ import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
-//📌to do
-//1. 좋아요 누르니까 로그인했는데 로그인 하라고 하면서 로그아웃 됨
-//2. 비슷한 룩 선택할 때 css 이상하게 들어감
-//3.
+// 📌 TODOS
+// 1. 좋아요 누르니까 로그인했는데 로그인 하라고 하면서 로그아웃 됨
+// 2. 비슷한 룩 선택할 때 css 이상하게 들어감
+// 3. 리뷰 펼치고 접을 때 애니메이션 적용하기
 
 function ReadPost() {
-  // 전역정보
+  // 전역 state
   const { id } = useParams();
   const userInfo = useSelector(state => state.user);
   const navigate = useNavigate();
@@ -22,7 +22,6 @@ function ReadPost() {
   const [brand, setBrand] = useState("");
   const [size, setSize] = useState("");
   const [names, setNames] = useState("");
-  const [pageNum, setPageNum] = useState(1);
   const [reviews, setReviews] = useState([]);
   const [reviewsCount, setReviewsCount] = useState("");
   const [likeCount, setLikeCount] = useState("");
@@ -34,20 +33,31 @@ function ReadPost() {
   const [isOwner, setIsOwner] = useState(false);
   const [isFollow, setIsFollow] = useState(false);
   const [myReview, setMyReview] = useState("");
+  const [haveReview, setHaveReview] = useState(false);
+  const reviewRef = useRef();
 
   // 리뷰 수정 관련 state
-  // isEditReview -> 리뷰 수정 모드 ON/OFF
-  // editTargetReview -> 수정한 리뷰 내용(content)
+  // isEditReview: 리뷰 수정 모드 ON/OFF
+  // editTargetReview: 수정한 리뷰 내용(content)
   const [isEditReview, setIsEditReview] = useState(false);
   const [editTargetReview, setEditTargetReview] = useState("");
+  const [toggleReview, setToggleReview] = useState(false);
 
+  // 리뷰 펼치기 및 접기 관련 state
+  const STD_NUM = 4;
+  const [std, setStd] = useState(1);
+  const [modifiedReviews, setModifiedReviews] = useState([]);
+  const [isFirst, setIsFirst] = useState(true);
+  const [isLast, setIsLast] = useState(false);
+
+  // 유저페이지 정보(리뷰 제외) 가져오기
   useEffect(() => {
     axios
-      .get(`http://localhost:8000/posts/${id}`, { withCredentials: true })
+      .get(`http://localhost:8000/posts/${id}`, {
+        withCredentials: true,
+      })
       .then(result => {
-        console.log(result);
         const data = result.data.data;
-
         setWriter(data.user.nickname);
         setWriterProfile(data.user.profile_img);
         setPost(data.post);
@@ -60,22 +70,37 @@ function ReadPost() {
         setBrand(data.product_brand);
         setSize(data.product_size);
         setNames(data.product_name);
-        console.log(data.post);
+        setHaveReview(data.haveReview);
       })
       .catch(e => {
         console.log(e);
       });
   }, [id]);
 
-  // 리뷰 페이지 펼치기 눌렀을 때(pageNum 증가)
+  // 유저페이지 리뷰 목록 가져오기
   useEffect(() => {
-    axios
-      .get(`http://localhost:8000/posts/review/${id}/?page=${pageNum}`)
-      .then(result => {
-        setReviews(prevReviews => [...prevReviews, ...result.data.reviews]);
-      });
-  }, [pageNum]);
+    console.log(std);
 
+    axios.get(`http://localhost:8000/posts/review/${id}`).then(result => {
+      if (std === 1) {
+        setReviews(result.data.reviews);
+        setIsLast(false);
+      }
+      setModifiedReviews(result.data.reviews.slice(0, STD_NUM * std));
+    });
+
+    if (std >= 2) setIsFirst(false);
+    if (std === parseInt(reviews.length / STD_NUM) + 1) setIsLast(true);
+  }, [std]);
+
+  // 보여주는 리뷰 개수 변경
+  // reviewsCount = 리뷰 작성, 삭제 했을 때 변경
+  // toggleReview = 리뷰 수정 시 변경
+  useEffect(() => {
+    setModifiedReviews(reviews.slice(0, STD_NUM * std));
+  }, [reviewsCount, toggleReview]);
+
+  // 사진 슬라이드 세팅
   const settings = {
     dots: true,
     infinite: true,
@@ -120,53 +145,94 @@ function ReadPost() {
     }
   };
 
-  // 리뷰 작성
+  // 🟠 리뷰 작성
   const sendReview = () => {
-    if (myReview.length <= 15) {
-      alert("15글자 이상 작성해주세요!");
+    if (myReview.length < 15) {
+      Swal.fire({
+        icon: "warning",
+        text: "리뷰는 15자 이상 작성해주세요.",
+      });
     } else {
       axios
         .post(`http://localhost:8000/posts/review/${id}`, {
           content: myReview,
         })
         .then(result => {
-          console.log(result);
-          // setReviewsCount(data.reviews_counts);
-          // setReviews(data.reviews);
+          const { reviews: newReviews, review_counts: newReviewsCount } =
+            result.data.data;
+          // 리뷰 작성 후에 reviews state 수정
+          // post 요청으로 등록했기 때문에 새로고침해도 등록된 모든 리뷰를 불러옴
+          console.log(newReviews);
+          setReviews(newReviews);
+          setReviewsCount(newReviewsCount);
+          setHaveReview(true);
+          reviewRef.current.value = "";
         })
-        .catch(e => {
-          // alert(e.response.data.message);
-          console.log(e);
+        .catch(error => {
+          Swal.fire({
+            icon: "error",
+            text: `${error.response.data.message}`,
+          });
         });
     }
   };
 
-  // 리뷰 수정
-  const editReview = rev => {
+  // 🟠 리뷰 수정
+  const editReview = () => {
     if (editTargetReview.length < 15) {
       Swal.fire({ icon: "warning", text: "리뷰는 15자 이상 작성해주세요." });
     } else {
-      const newReviews = reviews.map(review => {
-        if (review.id === rev.id) {
-          const editedReview = { ...review, content: editTargetReview };
-          return editedReview;
-        }
-        return review;
-      });
-      setReviews(newReviews);
-      setIsEditReview(false);
+      axios
+        .put(`http://localhost:8000/posts/review/${id}`, {
+          content: editTargetReview,
+        })
+        .then(result => {
+          const { reviews: newReviews } = result.data.data;
+          // console.log(newReviews);
+          setReviews(newReviews);
+          setIsEditReview(false); // 수정모드 OFF
+          setToggleReview(prev => !prev);
+        });
     }
-    // 👇🏻 axios
   };
 
-  // 리뷰 삭제
-  const deleteReview = rev => {
-    const newReviews = reviews.filter(review => review.id !== rev.id);
-    setReviews(newReviews);
+  // 🟠 리뷰 삭제
+  const deleteReview = () => {
     axios.delete(`http://localhost:8000/posts/review/${id}`).then(result => {
-      // 📍📍 데이터 오는거 확인해야 함
-      // setReviewsCount(result.data.)
+      const { reviews: newReviews, review_counts: newReviewsCount } =
+        result.data.data;
+      setReviews(newReviews);
+      setReviewsCount(newReviewsCount);
+      setHaveReview(false);
     });
+  };
+
+  // 🟠 리뷰 4개씩 보여주기
+  const showReviewsByFour = () => {
+    const residual = reviews.length % STD_NUM;
+    if (residual === 0) {
+      // 4의 배수만큼 리뷰 개수가 존재할 때 -> 16 이면 std = 4
+      const compareStd = parseInt(reviews.length / STD_NUM);
+      if (compareStd > std) {
+        setStd(prev => prev + 1);
+      } else {
+      }
+    } else {
+      // 4의 배수가 아닌 만큼 리뷰 개수가 존재할 때
+      const compareStd = parseInt(reviews.length / STD_NUM) + 1;
+      if (compareStd > std) {
+        setStd(prev => prev + 1);
+      } else {
+      }
+    }
+  };
+
+  // 🟠 리뷰 접기
+  const initReviews = () => {
+    console.log("hi");
+    setStd(1);
+    setModifiedReviews(reviews.slice(0, STD_NUM * 1));
+    setIsFirst(true);
   };
 
   // 해당 게시물 메인 페이지 탑으로 이동
@@ -219,7 +285,7 @@ function ReadPost() {
   });
 
   return (
-    <div className="mt-8 flex flex-col justify-center items-center">
+    <div className="mt-8 flex flex-col justify-center items-center bg-indigo-400 rounded-xl border-2 border-black shadow-xl mx-48 py-20">
       <div className="flex flex-col w-3/4">
         {/* 🟠포스팅 제목 및 카테고리 */}
         <div className="self-start inline-block text-xs px-2 py-1 w-fit font-bold bg-amber-200 rounded-full drop-shadow-sm">
@@ -290,9 +356,8 @@ function ReadPost() {
               >
                 {similarLook ? (
                   similarLook.map((item, idx) => (
-                    <div>
+                    <div key={idx}>
                       <img
-                        key={idx}
                         className="h-48 justify-center"
                         alt="similar_looks"
                         src={item.image_1}
@@ -315,7 +380,7 @@ function ReadPost() {
         </div>
         {/* 🟠유저 정보: 유저 이름을 클릭하면 채팅하기, 팔로우하기, 유저페이지 선택 */}
         <div className="ml-6">
-          <div className="w-96 px-2 py-2 flex flex-col border-2 border-black bg-slate-300 rounded-md drop-shadow-sm">
+          <div className="w-96 px-2 py-2 flex flex-col border-2 border-black bg-slate-200 rounded-md drop-shadow-sm">
             <div className="flex flex-row px-2 py-1">
               <img
                 className="w-16 h-16 flex rounded-full"
@@ -493,10 +558,18 @@ function ReadPost() {
               {reviewsCount ? `총 ${reviewsCount}개의 리뷰` : "총 0개의 리뷰"}
             </span>
           </div>
-          <div className="w-96 px-2 py-2 flex flex-col bg-slate-300 border-2 border-black rounded-md drop-shadow-sm">
+          <div className="w-96 px-2 py-2 flex flex-col bg-slate-300 border-2 border-black rounded-md drop-shadow-2xl">
             {userInfo.isLoggedIn ? (
               <div>
-                {isOwner ? (
+                {/*
+                    isOwner = 포스트 작성한 유저 판단 기준
+                    - 포스트 작성한 유저라면 -> 리뷰 작성란 보이면 안 됨(null)
+                    - 포스트 작성한 유저가 아니라면?
+                      haveReview = 리뷰를 작성했는지 여부 판단 기준
+                      - 리뷰를 이미 작성했다면 -> 리뷰작성란 보이면 안 됨(null)
+                      - 리뷰를 작성하지 않았다면 -> 리뷰작성란 보여야 됨
+                */}
+                {isOwner ? null : haveReview ? null : (
                   <div className="flex flex-col">
                     <div className="flex flex-row">
                       <img
@@ -510,31 +583,7 @@ function ReadPost() {
                     </div>
                     <input
                       type="text"
-                      placeholder="리뷰는 최소 15자 이상 작성해주세요."
-                      className="rounded-md h-12 inner-shadow"
-                      onChange={e => setMyReview(e.target.value)}
-                    />
-                    <button
-                      className="m-1 self-end inline-flex w-fit px-3 py-1 bg-violet-700 hover:bg-violet-900 text-white text-sm font-medium rounded-md"
-                      onClick={sendReview}
-                    >
-                      작성하기
-                    </button>
-                  </div>
-                ) : (
-                  <div className="flex flex-col">
-                    <div className="flex flex-row">
-                      <img
-                        className="w-6 h-6 rounded-full"
-                        alt="loggedin_user_profile"
-                        src={userInfo.userInfo.profile_img}
-                      />
-                      <div className="font-bold">
-                        {userInfo.userInfo.nickname}
-                      </div>
-                    </div>
-                    <input
-                      type="text"
+                      ref={reviewRef}
                       placeholder="리뷰는 최소 15자 이상 작성해주세요."
                       className="rounded-md h-12 inner-shadow"
                       onChange={e => setMyReview(e.target.value)}
@@ -550,7 +599,8 @@ function ReadPost() {
                 <div>
                   <div>
                     {reviews?.length ? (
-                      reviews.map((review, idx) => {
+                      // ⭕️ 리뷰 뿌려주기
+                      modifiedReviews.map((review, idx) => {
                         return (
                           <div key={idx}>
                             <div>
@@ -585,7 +635,7 @@ function ReadPost() {
                                     </button>
                                     <button
                                       className="bg-pink-300 px-2 py-0.5 rounded-full inline-block text-center text-xs text-slate-800"
-                                      onClick={() => deleteReview(review)}
+                                      onClick={deleteReview}
                                     >
                                       삭제
                                     </button>
@@ -607,9 +657,7 @@ function ReadPost() {
                                     >
                                       취소
                                     </button>
-                                    <button onClick={() => editReview(review)}>
-                                      수정
-                                    </button>
+                                    <button onClick={editReview}>수정</button>
                                   </div>
                                 )}
                               </div>
@@ -622,12 +670,46 @@ function ReadPost() {
                     )}
                   </div>
                   <div className="flex justify-center">
-                    <button
-                      className="bg-slate-400 px-2 py-1 text-base font-semibold rounded-full shadow-md"
-                      onClick={() => setPageNum(prevPageNum => prevPageNum + 1)}
-                    >
-                      댓글 펼치기
-                    </button>
+                    {!isLast && (
+                      <button
+                        onClick={showReviewsByFour}
+                        className="bg-slate-50 hover:bg-yellow-200 px-2 py-1 text-base font-semibold rounded-full shadow-md"
+                      >
+                        <svg
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          strokeWidth={2}
+                          stroke="currentColor"
+                          className="w-4 h-4"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M19.5 8.25l-7.5 7.5-7.5-7.5"
+                          />
+                        </svg>
+                      </button>
+                    )}
+                    {!isFirst && (
+                      <button
+                        onClick={initReviews}
+                        className="bg-slate-50 hover:bg-yellow-200 px-2 py-1 text-base font-semibold rounded-full shadow-md"
+                      >
+                        <svg
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          strokeWidth={2}
+                          stroke="currentColor"
+                          className="w-4 h-4"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M4.5 12.75l7.5-7.5 7.5 7.5m-15 6l7.5-7.5 7.5 7.5"
+                          />
+                        </svg>
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>

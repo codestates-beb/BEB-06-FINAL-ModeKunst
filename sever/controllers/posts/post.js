@@ -580,8 +580,17 @@ module.exports = {
       const reviews = await Review.findAll({
         attributes: ["id", "content", "createdAt", "UserNickname"],
         where: { PostId: postId },
+        order: literal("createdAt DESC"),
+        limit: 4,
         raw: true,
       });
+
+      let haveReview = await Review.findOne({
+        where: { PostId: postId, UserNickname: loginNickname },
+        raw: true,
+      });
+
+      haveReview = !!haveReview;
 
       if (loginNickname) {
         try {
@@ -622,12 +631,12 @@ module.exports = {
                 product_size: post.Product_size?.dataValues,
                 likes_num,
                 reviews_num,
-                reviews,
                 similarLook,
                 isLike,
                 isFollow: true,
                 isOwner: true,
                 top_post,
+                haveReview,
               },
             });
           } else {
@@ -653,12 +662,12 @@ module.exports = {
                   product_size: post.Product_size?.dataValues,
                   likes_num,
                   reviews_num,
-                  reviews: reviews,
                   similarLook: similarLook,
                   isFollow: isFollow,
                   isLike: isLike,
                   isOwner: false,
                   top_post,
+                  haveReview,
                 },
               });
             } else {
@@ -683,12 +692,12 @@ module.exports = {
                   product_size: post.Product_size?.dataValues,
                   likes_num,
                   reviews_num,
-                  reviews: reviews,
                   similarLook: similarLook,
                   isFollow: false,
                   isLike: isLike,
                   isOwner: false,
                   top_post,
+                  haveReview,
                 },
               });
             }
@@ -718,7 +727,6 @@ module.exports = {
             product_size: post.Product_size?.dataValues,
             likes_num,
             reviews_num,
-            reviews: reviews,
             similarLook: similarLook,
             isFollow: false,
             isLike: false,
