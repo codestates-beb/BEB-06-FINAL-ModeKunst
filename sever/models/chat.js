@@ -33,6 +33,8 @@ module.exports = class Chat extends Sequelize.Model {
         // db.Chat.belongsTo(db.User, {
         //     foreignKey: 'receiver'
         // });
-        db.Chat.hasMany(db.Message);
+        db.Chat.hasMany(db.Message,{
+            as: 'Room'
+        });
     }
 }

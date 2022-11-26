@@ -34,42 +34,11 @@ module.exports = {
             attributes: ["address", "erc20"],
             raw: true,
           });
-          const { address, erc20 } = serverInfo;
+          const { address } = serverInfo;
 
-          const contract = await new web3.eth.Contract(abi20, erc20);
+          await Server.increment({ point_amount: review_price }, { where: { address: address } });
 
-          const data = contract.methods
-            .transfer(userAddress, review_price)
-            .encodeABI();
-          const rawTransaction = { to: erc20, gas: 100000, data: data };
-          const signTx = await web3.eth.accounts.signTransaction(
-            rawTransaction,
-            serverPKey
-          );
-          await web3.eth.sendSignedTransaction(signTx.rawTransaction);
-
-          const server_eth = await getBalance(address);
-          //트랜잭션 보내고 서버 주소에서 남은 이더
-
-          const serverBalance = await contract.methods
-            .balanceOf(address)
-            .call();
-          //서버가 보유중인 토큰 양
-
-          const clientBalance = await contract.methods
-            .balanceOf(userAddress)
-            .call();
-          //유저가 보유 중인 토큰 양
-
-          await Server.update(
-            { eth_amount: server_eth, token_amount: serverBalance },
-            { where: { address: address } }
-          );
-
-          await User.update(
-            { token_amount: clientBalance },
-            { where: { nickname: nickname } }
-          );
+          await User.increment({ point_amount: review_price }, { where: { nickname: nickname } });
 
           await Review.create({
             content: content,
@@ -81,31 +50,17 @@ module.exports = {
             where: { PostId: postId },
           });
 
+          console.log(review_counts)
+
           await Post.update(
             { reviews_num: review_counts },
             { where: { id: postId } }
           );
 
-          const reviewList = await Review.findAll({
-            order: [["createdAt", "DESC"]],
-            where: { Postid: postId },
-          });
-
-          console.log("리뷰 목록", reviewList);
-
-          const dateFormatReviews = reviewList.map(review => {
-            return new Date(review.createdAt);
-          });
-
-          let diff = many(dateFormatReviews);
-
-          const reviews = reviewList.map((el, idx) => {
-            return {
-              id: el.id,
-              nickname: el.UserNickname,
-              content: el.content,
-              create_at: diff[idx],
-            };
+          const reviews = await Review.findAll({
+            attributes: ["id", "content", "createdAt", "UserNickname"],
+            where: { PostId: postId },
+            raw: true,
           });
 
           res.status(200).json({
@@ -138,30 +93,16 @@ module.exports = {
           });
 
           await Post.update(
-            { reviews_num: review_counts },
-            { where: { id: postId } }
+              { reviews_num: review_counts },
+              { where: { id: postId } }
           );
 
-          const reviewList = await Review.findAll({
-            order: [["createdAt", "DESC"]],
-            where: { Postid: postId },
-          });
+          console.log(review_counts)
 
-          console.log("리뷰 목록", reviewList);
-
-          const dateFormatReviews = reviewList.map(review => {
-            return new Date(review.createdAt);
-          });
-
-          let diff = many(dateFormatReviews);
-
-          const reviews = reviewList.map((el, idx) => {
-            return {
-              id: el.id,
-              nickname: el.UserNickname,
-              content: el.content,
-              create_at: diff[idx],
-            };
+          const reviews = await Review.findAll({
+            attributes: ["id", "content", "createdAt", "UserNickname"],
+            where: { PostId: postId },
+            raw: true,
           });
 
           res.status(200).json({
@@ -187,16 +128,16 @@ module.exports = {
     //전체 리뷰 가져오기 findAll
 
     let { postId } = req.params;
-    // let pageNum = req.query.page; //무한스크롤 페이지네이션
-    // let offset = 0; //초기 오프셋
+    let pageNum = req.query.page; //무한스크롤 페이지네이션
+    let offset = 0; //초기 오프셋
 
-    // if (pageNum > 1) {
-    //   offset = 4 * (pageNum - 1);
-    // }
+    if (pageNum > 1) {
+      offset = 4 * (pageNum - 1);
+    }
 
     const reviewList = await Review.findAll({
-      // offset: offset,
-      // limit: 4,
+      offset: offset,
+      limit: 4,
       order: [["createdAt", "DESC"]],
       where: { Postid: postId },
     });
@@ -237,30 +178,11 @@ module.exports = {
         where: { PostId: postId },
       });
 
-      const reviewList = await Review.findAll({
-        order: [["createdAt", "DESC"]],
-        where: { Postid: postId },
-      });
 
-      console.log("리뷰 목록", reviewList);
-
-      const dateFormatReviews = reviewList.map(review => {
-        return new Date(review.createdAt);
-      });
-
-      let diff = many(dateFormatReviews);
-
-      const reviews = reviewList.map((el, idx) => {
-        return {
-          id: el.id,
-          nickname: el.UserNickname,
-          content: el.content,
-          create_at: diff[idx],
-        };
-      });
-
-      const review_counts = await Review.count({
+      const reviews = await Review.findAll({
+        attributes: ["id", "content", "createdAt", "UserNickname"],
         where: { PostId: postId },
+        raw: true,
       });
 
       res.status(200).json({
@@ -286,42 +208,25 @@ module.exports = {
         where: { UserNickname: nickname, PostId: postId },
       });
 
-      const reviewList = await Review.findAll({
-        order: [["createdAt", "DESC"]],
-        where: { Postid: postId },
-      });
-
-      console.log("리뷰 목록", reviewList);
-
-      const dateFormatReviews = reviewList.map(review => {
-        return new Date(review.createdAt);
-      });
-
-      let diff = many(dateFormatReviews);
-
-      const reviews = reviewList.map((el, idx) => {
-        return {
-          id: el.id,
-          nickname: el.UserNickname,
-          content: el.content,
-          create_at: diff[idx],
-        };
-      });
-
       const review_counts = await Review.count({
         where: { PostId: postId },
       });
 
       await Post.update(
-        { reviews_num: review_counts },
-        { where: { id: postId } }
+          { reviews_num: review_counts },
+          { where: { id: postId } }
       );
+
+      const reviews = await Review.findAll({
+        attributes: ["id", "content", "createdAt", "UserNickname"],
+        where: { PostId: postId },
+        raw: true,
+      });
 
       res.status(200).json({
         message: "리뷰가 삭제되었습니다.",
         data: {
           review_counts: review_counts,
-          reviews,
         },
       });
     } catch (e) {

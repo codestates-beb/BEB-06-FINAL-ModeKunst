@@ -1,6 +1,6 @@
-const { Chat, Message } = require('../models');
-const { Op } = require('sequelize');
-
+const { Chat, Message, User} = require('../models');
+const { Op, fn, col, literal} = require('sequelize');
+const { many } = require('../controllers/function/createdAt');
 module.exports = {
 
     create: async (sender, receiver) => {
@@ -47,55 +47,65 @@ module.exports = {
 
         if(sender){
 
-            const chatRoom = await Chat.findAll({
+            let chatRoom = await Chat.findAll({
                 where: {
                     [Op.or] : [ {senderNickname: sender}, {receiverNickname: sender} ]
                 },
+                include: [ { model: User, attributes: ['profile_img'], as: 'Receiver' }, { model: User, attributes: ['profile_img'], as: 'Sender' }],
                 raw: true
             });
+            //console.log(chatRoom);
+
+            // let chatRoomDate = chatRoom.map((a) => {
+            //     console.log(a['Messages.createdAt'])
+            //     return new Date(a['Messages.createdAt'])
+            // });
+            //
+            // chatRoomDate = many(chatRoomDate);
+
+            // console.log(chatRoomDate);
 
             const chatRoomName = chatRoom.map((a) => {
+                let profile_img;
                 if(sender === a.senderNickname){
-                    return { id: a.id, name: a.receiverNickname }
+                    profile_img = a['Receiver.profile_img'];
+                    return { id: a.id, name: a.receiverNickname, profile_img: profile_img }
                 }else if(sender === a.receiverNickname){
-                    return { id: a.id, name: a.senderNickname }
+                    profile_img = a['Sender.profile_img'];
+                    return { id: a.id, name: a.senderNickname, profile_img: profile_img }
                 }
             });
 
             return chatRoomName
 
         }else{
-            res.status(401).json({
-                message: '로그인 이후 이용해주세요.'
-            })
+            return('로그인 필요');
         }
     },
 
     join: async (id, sender, receiver) => {
         const messages = await Message.findAll({
-            where: { ChatId: id },
+            where: { ChatId: id,  },
             attributes: ['message', 'createdAt', 'senderNickname'],
+            order: literal('createdAt ASC'),
             raw: true
         });
         return messages
     },
 
-    send: async (id, sender, receiver, message) => {
+    send: async (id, message, sender, receiver) => {
         if(sender){
             console.log(`입력받은 chatRoom: ${id}, sender: ${sender}, receiver: ${receiver}, message: ${message}`);
 
-            await Message.create({
+            let msg = await Message.create({
                 message: message,
                 senderNickname: sender,
                 receiverNickname: receiver,
-                ChatId: id
+                ChatId: id,
             });
 
-            return await Message.findAll({
-                where: {ChatId: id},
-                attributes: ['message', 'createdAt', 'senderNickname'],
-                raw: true
-            });
+            return { message: msg.dataValues.message, createdAt: msg.dataValues.createdAt, senderNickname: msg.dataValues.senderNickname };
+
         }
 
     },

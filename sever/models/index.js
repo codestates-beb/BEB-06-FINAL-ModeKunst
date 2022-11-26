@@ -17,6 +17,7 @@ const Chat = require('./chat');
 const Message = require('./message');
 const Follow = require('./follow');
 const Token_price = require('./token_price');
+const Report = require('./report');
 
 const db = {};
 
@@ -43,6 +44,7 @@ db.Chat = Chat;
 db.Message = Message;
 db.Follow = Follow;
 db.Token_price = Token_price;
+db.Report = Report;
 
 User.init(sequelize);
 Like.init(sequelize);
@@ -59,6 +61,7 @@ Chat.init(sequelize);
 Message.init(sequelize);
 Follow.init(sequelize);
 Token_price.init(sequelize);
+Report.init(sequelize);
 
 User.associate(db);
 Like.associate(db);
@@ -71,5 +74,6 @@ Token.associate(db);
 Chat.associate(db);
 Message.associate(db);
 Follow.associate(db);
+Report.associate(db);
 
 module.exports = db;
