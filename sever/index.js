@@ -89,6 +89,5 @@ http.listen(port, () => {
 let count = 0;
 
 io.on("test", socket => {
-  socket.emit('test', 1);
-
+  socket.emit("test", 1);
 });
