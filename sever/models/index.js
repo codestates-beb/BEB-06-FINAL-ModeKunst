@@ -3,6 +3,8 @@ const env = process.env.NODE_ENV || "development";
 const config = require(__dirname + "/../config/config.js")[env];
 
 const User = require('./user');
+const Admin = require('./admin');
+const Notice = require('./notice');
 const Like = require('./like');
 const Review = require('./review');
 const Post = require('./post');
@@ -17,6 +19,7 @@ const Chat = require('./chat');
 const Message = require('./message');
 const Follow = require('./follow');
 const Token_price = require('./token_price');
+const Report = require('./report');
 
 const db = {};
 
@@ -29,6 +32,8 @@ const sequelize = new Sequelize(
 
 db.sequelize = sequelize;
 db.User = User;
+db.Admin = Admin;
+db.Notice = Notice;
 db.Like = Like;
 db.Review = Review;
 db.Post = Post;
@@ -43,8 +48,11 @@ db.Chat = Chat;
 db.Message = Message;
 db.Follow = Follow;
 db.Token_price = Token_price;
+db.Report = Report;
 
 User.init(sequelize);
+Admin.init(sequelize);
+Notice.init(sequelize);
 Like.init(sequelize);
 Review.init(sequelize);
 Post.init(sequelize);
@@ -59,6 +67,7 @@ Chat.init(sequelize);
 Message.init(sequelize);
 Follow.init(sequelize);
 Token_price.init(sequelize);
+Report.init(sequelize);
 
 User.associate(db);
 Like.associate(db);
@@ -71,5 +80,8 @@ Token.associate(db);
 Chat.associate(db);
 Message.associate(db);
 Follow.associate(db);
+Notice.associate(db);
+Report.associate(db);
+
 
 module.exports = db;

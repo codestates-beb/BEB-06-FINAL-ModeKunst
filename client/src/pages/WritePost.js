@@ -120,81 +120,87 @@ function WritePost() {
   //🟠onSubmit 시에 데이터 유효하면 실행되는 함수
   const onValid = data => {
     console.log(data);
-    try {
-      const formData = new FormData();
-      const {
-        title,
-        contents,
-        category,
-        upstream,
-        outer_brand,
-        top_brand,
-        pants_brand,
-        shoes_brand,
-        outer_name,
-        top_name,
-        pants_name,
-        shoes_name,
-        outer_size,
-        top_size,
-        pants_size,
-        shoes_size,
-      } = data;
+    if (multipleImages?.length < 3) {
+      Swal.fire({
+        icon: "info",
+        text: "사진은 3장 이상 업로드해주세요.",
+      });
+    } else {
+      try {
+        const formData = new FormData();
+        const {
+          title,
+          contents,
+          category,
+          upstream,
+          outer_brand,
+          top_brand,
+          pants_brand,
+          shoes_brand,
+          outer_name,
+          top_name,
+          pants_name,
+          shoes_name,
+          outer_size,
+          top_size,
+          pants_size,
+          shoes_size,
+        } = data;
 
-      console.log(top_brand);
+        console.log(top_brand);
 
-      const image_1 = multipleImages[0];
-      const image_2 = multipleImages[1];
-      const image_3 = multipleImages[2];
-      const image_4 = multipleImages[3];
-      const image_5 = multipleImages[4];
+        const image_1 = multipleImages[0];
+        const image_2 = multipleImages[1];
+        const image_3 = multipleImages[2];
+        const image_4 = multipleImages[3];
+        const image_5 = multipleImages[4];
 
-      formData.append("title", title);
-      formData.append("content", contents);
-      formData.append("category", category);
-      formData.append("haveInfo", isChecked);
-      formData.append("top_post", upstream);
-      formData.append("outer_brand", outer_brand);
-      formData.append("outer_name", outer_name);
-      formData.append("outer_size", outer_size);
-      formData.append("top_brand", top_brand);
-      formData.append("top_name", top_name);
-      formData.append("top_size", top_size);
-      formData.append("pants_brand", pants_brand);
-      formData.append("pants_name", pants_name);
-      formData.append("pants_size", pants_size);
-      formData.append("shoes_brand", shoes_brand);
-      formData.append("shoes_name", shoes_name);
-      formData.append("shoes_size", shoes_size);
-      formData.append("image", image_1);
-      formData.append("image", image_2);
-      formData.append("image", image_3);
-      formData.append("image", image_4);
-      formData.append("image", image_5);
+        formData.append("title", title);
+        formData.append("content", contents);
+        formData.append("category", category);
+        formData.append("haveInfo", isChecked);
+        formData.append("top_post", upstream);
+        formData.append("outer_brand", outer_brand);
+        formData.append("outer_name", outer_name);
+        formData.append("outer_size", outer_size);
+        formData.append("top_brand", top_brand);
+        formData.append("top_name", top_name);
+        formData.append("top_size", top_size);
+        formData.append("pants_brand", pants_brand);
+        formData.append("pants_name", pants_name);
+        formData.append("pants_size", pants_size);
+        formData.append("shoes_brand", shoes_brand);
+        formData.append("shoes_name", shoes_name);
+        formData.append("shoes_size", shoes_size);
+        formData.append("image", image_1);
+        formData.append("image", image_2);
+        formData.append("image", image_3);
+        formData.append("image", image_4);
+        formData.append("image", image_5);
 
-      axios
-        .post("http://localhost:8000/posts/board", formData, {
-          withCredentials: true,
-        })
-        .then(result => {
-          const data = result.data;
-          console.log(formData);
-          Swal.fire({
-            icon: "success",
-            text: `${data.message}`,
+        axios
+          .post("http://localhost:8000/posts/board", formData, {
+            withCredentials: true,
+          })
+          .then(result => {
+            const data = result.data;
+            console.log(formData);
+            Swal.fire({
+              icon: "success",
+              text: `${data.message}`,
+            });
+            navigate(`/post/${data.data.postId}`);
+          })
+          .catch(e => {
+            console.log(e);
+            Swal.fire({
+              icon: "info",
+              text: "업로드에 실패했습니다.",
+            });
           });
-          navigate(`/post/${data.data.postId}`);
-        })
-        .catch(e => {
-          console.log(e);
-          Swal.fire({
-            icon: "failure",
-            text: "업로드에 실패했습니다.",
-          });
-          alert(e.response.data.message);
-        });
-    } catch (e) {
-      console.log(e);
+      } catch (e) {
+        console.log(e);
+      }
     }
   };
 

@@ -28,7 +28,7 @@ module.exports = {
 
       if (!isFollow) {
 
-        if( token_amount.dataValues.token_amount < total_price){
+        if( (token_amount.dataValues.token_amount < total_price)){
           res.status(401).json({
             message: '보유 토큰 양이 부족합니다.'
           })
