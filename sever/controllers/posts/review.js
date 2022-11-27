@@ -50,7 +50,6 @@ module.exports = {
             where: { PostId: postId },
           });
 
-          console.log(review_counts)
 
           await Post.update(
             { reviews_num: review_counts },
@@ -96,8 +95,6 @@ module.exports = {
               { reviews_num: review_counts },
               { where: { id: postId } }
           );
-
-          console.log(review_counts)
 
           const reviews = await Review.findAll({
             attributes: ["id", "content", "createdAt", "UserNickname"],

@@ -549,7 +549,7 @@ module.exports = {
                                 product_size: post.Product_size?.dataValues,
                                 likes_num,
                                 reviews_num,
-                                reviews,
+                                // reviews,
                                 similarLook,
                                 isFollow,
                                 isLike,
@@ -559,6 +559,7 @@ module.exports = {
                             }
                         });
                     }else{
+
                         res.status(200).json({
                             message: `${title}의 디테일 페이지`,
                             data: {
@@ -569,7 +570,7 @@ module.exports = {
                                 product_size: post.Product_size?.dataValues,
                                 likes_num,
                                 reviews_num,
-                                reviews: reviews,
+                                //reviews: reviews,
                                 similarLook: similarLook,
                                 isFollow: false,
                                 isLike: isLike,
@@ -578,6 +579,7 @@ module.exports = {
                                 haveReview
                             }
                         });
+
                     }
                 }
 
@@ -596,7 +598,7 @@ module.exports = {
                         product_size: post.Product_size?.dataValues,
                         likes_num,
                         reviews_num,
-                        reviews: reviews,
+                        // reviews: reviews,
                         similarLook: similarLook,
                         isFollow,
                         isLike,

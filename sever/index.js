@@ -77,11 +77,15 @@ app.use((req, res, next) => {
 http.listen(port, () => {
   const profile_dir = "./profile_img";
   const post_dir = "./post_img";
+  const notice_dir = "./notice_img"
   if (!fs.existsSync(profile_dir)) {
     fs.mkdirSync(profile_dir);
   }
   if (!fs.existsSync(post_dir)) {
     fs.mkdirSync(post_dir);
+  }
+  if (!fs.existsSync(notice_dir)){
+      fs.mkdirSync(notice_dir);
   }
   console.log("Listening...");
 });
