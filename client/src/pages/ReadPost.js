@@ -127,9 +127,9 @@ function ReadPost() {
         })
         .catch(e => {
           alert(e.response.data.message);
-            if((e.response.status) === 401){
-              navigator("/login");
-            }
+          if (e.response.status === 401) {
+            navigator("/login");
+          }
         });
     } else {
       axios
