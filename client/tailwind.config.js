@@ -3,10 +3,9 @@ module.exports = {
   content: ["./src/**/*.{js,jsx,ts,tsx}"],
   theme: {
     screens: {
-      sm: "576px",
-      md: "768px",
-      lg: "992px",
-      xl: "1200px",
+      // 이전까지는 모바일
+      tablet: "770px", // ~ 1279px 태블릿
+      desktop: "1280px", // ~ 큰 데스크탑
     },
     extend: {
       fontFamily: {

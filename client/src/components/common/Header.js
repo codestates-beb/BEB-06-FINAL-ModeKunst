@@ -16,7 +16,6 @@ const tokenVariants = {
 };
 
 export default function Header() {
-  // loggedInUserInfo = 로그인된 유저 정보 & isLoggedIn = 유저의 로그인 여부(불리언)
   const { userInfo: loggedInUserInfo, isLoggedIn } = useSelector(
     state => state.user
   );
@@ -39,7 +38,7 @@ export default function Header() {
       setIsSearchModal(false);
   };
 
-  const toggleMenu = () => {
+  const toggleMenuHandler = () => {
     setIsToggleMenu(prevState => !prevState);
   };
 
@@ -57,7 +56,10 @@ export default function Header() {
       }
       setIsTokenBtnClicked(prevState => !prevState);
     } catch (error) {
-      console.log(error.toString());
+      Swal.fire({
+        icon: "error",
+        text: "토큰 및 마일리지 정보를 불러올 수 없습니다.",
+      });
     }
   };
 
@@ -74,7 +76,7 @@ export default function Header() {
           icon: "success",
           text: "로그아웃 되었습니다",
         });
-        toggleMenu();
+        toggleMenuHandler();
         dispatch(logout());
         navigate("/");
       }
@@ -82,24 +84,23 @@ export default function Header() {
   };
 
   return (
-    // lg: prefix -> lg 크기 이후 부터 적용될 스타일
-    <nav className="fixed top-0 left-0 right-0 px-10 py-20 flex flex-col justify-center items-center select-none shadow-md bg-white lg:flex-row lg:py-12 lg:space-x-10">
-      <header>
+    <nav className="z-10 fixed top-0 left-0 right-0 py-8 flex flex-col justify-center items-center select-none shadow-md bg-white tablet:py-14 desktop:flex-row desktop:justify-between desktop:items-start desktop:py-0 desktop:pt-12 desktop:pb-4">
+      <header className="w-1/3 tablet:w-3/8 desktop:w-3/7">
         <Link to="/">
-          <img alt="logo" src={logo} className="max-w-xs" />
+          <img alt="logo" src={logo} className="w-full mx-auto desktop:w-3/5" />
         </Link>
         {/* 햄버거 메뉴 */}
         <motion.button
           whileHover={{ rotateZ: 180, transition: { duration: 0.26 } }}
-          onClick={toggleMenu}
-          className="p-1 absolute top-20 right-8 lg:hidden"
+          onClick={toggleMenuHandler}
+          className="absolute top-8 left-8 tablet:top-14 desktop:hidden"
         >
           <svg
             fill="none"
             viewBox="0 0 24 24"
             strokeWidth={2}
             stroke="currentColor"
-            className="w-8 h-8"
+            className="w-5 h-5 tablet:w-6 tablet:h-6"
           >
             <path
               strokeLinecap="round"
@@ -112,39 +113,38 @@ export default function Header() {
       <div
         ref={menuRef}
         className={cls(
-          "mt-10 space-y-4 lg:flex lg:flex-col lg:grow lg:px-12",
+          "mt-8 space-y-4 desktop:mt-0 desktop:grow desktop:flex desktop:flex-col desktop:pr-12",
           isToggleMenu ? "flex flex-col" : "hidden"
         )}
       >
-        {/* 메뉴 이동 네비게이션(홈, 글작성, 마이페이지, 채팅, 검색 순) */}
-        <ul className="flex flex-col justify-between space-y-6 text-center text-base font-title font-bold lg:flex-row lg:space-y-0">
+        <ul className="flex flex-col justify-between space-y-3 text-center text-sm font-title font-semibold desktop:flex-row desktop:space-y-0">
           <li
-            onClick={toggleMenu}
-            className="px-3 hover:scale-110 cursor-pointer"
+            onClick={toggleMenuHandler}
+            className="px-1.5 hover:scale-110 cursor-pointer"
           >
             <Link to="/">HOME</Link>
           </li>
           <li
-            onClick={toggleMenu}
-            className="px-3 hover:scale-110 cursor-pointer"
+            onClick={toggleMenuHandler}
+            className="px-1.5 hover:scale-110 cursor-pointer"
           >
             <Link to="/write">WRITE</Link>
           </li>
           <li
-            onClick={toggleMenu}
-            className="px-3 hover:scale-110 cursor-pointer"
+            onClick={toggleMenuHandler}
+            className="px-1.5 hover:scale-110 cursor-pointer"
           >
             <Link to={`/user/${loggedInUserInfo.nickname}`}>MYPAGE</Link>
           </li>
           <li
-            onClick={toggleMenu}
-            className="px-3 hover:scale-110 cursor-pointer"
+            onClick={toggleMenuHandler}
+            className="px-1.5 hover:scale-110 cursor-pointer"
           >
             <Link>CHAT</Link>
           </li>
           <li
-            onClick={toggleMenu}
-            className="px-3 hover:scale-110 cursor-pointer"
+            onClick={toggleMenuHandler}
+            className="px-1.5 hover:scale-110 cursor-pointer"
           >
             <button onClick={() => setIsSearchModal(true)}>
               <svg
@@ -152,7 +152,7 @@ export default function Header() {
                 viewBox="0 0 24 24"
                 strokeWidth={2}
                 stroke="currentColor"
-                className="w-6 h-6"
+                className="w-5 h-5"
               >
                 <path
                   strokeLinecap="round"
@@ -165,8 +165,26 @@ export default function Header() {
         </ul>
         {/* 로그인 & 회원가입 */}
         {isLoggedIn ? (
-          <div className="self-end flex items-center space-x-4 text-xs text-white">
-            <div className="relative">
+          <div className="self-end flex flex-col items-center space-y-2 text-xs text-white desktop:items-end">
+            <button
+              onClick={logoutHandler}
+              className="px-2 py-0.5 rounded-full hover:scale-105 bg-black"
+            >
+              로그아웃
+            </button>
+            <div className="relative flex items-center space-x-2">
+              <span
+                onClick={toggleMenuHandler}
+                className="self-end text-xs text-black font-medium"
+              >
+                <Link
+                  to={`/user/${loggedInUserInfo.nickname}`}
+                  className="text-indigo-800 text-sm font-semibold"
+                >
+                  {loggedInUserInfo.nickname}
+                </Link>{" "}
+                님, Ready to Change?
+              </span>
               <button onClick={tokenInfoHandler} className="hover:scale-110">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -189,7 +207,7 @@ export default function Header() {
                     initial="initial"
                     animate="visible"
                     exit="invisible"
-                    className="flex flex-col items-center absolute -bottom-16 -left-4 text-black font-medium bg-slate-100 px-4 pt-3 pb-3 shadow-md rounded-lg before:content-[''] before:absolute before:w-3 before:h-3 before:-top-1 before:left-5 before:rotate-45 before:bg-slate-100"
+                    className="flex flex-col items-center absolute -left-20 -bottom-16 text-black text-xs font-medium bg-slate-100 px-4 pt-3 pb-3 shadow-md rounded-lg before:content-[''] before:absolute before:w-3 before:h-3 before:-top-1 before:right-24 before:rotate-45 before:bg-slate-100 desktop:-left-40 desktop:before:right-4"
                   >
                     <button
                       onClick={() => setIsTokenBtnClicked(false)}
@@ -209,43 +227,28 @@ export default function Header() {
                         />
                       </svg>
                     </button>
-                    <span className="text-yellow-500 font-bold">
+                    <span className="text-yellow-500 text-sm font-bold">
                       {tokenInfo.token_amount} {tokenInfo.token_symbol}{" "}
-                      <span className="text-black font-medium">보유 중</span>
+                      <span className="text-black text-xs font-medium">
+                        보유 중
+                      </span>
                     </span>
-                    <span className="text-indigo-600 font-semibold">
-                      {tokenInfo.address}
-                    </span>
+                    <span className="text-indigo-600">{tokenInfo.address}</span>
                   </motion.div>
                 ) : null}
               </AnimatePresence>
             </div>
-            <span className="self-end text-xs text-black font-medium">
-              <Link
-                to={`/user/${loggedInUserInfo.nickname}`}
-                className="text-indigo-800 text-sm font-semibold"
-              >
-                {loggedInUserInfo.nickname}
-              </Link>{" "}
-              님, Ready to Change?
-            </span>
-            <button
-              onClick={logoutHandler}
-              className="px-2 py-0.5 rounded-full hover:scale-105 bg-black"
-            >
-              로그아웃
-            </button>
           </div>
         ) : (
           <div className="self-end space-x-8 text-xs text-white">
             <button
-              onClick={toggleMenu}
+              onClick={toggleMenuHandler}
               className="px-2 py-0.5  rounded-full hover:scale-105 bg-black"
             >
               <Link to="/signup">회원가입</Link>
             </button>
             <button
-              onClick={toggleMenu}
+              onClick={toggleMenuHandler}
               className="px-2 py-0.5 rounded-full hover:scale-105 bg-black"
             >
               <Link to="/login">로그인</Link>
