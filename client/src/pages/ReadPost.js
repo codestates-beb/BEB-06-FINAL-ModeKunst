@@ -77,10 +77,10 @@ function ReadPost() {
       });
   }, [id]);
 
+  console.log(post);
+
   // 유저페이지 리뷰 목록 가져오기
   useEffect(() => {
-    console.log(std);
-
     axios.get(`http://localhost:8000/posts/review/${id}`).then(result => {
       if (std === 1) {
         setReviews(result.data.reviews);
@@ -284,6 +284,8 @@ function ReadPost() {
     if (item) return item;
   });
 
+  console.log(imageList);
+
   return (
     <div className="mt-8 flex flex-col justify-center items-center bg-indigo-400 rounded-xl border-2 border-black shadow-xl mx-48 py-20">
       <div className="flex flex-col w-3/4">
@@ -291,7 +293,7 @@ function ReadPost() {
         <div className="self-start inline-block text-xs px-2 py-1 w-fit font-bold bg-amber-200 rounded-full drop-shadow-sm">
           {post.category}
         </div>
-        <h1 className="m-2 text-3xl font-bold text-start">{post.title} </h1>
+        <h1 className="m-2 text-3xl font-bold text-start">{post.title}</h1>
         <div className="m-1 border-b-[2px] border-black" />
 
         <div className="w-full flex flex-row">
@@ -338,12 +340,7 @@ function ReadPost() {
             className="max-w-xs max-h-fit border-2 border-gray-800 flex items-center justify-center"
           >
             {imageList.map((item, idx) => (
-              <img
-                key={idx}
-                className="h-96"
-                alt="post_images"
-                src={item}
-              ></img>
+              <img key={idx} className="h-96" alt="post_images" src={item} />
             ))}
           </Slider>
           {/* 🟠비슷한 룩: 데이터 어떻게 가져와야하지 */}
@@ -615,7 +612,7 @@ function ReadPost() {
                               {/* 📍 리뷰 내용 */}
                               {userInfo.userInfo.nickname === review.nickname &&
                               isEditReview ? null : (
-                                <div>{review.content}</div>
+                                <div className="text-sm">{review.content}</div>
                               )}
                             </div>
                             {userInfo.userInfo.nickname === review.nickname ? (
