@@ -27,6 +27,14 @@ module.exports = class Server extends Sequelize.Model {
                 erc20_img: {
                     type: Sequelize.STRING,
                 },
+                point_amount: {
+                    type: Sequelize.BIGINT,
+                    defaultValue: 0,
+                },
+                used_point: {
+                    type: Sequelize.BIGINT,
+                    defaultValue: 0,
+                },
                 token_amount: {
                     type: Sequelize.BIGINT,
                 },

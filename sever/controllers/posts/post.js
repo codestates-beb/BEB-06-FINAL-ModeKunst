@@ -893,6 +893,7 @@ module.exports = {
           imageList.push(file.path);
         });
 
+        console.log(imageList);
         imagePathList = imageList.map(image => {
           return `http://${host}/${image}`;
         });

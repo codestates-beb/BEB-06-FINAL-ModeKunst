@@ -60,6 +60,7 @@ function ResetPost() {
   }, [id]);
 
   useEffect(() => {
+    console.log(brand?.top);
     if (brand?.top) {
       setIsChecked(true);
     }
@@ -196,8 +197,6 @@ function ResetPost() {
   };
 
   const onValid = data => {
-    console.log(data);
-    console.log(multipleImages);
     if (multipleImages?.length < 3) {
       Swal.fire({
         icon: "info",
@@ -394,19 +393,19 @@ function ResetPost() {
                           name="top_brand"
                           className="border-2 border-black rounded-md"
                           placeholder="브랜드명"
-                          defaultValue={brand.top}
+                          defaultValue={brand?.top}
                           {...register("top_brand", { required: false })}
                         ></input>
                         <input
                           name="top_name"
                           className="border-2 border-black rounded-md"
                           placeholder="제품명"
-                          defaultValue={names.top}
+                          defaultValue={names?.top}
                           {...register("top_name", { required: false })}
                         ></input>
                         <select
                           name="top_size"
-                          defaultValue={size.top}
+                          defaultValue={size?.top}
                           {...register("top_size", { required: false })}
                           className="border-2 border-black rounded-md"
                         >
@@ -423,19 +422,19 @@ function ResetPost() {
                           name="pants_brand"
                           className="border-2 border-black rounded-md"
                           placeholder="브랜드명"
-                          defaultValue={brand.pants}
+                          defaultValue={brand?.pants}
                           {...register("pants_brand", { required: false })}
                         ></input>
                         <input
                           name="pants_name"
                           className="border-2 border-black rounded-md"
                           placeholder="제품명"
-                          defaultValue={names.pants}
+                          defaultValue={names?.pants}
                           {...register("pants_name", { required: false })}
                         ></input>
                         <select
                           name="pants_size"
-                          defaultValue={size.pants}
+                          defaultValue={size?.pants}
                           {...register("pants_size", { required: false })}
                           className="border-2 border-black rounded-md"
                         >
@@ -452,19 +451,19 @@ function ResetPost() {
                           name="shoes_brand"
                           className="border-2 border-black rounded-md"
                           placeholder="브랜드명"
-                          defaultValue={brand.shoes}
+                          defaultValue={brand?.shoes}
                           {...register("shoes_brand", { required: false })}
                         ></input>
                         <input
                           name="shoes_name"
                           className="border-2 border-black rounded-md"
                           placeholder="제품명"
-                          defaultValue={names.shoes}
+                          defaultValue={names?.shoes}
                           {...register("shoes_name", { required: false })}
                         ></input>
                         <select
                           name="shoes_size"
-                          defaultValue={size.shoes}
+                          defaultValue={size?.shoes}
                           {...register("shoes_size", { required: false })}
                           className="border-2 border-black rounded-md"
                         >
@@ -477,7 +476,7 @@ function ResetPost() {
                       </div>
                       <div onClick={infoAddHandler}>
                         {/* 🟠brand.outer 에러 수정 필요: undefined */}
-                        {(isAdded || brand.outer) && (
+                        {(isAdded || brand?.outer) && (
                           <div>
                             <span>아우터</span>
                             <input
