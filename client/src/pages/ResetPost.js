@@ -203,7 +203,7 @@ function ResetPost() {
       formData.append("title", title);
       formData.append("content", contents);
       formData.append("category", category);
-      formData.append('haveInfo', isChecked);
+      formData.append("haveInfo", isChecked);
       formData.append("outer_brand", outer_brand);
       formData.append("outer_name", outer_name);
       formData.append("outer_size", outer_size);
@@ -223,21 +223,20 @@ function ResetPost() {
       formData.append("image", image_5);
 
       axios
-          .put(`http://localhost:8000/posts/${id}`, formData )
-          .then(result => {
-            const data = result.data;
-            console.log(data);
-            Swal.fire({
-              icon: "success",
-              text: `${result.data.message}`,
-            }).then(() => navigate(`/post/${data.data.postId}`));
-          })
-          .catch(e => {
-            console.log(e);
-            Swal.fire({
-              icon: "failure",
-              text: `${e.response.data.message}`,
-            });
+        .put(`http://localhost:8000/posts/${id}`, formData)
+        .then(result => {
+          const data = result.data;
+          console.log(data);
+          Swal.fire({
+            icon: "success",
+            text: `${result.data.message}`,
+          }).then(() => navigate(`/post/${data.data.postId}`));
+        })
+        .catch(e => {
+          console.log(e);
+          Swal.fire({
+            icon: "failure",
+            text: `${e.response.data.message}`,
           });
     } catch (e) {
       console.log(e);
