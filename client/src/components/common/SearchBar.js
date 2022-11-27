@@ -1,3 +1,6 @@
+// 📌 TODOS
+// 1) 서치바 너비 손보기 (좌측이 뜸)
+
 export default function SearchBar({ closeModal }) {
   return (
     <div className="fixed top-0 right-0 bottom-0 left-0 w-screen h-screen">
