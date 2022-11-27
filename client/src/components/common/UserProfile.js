@@ -31,7 +31,9 @@ export default function UserProfile() {
     async function fetchData() {
       try {
         const result = await axios.get(
-          `http://localhost:8000/users/mypage/${nickname}`,{ withCredentials: true });
+          `http://localhost:8000/users/mypage/${nickname}`,
+          { withCredentials: true }
+        );
         const {
           user,
           follow_amount,
@@ -62,19 +64,23 @@ export default function UserProfile() {
 
   const followUser = () => {
     axios
-      .post(`http://localhost:8000/users/${nickname}/follow`,{ withCredentials: true })
+      .post(`http://localhost:8000/users/${nickname}/follow`, {
+        withCredentials: true,
+      })
       .then(result => {
         const data = result.data;
         setIsFollow(data.data.isFollow);
         alert(data.message);
       })
       .catch(e => {
-        console.log(e);
+        alert(e.response.data.message);
       });
   };
   const unfollowUser = () => {
     axios
-      .post(`http://localhost:8000/users/${nickname}/unfollow`,{ withCredentials: true })
+      .post(`http://localhost:8000/users/${nickname}/unfollow`, {
+        withCredentials: true,
+      })
       .then(result => {
         const data = result.data;
         setIsFollow(data.isFollow);

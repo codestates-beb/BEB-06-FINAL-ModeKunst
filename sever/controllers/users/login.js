@@ -33,73 +33,36 @@ module.exports = {
                 raw: true,
               });
 
-              const serverInfo = await Server.findOne({
-                attributes: ["address", "erc20"],
-                raw: true,
+              const { address } = await Server.findOne({ attributes: ['address'], raw: true });
+
+
+              await Server.increment({ point_amount: login }, { where: { address: address } });
+
+              await User.increment({ point_amount: login }, { where: { email: email } });
+
+              await User.update(
+                  { write_count: 5, login_at: now },
+                  { where: { email: email } }
+              );
+
+              return res.status(200).json({
+                message: "로그인이 완료되었습니다.( 1 Mode Point를 받았습니다! )",
+                data: {
+                  id: user.dataValues.id,
+                  address: user.dataValues.address,
+                  profile_img: user.dataValues.profile_img,
+                  email: user.dataValues.email,
+                  nickname: user.dataValues.nickname,
+                  phone_number: user.dataValues.phone_number,
+                  sns_url: user.dataValues.sns_url,
+                  height: user.dataValues.height,
+                  weight: user.dataValues.weight,
+                  gender: user.dataValues.gender,
+                  token_amount: user.dataValues.token_amount,
+                  follow_amount: user.dataValues.followers_num,
+                },
               });
 
-              const { address, erc20 } = serverInfo;
-
-              console.log("서버 주소 :", address);
-              console.log("erc20 서버 주소 :", erc20);
-              console.log("유저 지갑 :", user.address);
-
-              const contract = await new web3.eth.Contract(abi20, erc20);
-
-              const data = contract.methods
-                .transfer(user.address, login)
-                .encodeABI();
-              const rawTransaction = { to: erc20, gas: 100000, data: data };
-              const signTx = await web3.eth.accounts.signTransaction(
-                rawTransaction,
-                serverPKey
-              );
-              const sendSignTx = await web3.eth.sendSignedTransaction(
-                signTx.rawTransaction
-              );
-
-              if (sendSignTx) {
-                const server_eth = await getBalance(address);
-                //트랜잭션 보내고 서버 주소에서 남은 이더
-
-                const serverBalance = await contract.methods
-                  .balanceOf(address)
-                  .call();
-                //서버가 보유중인 토큰 양
-
-                const clientBalance = await contract.methods
-                  .balanceOf(user.address)
-                  .call();
-                //유저가 보유 중인 토큰 양
-
-                await Server.update(
-                  { eth_amount: server_eth, token_amount: serverBalance },
-                  { where: { address: address } }
-                );
-
-                await User.update(
-                  { token_amount: clientBalance, login_at: now },
-                  { where: { email: email } }
-                );
-
-                return res.status(200).json({
-                  message: "로그인이 완료되었습니다.( 1 토큰을 받았습니다! )",
-                  data: {
-                    id: user.dataValues.id,
-                    address: user.dataValues.address,
-                    profile_img: user.dataValues.profile_img,
-                    email: user.dataValues.email,
-                    nickname: user.dataValues.nickname,
-                    phone_number: user.dataValues.phone_number,
-                    sns_url: user.dataValues.sns_url,
-                    height: user.dataValues.height,
-                    weight: user.dataValues.weight,
-                    gender: user.dataValues.gender,
-                    token_amount: user.dataValues.token_amount,
-                    follow_amount: user.dataValues.followers_num,
-                  },
-                });
-              }
             } else {
               //24시간 전에 로그인하면 시간 업데이트 X
               return res.status(200).json({

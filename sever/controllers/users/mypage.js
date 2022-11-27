@@ -44,7 +44,6 @@ module.exports = {
       });
 
 
-
       let likePosts = await Post.findAll({
         include: [ { model: Like, attributes: { exclude: ['id', 'createdAt', 'updatedAt', 'deletedAt', 'UserNickname', 'PostId'] }, where: { UserNickname: nickname } }, { model: User, attributes: ['profile_img'] } ],
         attributes: ['id', 'image_1', 'title', 'content', 'category', 'views', 'createdAt', 'UserNickname', 'likes_num', 'reviews_num'],
