@@ -7,7 +7,7 @@ import axios from "axios";
 import Swal from "sweetalert2";
 
 //📌 to do
-// 1. 받아온 이미지 데이터가 blob 객체임 file 객체가 필요함
+// 1. 받아온 이미지 데이터가 url임 file 객체가 필요함
 // 2. upstream 값을 받아와야 함 - 이미 toppost 인 경우 처리 필요
 // 3. 수정한 데이터를 완전히 갈아끼우는 형식이 될 거 같음
 
@@ -23,6 +23,11 @@ function ResetPost() {
   const isLoggedIn = userInfo.isLoggedIn;
   const navigate = useNavigate();
   let fileList = [];
+  let fileName1;
+  let fileName2;
+  let fileName3;
+  let fileName4;
+  let fileName5;
 
   const {
     register,
@@ -43,6 +48,7 @@ function ResetPost() {
       })
       .then(result => {
         const data = result.data.data;
+        console.log(data);
         setPost(data.post);
         setBrand(data.post.Product_brand);
         setSize(data.post.Product_size);
@@ -51,7 +57,7 @@ function ResetPost() {
       .catch(e => {
         console.log(e);
       });
-  }, [navigate]);
+  }, [id]);
 
   useEffect(() => {
     if (brand?.top) {
@@ -59,42 +65,57 @@ function ResetPost() {
     }
   });
 
-  const imageList = [
-    post.image_1,
-    post.image_2,
-    post.image_3,
-    post?.image_4,
-    post?.image_5,
-  ].filter(item => {
-    if (item) return item;
-  });
-
   //image 가져오면 file 객체의 배열로 만들어줌
   useEffect(() => {
-    if (imageList) {
+    const imageList = [
+      post.image_1,
+      post.image_2,
+      post.image_3,
+      post?.image_4,
+      post?.image_5,
+    ].filter(item => {
+      if (item) return item;
+    });
+
+    if (imageList.length) {
       setImagePreview(imageList);
+      const convert = async () => {
+        fileName1 = await convertURLtoBLOB(imageList[0]);
 
-      var image_1 = new File([imageList[0]], "image");
-      var image_2 = new File([imageList[0]], "image");
-      var image_3 = new File([imageList[0]], "image");
-      if (imageList[3]) {
-        var image_4 = new File([imageList[0]], "image");
-        if (imageList[4]) {
-          var image_5 = new File([imageList[0]], "image");
+        fileName2 = await convertURLtoBLOB(imageList[1]);
+
+        fileName3 = await convertURLtoBLOB(imageList[2]);
+
+        if (imageList[3]) {
+          fileName4 = await convertURLtoBLOB(imageList[3]);
         }
-      }
+        if (imageList[4]) {
+          fileName5 = await convertURLtoBLOB(imageList[4]);
+        }
 
-      fileList = [image_1, image_2, image_3, image_4, image_5].filter(item => {
-        if (item) return item;
-      });
+        fileList = [
+          fileName1,
+          fileName2,
+          fileName3,
+          fileName4,
+          fileName5,
+        ].filter(item => {
+          if (item) return item;
+        });
+        setMultipleImages(fileList);
+      };
+      convert();
     }
-  }, [imageList[0]]);
+  }, [post]);
 
-  useEffect(() => {
-    if (fileList) {
-      setMultipleImages(fileList);
-    }
-  }, [fileList[0]]);
+  const convertURLtoBLOB = async url => {
+    const blob = await fetch(url).then(result => result.blob());
+    const ext = await url.split(".").pop(); // url 구조에 맞게 수정할 것
+    console.log(ext);
+    const filename = await url.split("/").pop(); // url 구조에 맞게 수정할 것
+    const metadata = { type: `image/${ext}` };
+    return new File([blob], filename, metadata);
+  };
 
   //🟠이미지 업로드 함수(onChange)
   const uploadImageHandler = e => {
@@ -114,8 +135,6 @@ function ResetPost() {
     }
 
     reader.onloadend = () => {
-      console.log(reader);
-      console.log(reader.result);
       const previewImgUrl = reader.result;
       if (previewImgUrl) {
         setImagePreview([...imagePreview, previewImgUrl]);
@@ -178,73 +197,84 @@ function ResetPost() {
 
   const onValid = data => {
     console.log(data);
-    try {
-      const formData = new FormData();
-      const {
-        title,
-        contents,
-        category,
-        outer_brand,
-        top_brand,
-        pants_brand,
-        shoes_brand,
-        outer_name,
-        top_name,
-        pants_name,
-        shoes_name,
-        outer_size,
-        top_size,
-        pants_size,
-        shoes_size,
-      } = data;
+    console.log(multipleImages);
+    if (multipleImages?.length < 3) {
+      Swal.fire({
+        icon: "info",
+        text: "사진은 3장 이상 업로드해주세요.",
+      });
+    } else {
+      try {
+        const formData = new FormData();
+        const {
+          title,
+          contents,
+          category,
+          outer_brand,
+          top_brand,
+          pants_brand,
+          shoes_brand,
+          outer_name,
+          top_name,
+          pants_name,
+          shoes_name,
+          outer_size,
+          top_size,
+          pants_size,
+          shoes_size,
+        } = data;
 
-      const image_1 = multipleImages[0];
-      const image_2 = multipleImages[1];
-      const image_3 = multipleImages[2];
-      const image_4 = multipleImages[3];
-      const image_5 = multipleImages[4];
+        const image_1 = multipleImages[0];
+        const image_2 = multipleImages[1];
+        const image_3 = multipleImages[2];
+        const image_4 = multipleImages[3];
+        const image_5 = multipleImages[4];
+        console.log(multipleImages[0]);
 
-      formData.append("title", title);
-      formData.append("content", contents);
-      formData.append("category", category);
-      formData.append('haveInfo', isChecked);
-      formData.append("outer_brand", outer_brand);
-      formData.append("outer_name", outer_name);
-      formData.append("outer_size", outer_size);
-      formData.append("top_brand", top_brand);
-      formData.append("top_name", top_name);
-      formData.append("top_size", top_size);
-      formData.append("pants_brand", pants_brand);
-      formData.append("pants_name", pants_name);
-      formData.append("pants_size", pants_size);
-      formData.append("shoes_brand", shoes_brand);
-      formData.append("shoes_name", shoes_name);
-      formData.append("shoes_size", shoes_size);
-      formData.append("image", image_1);
-      formData.append("image", image_2);
-      formData.append("image", image_3);
-      formData.append("image", image_4);
-      formData.append("image", image_5);
+        formData.append("title", title);
+        formData.append("content", contents);
+        formData.append("category", category);
+        formData.append("haveInfo", isChecked);
+        formData.append("outer_brand", outer_brand);
+        formData.append("outer_name", outer_name);
+        formData.append("outer_size", outer_size);
+        formData.append("top_brand", top_brand);
+        formData.append("top_name", top_name);
+        formData.append("top_size", top_size);
+        formData.append("pants_brand", pants_brand);
+        formData.append("pants_name", pants_name);
+        formData.append("pants_size", pants_size);
+        formData.append("shoes_brand", shoes_brand);
+        formData.append("shoes_name", shoes_name);
+        formData.append("shoes_size", shoes_size);
+        formData.append("image", image_1);
+        formData.append("image", image_2);
+        formData.append("image", image_3);
+        formData.append("image", image_4);
+        formData.append("image", image_5);
 
-      axios
-        .put(`http://localhost:8000/posts/${id}`, formData )
-        .then(result => {
-          const data = result.data;
-          console.log(data);
-          Swal.fire({
-            icon: "success",
-            text: `${result.data.message}`,
-          }).then(() => navigate(`/post/${data.data.postId}`));
-        })
-        .catch(e => {
-          console.log(e);
-          Swal.fire({
-            icon: "failure",
-            text: `${e.response.data.message}`,
+        console.log(formData.get("image"));
+
+        axios
+          .put(`http://localhost:8000/posts/${id}`, formData)
+          .then(result => {
+            const data = result.data;
+            console.log(data);
+            Swal.fire({
+              icon: "success",
+              text: `${result.data.message}`,
+            }).then(() => navigate(`/post/${data.data.postId}`));
+          })
+          .catch(e => {
+            console.log(e);
+            Swal.fire({
+              icon: "info",
+              text: `${e.response.data.message}`,
+            });
           });
-        });
-    } catch (e) {
-      console.log(e);
+      } catch (e) {
+        console.log(e);
+      }
     }
   };
 
@@ -333,7 +363,6 @@ function ResetPost() {
                         accept="image/*"
                         className="hidden"
                         onChange={uploadImageHandler}
-                        required
                       />
                       <span className="text-xs text-red-500 font-semibold">
                         {errors?.image?.message}
