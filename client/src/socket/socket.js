@@ -6,6 +6,8 @@ export const initSocketConnection = (socket) => {
     if (!socket){
         socket = io( 'http://localhost:8000',{ cors: { origin: '*' } } );
         return socket;
+    }else{
+        return socket;
     }
 };
 

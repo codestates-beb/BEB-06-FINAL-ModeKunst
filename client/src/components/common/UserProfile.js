@@ -73,7 +73,7 @@ export default function UserProfile() {
         alert(data.message);
       })
       .catch(e => {
-        console.log(e);
+        alert(e.response.data.message);
       });
   };
   const unfollowUser = () => {

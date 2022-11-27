@@ -127,7 +127,9 @@ function ReadPost() {
         })
         .catch(e => {
           alert(e.response.data.message);
-          navigate("/login");
+            if((e.response.status) === 401){
+              navigator("/login");
+            }
         });
     } else {
       axios
@@ -291,7 +293,9 @@ function ReadPost() {
         <div className="self-start inline-block text-xs px-2 py-1 w-fit font-bold bg-amber-200 rounded-full drop-shadow-sm">
           {post.category}
         </div>
-        <h1 className="m-2 text-3xl font-bold text-start">{post.title} </h1>
+        <h1 className="font-title3 m-2 text-3xl font-bold text-start">
+          {post.title}{" "}
+        </h1>
         <div className="m-1 border-b-[2px] border-black" />
 
         <div className="w-full flex flex-row">
@@ -401,7 +405,9 @@ function ReadPost() {
                   </div>
                 </div>
 
-                <div className="text-sm">자연스럽게 예쁜 룩을 추구합니다:)</div>
+                <div className="font-content text-sm">
+                  자연스럽게 예쁜 룩을 추구합니다:)
+                </div>
                 {/* 🟠nft 정보: nft 보유 여부에 따라 map */}
                 <div className="flex flex-row">
                   <div className="self-start inline-block text-xs px-2 py-1 w-fit font-bold bg-amber-200 rounded-full drop-shadow-sm">
