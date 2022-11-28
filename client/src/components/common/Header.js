@@ -120,31 +120,31 @@ export default function Header() {
         <ul className="flex flex-col justify-between space-y-3 text-center text-sm font-title font-semibold desktop:flex-row desktop:space-y-0">
           <li
             onClick={toggleMenuHandler}
-            className="px-1.5 hover:scale-110 cursor-pointer"
+            className="px-1.5 hover:scale-110 cursor-pointer tablet:text-xl"
           >
             <Link to="/">HOME</Link>
           </li>
           <li
             onClick={toggleMenuHandler}
-            className="px-1.5 hover:scale-110 cursor-pointer"
+            className="px-1.5 hover:scale-110 cursor-pointer tablet:text-xl"
           >
             <Link to="/write">WRITE</Link>
           </li>
           <li
             onClick={toggleMenuHandler}
-            className="px-1.5 hover:scale-110 cursor-pointer"
+            className="px-1.5 hover:scale-110 cursor-pointer tablet:text-xl"
           >
             <Link to={`/user/${loggedInUserInfo.nickname}`}>MYPAGE</Link>
           </li>
           <li
             onClick={toggleMenuHandler}
-            className="px-1.5 hover:scale-110 cursor-pointer"
+            className="px-1.5 hover:scale-110 cursor-pointer tablet:text-xl"
           >
             <Link>CHAT</Link>
           </li>
           <li
             onClick={toggleMenuHandler}
-            className="px-1.5 hover:scale-110 cursor-pointer"
+            className="px-1.5 hover:scale-110 cursor-pointer tablet:text-xl"
           >
             <button onClick={() => setIsSearchModal(true)}>
               <svg
