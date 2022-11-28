@@ -8,10 +8,12 @@ module.exports = {
 
         const AdminSession = req.session.user;//관리자의 세션 정보
         const nickname = AdminSession.nickname;
+        //토큰 가격
+        const {token_price} = req.body;
 
 
         try{
-            //파일이 있을 때,
+            //파일이 있을 때, 래플 등록
             if(req.files){
                 const {host} = req.headers;
                 let imageList = [];
@@ -61,6 +63,8 @@ module.exports = {
                     content: content,
                     AdminNickname: nickname,
                 })
+
+                //이미지 없으면 래플이 안됨.. (TODO)
 
                 return res.status(200).json({
                     message:"공지를 등록했습니다.",
