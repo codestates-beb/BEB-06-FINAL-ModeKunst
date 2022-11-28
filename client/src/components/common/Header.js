@@ -8,6 +8,7 @@ import SearchBar from "./SearchBar";
 export default function Header() {
   const userInfo = useSelector(state => state.user);
   const dispatch = useDispatch();
+  const nickname = userInfo.userInfo?.nickname;
   const showInfo = () => {
     console.log(userInfo);
     console.log(userInfo.isLoggedIn);
@@ -120,7 +121,7 @@ export default function Header() {
             <div className="p-2 rounded-full hover:scale-110 select-none flex justify-center items-center">
               <button
                 onClick={() => {
-                  dispatch(logout());
+                  dispatch(logout(nickname));
                   navigate("/");
                 }}
               >

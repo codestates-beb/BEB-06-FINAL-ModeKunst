@@ -15,7 +15,7 @@ export default function UserProfile() {
   const userInfo = useSelector(state => state.user);
 
   const selectedSection = useSelector(
-    state => state.selectedSection
+      state => state.selectedSection
   ).selectedSection;
 
   const nickname = useParams().nickname;
@@ -31,8 +31,8 @@ export default function UserProfile() {
     async function fetchData() {
       try {
         const result = await axios.get(
-          `http://localhost:8000/users/mypage/${nickname}`,
-          { withCredentials: true }
+            `http://localhost:8000/users/mypage/${nickname}`,
+            { withCredentials: true }
         );
         const {
           user,
@@ -64,159 +64,167 @@ export default function UserProfile() {
 
   const followUser = () => {
     axios
-      .post(`http://localhost:8000/users/${nickname}/follow`, {
-        withCredentials: true,
-      })
-      .then(result => {
-        const data = result.data;
-        setIsFollow(data.data.isFollow);
-        alert(data.message);
-      })
-      .catch(e => {
-        alert(e.response.data.message);
-      });
+        .post(`http://localhost:8000/users/${nickname}/follow`, {
+          withCredentials: true,
+        })
+        .then(result => {
+          const data = result.data;
+          setIsFollow(data.data.isFollow);
+          alert(data.message);
+        })
+        .catch(e => {
+          alert(e.response.data.message);
+        });
   };
   const unfollowUser = () => {
     axios
-      .post(`http://localhost:8000/users/${nickname}/unfollow`, {
-        withCredentials: true,
-      })
-      .then(result => {
-        const data = result.data;
-        setIsFollow(data.isFollow);
-        alert(data.message);
-      });
+        .post(`http://localhost:8000/users/${nickname}/unfollow`, {
+          withCredentials: true,
+        })
+        .then(result => {
+          const data = result.data;
+          setIsFollow(data.isFollow);
+          alert(data.message);
+        });
   };
 
   return (
-    <div className="select-none min-w-[900px]">
-      <div className="mt-16 px-20 py-14 max-w-5xl mx-auto shadow-xl rounded-3xl">
-        <div className="flex space-x-20">
-          <div>
-            <img
-              alt="profile_image"
-              src={user.profile_img}
-              className="w-56 h-56 object-cover bg-slate-200 shadow-lg rounded-full"
-            />
-          </div>
-          <div className="flex flex-col justify-evenly py-8 flex-1">
-            <div className="space-y-4">
-              <div className="text-3xl font-semibold">{user.nickname}</div>
-              <div className="mt-1 flex space-x-2 text-xs">
-                <div className="px-1 py-0.5 bg-blue-300 font-semibold rounded-full">
-                  선크림사야돼
-                </div>
-                <div className="px-2 py-0.5 bg-pink-300 font-semibold rounded-full">
-                  뿌링클
-                </div>
-                <div className="px-2 py-0.5 bg-slate-300 font-semibold rounded-full">
-                  어나더레벨
+      <div className="select-none min-w-[900px]">
+        <div className="mt-16 px-20 py-14 max-w-5xl mx-auto shadow-xl rounded-3xl">
+          <div className="flex space-x-20">
+            <div>
+              <img
+                  alt="profile_image"
+                  src={user.profile_img}
+                  className="w-56 h-56 object-cover bg-slate-200 shadow-lg rounded-full"
+              />
+            </div>
+            <div className="flex flex-col justify-evenly py-8 flex-1">
+              <div className="space-y-4">
+                <div className="text-3xl font-semibold">{user.nickname}</div>
+                {
+                  userInfo.userInfo.nickname === nickname ?
+                      null
+                      :
+                      <Link to={"/chat"} state={user.nickname}>
+                        <button>채팅</button>
+                      </Link>
+                }
+                <div className="mt-1 flex space-x-2 text-xs">
+                  <div className="px-1 py-0.5 bg-blue-300 font-semibold rounded-full">
+                    선크림사야돼
+                  </div>
+                  <div className="px-2 py-0.5 bg-pink-300 font-semibold rounded-full">
+                    뿌링클
+                  </div>
+                  <div className="px-2 py-0.5 bg-slate-300 font-semibold rounded-full">
+                    어나더레벨
+                  </div>
                 </div>
               </div>
-            </div>
-            <div>
-              <div className="mt-8 flex space-x-1 text-xs">
+              <div>
+                <div className="mt-8 flex space-x-1 text-xs">
                 <span className="py-0.5 px-1 text-white bg-slate-700 rounded-full">
                   {user.height}cm
                 </span>
-                <span className="py-0.5 px-1 text-white bg-slate-700 rounded-full">
+                  <span className="py-0.5 px-1 text-white bg-slate-700 rounded-full">
                   {user.weight}kg
                 </span>
-              </div>
-              <div className="mt-1">
+                </div>
+                <div className="mt-1">
                 <span className="text-xs font-semibold px-1 py-0.5 bg-slate-300 rounded-full">
                   {followAmount}
                 </span>
+                </div>
               </div>
             </div>
-          </div>
-          <div className="my-auto">
-            {userInfo.userInfo.nickname === nickname ? null : isFollow ? (
-              <button
-                className="text-base font-semibold text-yellow-400 hover:text-violet-500 py-1 px-2 bg-violet-500 hover:bg-yellow-400 rounded-full shadow-md cursor-pointer"
-                onClick={unfollowUser}
-              >
-                UNFOLLOW
-              </button>
-            ) : (
-              <button
-                className="text-base font-semibold text-yellow-400 hover:text-violet-500 py-1 px-2 bg-violet-500 hover:bg-yellow-400 rounded-full shadow-md cursor-pointer"
-                onClick={followUser}
-              >
-                FOLLOW
-              </button>
-            )}
+            <div className="my-auto">
+              {userInfo.userInfo.nickname === nickname ? null : isFollow ? (
+                  <button
+                      className="text-base font-semibold text-yellow-400 hover:text-violet-500 py-1 px-2 bg-violet-500 hover:bg-yellow-400 rounded-full shadow-md cursor-pointer"
+                      onClick={unfollowUser}
+                  >
+                    UNFOLLOW
+                  </button>
+              ) : (
+                  <button
+                      className="text-base font-semibold text-yellow-400 hover:text-violet-500 py-1 px-2 bg-violet-500 hover:bg-yellow-400 rounded-full shadow-md cursor-pointer"
+                      onClick={followUser}
+                  >
+                    FOLLOW
+                  </button>
+              )}
+            </div>
           </div>
         </div>
-      </div>
 
-      <div className="mt-20 max-w-6xl mx-auto space-x-1 flex">
-        <Link
-          to={`/user/${nickname}/hotposts`}
-          // state={{ posts, nickname }}
-          onClick={() => dispatch(select("hotposts"))}
-          className={cls(
-            "flex-1 text-base font-semibold text-center rounded-t-lg py-1",
-            selectedSection === "hotposts"
-              ? "bg-violet-400 text-yellow-400"
-              : "bg-violet-200 text-yellow-200"
-          )}
-        >
-          HOME
-        </Link>
-        <Link
-          to={`/user/${nickname}/nfts`}
-          onClick={() => dispatch(select("nfts"))}
-          className={cls(
-            "flex-1 text-base font-semibold text-center rounded-t-lg py-1",
-            selectedSection === "nfts"
-              ? "bg-violet-400 text-yellow-400"
-              : "bg-violet-200 text-yellow-200"
-          )}
-        >
-          NFT
-        </Link>
-        <Link
-          to={`/user/${nickname}/collections`}
-          state={{ collections, nickname }}
-          onClick={() => dispatch(select("collections"))}
-          className={cls(
-            "flex-1 text-base font-semibold text-center rounded-t-lg py-1",
-            selectedSection === "collections"
-              ? "bg-violet-400 text-yellow-400"
-              : "bg-violet-200 text-yellow-200"
-          )}
-        >
-          COLLECTION
-        </Link>
-        <Link
-          to={`/user/${nickname}/followings`}
-          state={{ followings, nickname }}
-          onClick={() => dispatch(select("followings"))}
-          className={cls(
-            "flex-1 text-base font-semibold text-center rounded-t-lg py-1",
-            selectedSection === "followings"
-              ? "bg-violet-400 text-yellow-400"
-              : "bg-violet-200 text-yellow-200"
-          )}
-        >
-          FOLLOWING
-        </Link>
-        <Link
-          to={`/user/${nickname}/followers`}
-          state={{ followers, nickname }}
-          onClick={() => dispatch(select("followers"))}
-          className={cls(
-            "flex-1 text-base font-semibold text-center rounded-t-lg py-1",
-            selectedSection === "followers"
-              ? "bg-violet-400 text-yellow-400"
-              : "bg-violet-200 text-yellow-200"
-          )}
-        >
-          FOLLOWER
-        </Link>
+        <div className="mt-20 max-w-6xl mx-auto space-x-1 flex">
+          <Link
+              to={`/user/${nickname}/hotposts`}
+              // state={{ posts, nickname }}
+              onClick={() => dispatch(select("hotposts"))}
+              className={cls(
+                  "flex-1 text-base font-semibold text-center rounded-t-lg py-1",
+                  selectedSection === "hotposts"
+                      ? "bg-violet-400 text-yellow-400"
+                      : "bg-violet-200 text-yellow-200"
+              )}
+          >
+            HOME
+          </Link>
+          <Link
+              to={`/user/${nickname}/nfts`}
+              onClick={() => dispatch(select("nfts"))}
+              className={cls(
+                  "flex-1 text-base font-semibold text-center rounded-t-lg py-1",
+                  selectedSection === "nfts"
+                      ? "bg-violet-400 text-yellow-400"
+                      : "bg-violet-200 text-yellow-200"
+              )}
+          >
+            NFT
+          </Link>
+          <Link
+              to={`/user/${nickname}/collections`}
+              state={{ collections, nickname }}
+              onClick={() => dispatch(select("collections"))}
+              className={cls(
+                  "flex-1 text-base font-semibold text-center rounded-t-lg py-1",
+                  selectedSection === "collections"
+                      ? "bg-violet-400 text-yellow-400"
+                      : "bg-violet-200 text-yellow-200"
+              )}
+          >
+            COLLECTION
+          </Link>
+          <Link
+              to={`/user/${nickname}/followings`}
+              state={{ followings, nickname }}
+              onClick={() => dispatch(select("followings"))}
+              className={cls(
+                  "flex-1 text-base font-semibold text-center rounded-t-lg py-1",
+                  selectedSection === "followings"
+                      ? "bg-violet-400 text-yellow-400"
+                      : "bg-violet-200 text-yellow-200"
+              )}
+          >
+            FOLLOWING
+          </Link>
+          <Link
+              to={`/user/${nickname}/followers`}
+              state={{ followers, nickname }}
+              onClick={() => dispatch(select("followers"))}
+              className={cls(
+                  "flex-1 text-base font-semibold text-center rounded-t-lg py-1",
+                  selectedSection === "followers"
+                      ? "bg-violet-400 text-yellow-400"
+                      : "bg-violet-200 text-yellow-200"
+              )}
+          >
+            FOLLOWER
+          </Link>
+        </div>
+        <Outlet context={{ nickname, posts, followings }} />
       </div>
-      <Outlet context={{ nickname, posts, followings }} />
-    </div>
   );
 }
