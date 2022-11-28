@@ -1,6 +1,9 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { initSocket, initSocketConnection, disconnectSocket } from "../socket/socket";
 import Swal from "sweetalert2";
 import axios from "axios";
+
+let socket = initSocket;
 
 export const login = createAsyncThunk("users/login", async (data, thunkAPI) => {
   try {
@@ -12,6 +15,11 @@ export const login = createAsyncThunk("users/login", async (data, thunkAPI) => {
       },
       { withCredentials: true }
     );
+
+    const nickname = result.data.data.nickname;
+
+    await initSocketConnection(socket, nickname);
+
     Swal.fire({
       icon: "success",
       text: `${result.data.message}`,
@@ -22,10 +30,15 @@ export const login = createAsyncThunk("users/login", async (data, thunkAPI) => {
   }
 });
 
-export const logout = createAsyncThunk("users/logout", async () => {
+export const logout = createAsyncThunk("users/logout", async (data) => {
+  const nickname = data;
+
+  await disconnectSocket(socket, nickname);
+
   await axios.get("http://localhost:8000/users/logout", {
     withCredentials: true,
   });
+
 });
 
 const initialUserState = {

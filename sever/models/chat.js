@@ -4,6 +4,12 @@ module.exports = class Chat extends Sequelize.Model {
     static init(sequelize){
         return super.init(
             {
+                deleteUser1: {
+                    type: Sequelize.STRING
+                },
+                deleteUser2: {
+                    type: Sequelize.STRING
+                },
 
             },
             {

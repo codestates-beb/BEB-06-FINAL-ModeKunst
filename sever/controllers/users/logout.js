@@ -2,7 +2,7 @@ module.exports = {
   // 로그아웃
   get: async (req, res) => {
     console.log("로그아웃");
-    console.log(req.session.user);
+    //console.log(req.session.user);
     req.session.destroy();
     
 
