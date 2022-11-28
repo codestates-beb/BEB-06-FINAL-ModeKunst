@@ -34,7 +34,7 @@ function Login() {
   };
 
   return (
-    <div className="mt-16 flex flex-col items-center">
+    <div className="mt-64 flex flex-col items-center">
       <h1 className="text-3xl font-bold text-center">로그인</h1>
       <div className="mt-4 flex flex-col">
         <div>

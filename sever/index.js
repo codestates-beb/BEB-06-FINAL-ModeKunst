@@ -77,15 +77,15 @@ app.use((req, res, next) => {
 http.listen(port, () => {
   const profile_dir = "./profile_img";
   const post_dir = "./post_img";
-  const notice_dir = "./notice_img"
+  const notice_dir = "./notice_img";
   if (!fs.existsSync(profile_dir)) {
     fs.mkdirSync(profile_dir);
   }
   if (!fs.existsSync(post_dir)) {
     fs.mkdirSync(post_dir);
   }
-  if (!fs.existsSync(notice_dir)){
-      fs.mkdirSync(notice_dir);
+  if (!fs.existsSync(notice_dir)) {
+    fs.mkdirSync(notice_dir);
   }
   console.log("Listening...");
 });
@@ -93,34 +93,31 @@ http.listen(port, () => {
 let count = 0;
 
 io.on("connection", socket => {
-
-    socket.on('findRooms', (nickname) => {
-        find(nickname).then((chatRooms) => {
-            io.emit('myRooms', chatRooms);
-        });
-    })
-
-    socket.on('enterRooms', (data) => {
-        const { roomId, nickname, receiver } = data;
-        console.log(`입력받은 roomId ${roomId}`)
-        join(roomId, nickname, receiver).then((messages) => {
-            socket.join(roomId);
-            io.to(`${roomId}`).emit('roomData', messages);
-        });
+  socket.on("findRooms", nickname => {
+    find(nickname).then(chatRooms => {
+      io.emit("myRooms", chatRooms);
     });
+  });
 
-    socket.on('sendMsg', (data) => {
-        const { joinRoom, message, nickname, receiver } = data;
-        console.log(`입력받은 joinRoom ${joinRoom}`)
-        send(joinRoom, message, nickname, receiver ).then((msg) => {
-            io.to(joinRoom).emit('roomData', msg);
-        });
-
-
+  socket.on("enterRooms", data => {
+    const { roomId, nickname, receiver } = data;
+    console.log(`입력받은 roomId ${roomId}`);
+    join(roomId, nickname, receiver).then(messages => {
+      socket.join(roomId);
+      io.to(`${roomId}`).emit("roomData", messages);
     });
+  });
 
-    socket.on('leave', (roomId) => {
-        console.log(`${roomId} 방을 을 나갔습니다.`)
-        socket.leave(roomId);
+  socket.on("sendMsg", data => {
+    const { joinRoom, message, nickname, receiver } = data;
+    console.log(`입력받은 joinRoom ${joinRoom}`);
+    send(joinRoom, message, nickname, receiver).then(msg => {
+      io.to(joinRoom).emit("roomData", msg);
     });
+  });
+
+  socket.on("leave", roomId => {
+    console.log(`${roomId} 방을 을 나갔습니다.`);
+    socket.leave(roomId);
+  });
 });
