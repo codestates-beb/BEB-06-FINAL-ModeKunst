@@ -8,12 +8,12 @@ let socket = initSocket;
 export const login = createAsyncThunk("users/login", async (data, thunkAPI) => {
   try {
     const result = await axios.post(
-        "http://localhost:8000/users/login",
-        {
-          email: data.email,
-          password: data.password,
-        },
-        { withCredentials: true }
+      "http://localhost:8000/users/login",
+      {
+        email: data.email,
+        password: data.password,
+      },
+      { withCredentials: true }
     );
 
     const nickname = result.data.data.nickname;
@@ -63,34 +63,34 @@ export const userState = createSlice({
   reducers: {},
   extraReducers: builder => {
     builder
-        .addCase(login.pending, (state, action) => {
-          console.log(action);
-        })
-        .addCase(login.fulfilled, (state, action) => {
-          const userData = action.payload;
-          state.userInfo.id = userData.id;
-          state.userInfo.address = userData.address;
-          state.userInfo.email = userData.email;
-          state.userInfo.gender = userData.gender;
-          state.userInfo.height = userData.height;
-          state.userInfo.nickname = userData.nickname;
-          state.userInfo.phone_number = userData.phone_number;
-          state.userInfo.profile_img = userData.profile_img;
-          state.userInfo.sns_url = userData.sns_url;
-          state.userInfo.token_amount = userData.token_amount;
-          state.userInfo.weight = userData.weight;
-          state.isLoggedIn = true;
-        })
-        .addCase(login.rejected, (state, action) => {
-          state.ErrorReasion = action.error;
-        })
-        .addCase(logout.fulfilled, (state, action) => {
-          state.userInfo = initialUserState.userInfo;
-          state.isLoggedIn = false;
-        })
-        .addCase(logout.rejected, (state, action) => {
-          state.ErrorReasion = action.error;
-        });
+      .addCase(login.pending, (state, action) => {
+        // console.log(action);
+      })
+      .addCase(login.fulfilled, (state, action) => {
+        const userData = action.payload;
+        state.userInfo.id = userData.id;
+        state.userInfo.address = userData.address;
+        state.userInfo.email = userData.email;
+        state.userInfo.gender = userData.gender;
+        state.userInfo.height = userData.height;
+        state.userInfo.nickname = userData.nickname;
+        state.userInfo.phone_number = userData.phone_number;
+        state.userInfo.profile_img = userData.profile_img;
+        state.userInfo.sns_url = userData.sns_url;
+        state.userInfo.token_amount = userData.token_amount;
+        state.userInfo.weight = userData.weight;
+        state.isLoggedIn = true;
+      })
+      .addCase(login.rejected, (state, action) => {
+        state.ErrorReasion = action.error;
+      })
+      .addCase(logout.fulfilled, (state, action) => {
+        state.userInfo = initialUserState.userInfo;
+        state.isLoggedIn = false;
+      })
+      .addCase(logout.rejected, (state, action) => {
+        state.ErrorReasion = action.error;
+      });
   },
 });
 

@@ -77,10 +77,10 @@ function ReadPost() {
         });
   }, [id]);
 
+  console.log(post);
+
   // 유저페이지 리뷰 목록 가져오기
   useEffect(() => {
-    console.log(std);
-
     axios.get(`http://localhost:8000/posts/review/${id}`).then(result => {
       if (std === 1) {
         setReviews(result.data.reviews);
@@ -286,6 +286,8 @@ function ReadPost() {
     if (item) return item;
   });
 
+  console.log(imageList);
+
   return (
       <div className="mt-8 flex flex-col justify-center items-center bg-indigo-400 rounded-xl border-2 border-black shadow-xl mx-48 py-20">
         <div className="flex flex-col w-3/4">
@@ -334,11 +336,23 @@ function ReadPost() {
           </div>
         </div>
 
-        {/* 🟠포스팅한 사진: 사진 위에 좋아요 버튼 만들 수 있는지? */}
-        <div className="mt-8 grid grid-cols-2">
-          <div className="mr-6">
-            <Slider
-                {...settings}
+      {/* 🟠포스팅한 사진: 사진 위에 좋아요 버튼 만들 수 있는지? */}
+      <div className="mt-8 grid grid-cols-2">
+        <div className="mr-6">
+          <Slider
+            {...settings}
+            className="max-w-xs max-h-fit border-2 border-gray-800 flex items-center justify-center"
+          >
+            {imageList.map((item, idx) => (
+              <img key={idx} className="h-96" alt="post_images" src={item} />
+            ))}
+          </Slider>
+          {/* 🟠비슷한 룩: 데이터 어떻게 가져와야하지 */}
+          <div className="mt-16 w-full">
+            <div className="text-2xl font-bold">#Similar Looks</div>
+            <div className="p-2 mt-4 bg-slate-300 drop-shadow-md border-2 border-black rounded-md">
+              <Slider
+                {...settingsSimilar}
                 className="max-w-xs max-h-fit border-2 border-gray-800 flex items-center justify-center"
             >
               {imageList.map((item, idx) => (
@@ -575,16 +589,54 @@ function ReadPost() {
                       - 리뷰를 이미 작성했다면 -> 리뷰작성란 보이면 안 됨(null)
                       - 리뷰를 작성하지 않았다면 -> 리뷰작성란 보여야 됨
                 */}
-                    {isOwner ? null : haveReview ? null : (
-                        <div className="flex flex-col">
-                          <div className="flex flex-row">
-                            <img
-                                className="w-6 h-6 rounded-full"
-                                alt="loggedin_user_profile"
-                                src={userInfo.userInfo.profile_img}
-                            />
-                            <div className="font-bold">
-                              {userInfo.userInfo.nickname}
+                {isOwner ? null : haveReview ? null : (
+                  <div className="flex flex-col">
+                    <div className="flex flex-row">
+                      <img
+                        className="w-6 h-6 rounded-full"
+                        alt="loggedin_user_profile"
+                        src={userInfo.userInfo.profile_img}
+                      />
+                      <div className="font-bold">
+                        {userInfo.userInfo.nickname}
+                      </div>
+                    </div>
+                    <input
+                      type="text"
+                      ref={reviewRef}
+                      placeholder="리뷰는 최소 15자 이상 작성해주세요."
+                      className="rounded-md h-12 inner-shadow"
+                      onChange={e => setMyReview(e.target.value)}
+                    />
+                    <button
+                      className="m-1 self-end inline-flex w-fit px-3 py-1 bg-violet-700 hover:bg-violet-900 text-white text-sm font-medium rounded-md"
+                      onClick={sendReview}
+                    >
+                      작성하기
+                    </button>
+                  </div>
+                )}
+                <div>
+                  <div>
+                    {reviews?.length ? (
+                      // ⭕️ 리뷰 뿌려주기
+                      modifiedReviews.map((review, idx) => {
+                        return (
+                          <div key={idx}>
+                            <div>
+                              <Link to={`/user/${review.nickname}`}>
+                                <div className="mt-4 font-bold">
+                                  {review.nickname}
+                                </div>
+                              </Link>
+                              <span className="text-xs font-semibold inline-block px-1 py-0.5 bg-cyan-400 rounded-full text-slate-50">
+                                {review.create_at}
+                              </span>
+                              {/* 📍 리뷰 내용 */}
+                              {userInfo.userInfo.nickname === review.nickname &&
+                              isEditReview ? null : (
+                                <div className="text-sm">{review.content}</div>
+                              )}
                             </div>
                           </div>
                           <input
@@ -729,3 +781,4 @@ function ReadPost() {
 }
 
 export { ReadPost };
+
