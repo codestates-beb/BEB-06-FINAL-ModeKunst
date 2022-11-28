@@ -12,10 +12,11 @@ import {
   Collections,
   Followings,
   Followers,
-  // Search,
+  Search,
 } from "../pages";
-import { Search } from "../pages/Search";
+import { AdminMain, AdminSignup, AdminLogin } from "../pages/admin";
 import Header from "./common/Header";
+import Footer from "./common/Footer";
 import ForgotRoutes from "./Routes/ForgotRoutes";
 import ResetRoutes from "./Routes/ResetRoutes";
 import UserProfile from "./common/UserProfile";
@@ -38,13 +39,16 @@ export default function Router() {
           <Route path="followings" element={<Followings />} />
           <Route path="followers" element={<Followers />} />
         </Route>
+        <Route path="/adminsignup" element={<AdminSignup />} />
+        <Route path="/adminlogin" element={<AdminLogin />} />
+        <Route path="/admin/*" element={<AdminMain />} />
         <Route path="/forgot/*" element={<ForgotRoutes />} />
         <Route path="/reset/*" element={<ResetRoutes />} />
         <Route path="*" element={<NotFound />} />
         <Route path="/chat" element={<Chat />} />
         <Route path="/search/:name" element={<Search />} />
       </Routes>
-      {/* Footer 컴포넌트 */}
+      <Footer />
     </BrowserRouter>
   );
 }
