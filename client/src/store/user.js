@@ -1,5 +1,9 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { initSocket, initSocketConnection, disconnectSocket } from "../socket/socket";
+import {
+  initSocket,
+  initSocketConnection,
+  disconnectSocket,
+} from "../socket/socket";
 import Swal from "sweetalert2";
 import axios from "axios";
 
@@ -26,11 +30,14 @@ export const login = createAsyncThunk("users/login", async (data, thunkAPI) => {
     });
     return result.data.data;
   } catch (error) {
-    alert(error.response.data.message);
+    Swal.fire({
+      icon: "error",
+      text: `${error.response.data.message}`,
+    });
   }
 });
 
-export const logout = createAsyncThunk("users/logout", async (data) => {
+export const logout = createAsyncThunk("users/logout", async data => {
   const nickname = data;
 
   await disconnectSocket(socket, nickname);
@@ -38,7 +45,6 @@ export const logout = createAsyncThunk("users/logout", async (data) => {
   await axios.get("http://localhost:8000/users/logout", {
     withCredentials: true,
   });
-
 });
 
 const initialUserState = {

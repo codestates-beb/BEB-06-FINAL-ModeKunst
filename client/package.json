@@ -27,6 +27,7 @@
     "redux-persist": "^6.0.0",
     "slick-carousel": "^1.8.1",
     "socket.io-client": "^4.5.3",
+    "styled-components": "^5.3.6",
     "sweetalert2": "^11.6.9",
     "web-vitals": "^2.1.4"
   },
