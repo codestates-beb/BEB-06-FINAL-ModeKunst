@@ -2,7 +2,7 @@ const today = new Date();
 
 function format(date){
     const sec = Math.floor((today - date) / 1000);
-    if(sec < 60) return '방금 전'
+    if(sec < 60) return format(sec, 'second')
     const min = sec / 60
     if(min < 60) return `${Math.floor(min)}분 전`
     const hour = min / 60

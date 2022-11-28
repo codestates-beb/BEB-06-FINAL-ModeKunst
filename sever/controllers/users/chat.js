@@ -79,24 +79,26 @@ module.exports = {
     },
 
     find: async (req, res) => {
-        //const sender = req.session.user?.nickname;
         const sender = req.params.nickname;
-        //console.log(req.session)
 
         if(sender){
 
-            const chatRoom = await Chat.findAll({
+            let chatRoom = await Chat.findAll({
                 where: {
                     [Op.or] : [ {senderNickname: sender}, {receiverNickname: sender} ]
                 },
+                include: [ { model: User, attributes: ['profile_img'], as: 'Receiver' }, { model: User, attributes: ['profile_img'], as: 'Sender' }],
                 raw: true
             });
 
             const chatRoomName = chatRoom.map((a) => {
+                let profile_img;
                 if(sender === a.senderNickname){
-                    return { id: a.id, name: a.receiverNickname }
+                    profile_img = a['Receiver.profile_img'];
+                    return { id: a.id, name: a.receiverNickname, profile_img: profile_img }
                 }else if(sender === a.receiverNickname){
-                    return { id: a.id, name: a.senderNickname }
+                    profile_img = a['Sender.profile_img'];
+                    return { id: a.id, name: a.senderNickname, profile_img: profile_img }
                 }
             });
 

@@ -9,7 +9,7 @@ export default function FollowCard({ user, section }) {
   console.log(user);
   return (
     <div className="relative w-full transition-all duration-75 ease-in hover:scale-105 cursor-pointer">
-      <Link to={`/user/${user.Following}`}>
+      <Link to={`/user/${user.Follower}`}>
         <img
           alt="user_image"
           src={user.profile_img}
