@@ -3,16 +3,18 @@ import { persistStore, persistReducer } from "redux-persist";
 import sessionStorage from "redux-persist/lib/storage/session";
 import userReducer from "./user";
 import selectedSectionReducer from "./selectedSection";
+import adminReducer from "./admin";
 
 const persistConfig = {
   key: "root",
   storage: sessionStorage,
-  whitelist: ["user", "selectedSection"],
+  whitelist: ["user", "selectedSection", "admin"],
 };
 
 const rootReducer = combineReducers({
   user: userReducer,
   selectedSection: selectedSectionReducer,
+  admin: adminReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
