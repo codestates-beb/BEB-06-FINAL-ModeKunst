@@ -23,21 +23,19 @@ router.delete("/notice/:noticeId", isLoggedIn, adminController.notice.delete);
 //서버 관리자 배너 추가
 router.post(
   "/banner",
-  isLoggedIn,
   banner_upload.single("banner_image"),
   adminController.banner.post
 );
 //서버 관리자 배너 수정
 router.put(
   "/banner/:bannerId",
-  isLoggedIn,
   banner_upload.single("banner_image"),
   adminController.banner.put
 );
 //서버 관리자 배너 불러오기
-router.get("/banner", isLoggedIn, adminController.banner.get);
+router.get("/banner", adminController.banner.get);
 //서버 관리자 배너 삭제하기
-router.delete("/banner/:bannerId", isLoggedIn, adminController.banner.delete);
+router.delete("/banner/:bannerId", adminController.banner.delete);
 
 //
 
