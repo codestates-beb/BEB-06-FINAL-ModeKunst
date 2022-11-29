@@ -10,14 +10,13 @@ module.exports = {
         const banner_image = req.file.filename;
         const {banner_url} = req.body;
 
-        console.log(req.file);
-        console.log(banner_image);
 
         try {
             //배너 이미지 있을 때,
             if (banner_image && banner_url) {
                 const {host} = req.headers;
-                const imagePath = `http://${host}/${banner_image}`;
+                const imagePath = `http://${host}/banner_img/${banner_image}`;
+
 
                 let banner = await Banner.create({
                     image: imagePath,
@@ -66,7 +65,7 @@ module.exports = {
         const {host} = req.headers;
         const {bannerId} = req.params;
 
-        console.log(bannerId);
+        console.log(host);
 
         let banner_image = req.file.filename;
         let {banner_url} = req.body;
@@ -97,6 +96,7 @@ module.exports = {
                 }
 
                 let imagePath = `http://${host}/${banner_image}`;
+
 
                 await Banner.update({image: imagePath, url: banner_url}, {where: {id: bannerId}});
 

@@ -4,4 +4,5 @@ module.exports= {
     notice:require('./notice'),
     banner:require('./banner'),
     logout:require('./logout'),
+    data: require('./data'),
 }
