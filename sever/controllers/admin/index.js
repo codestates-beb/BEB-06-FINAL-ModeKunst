@@ -3,4 +3,5 @@ module.exports= {
     login:require('./login'),
     notice:require('./notice'),
     banner:require('./banner'),
+    logout:require('./logout'),
 }
