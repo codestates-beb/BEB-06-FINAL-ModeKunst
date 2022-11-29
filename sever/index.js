@@ -162,32 +162,32 @@ io.on("connection", socket => {
       io.to(Id).emit("roomData", messages);
     });
   });
-});
 
-socket.on("sendMsg", data => {
-  const { joinRoom, message, nickname, receiver } = data;
-  console.log(`입력받은 joinRoom ${joinRoom}`);
-  send(joinRoom, message, nickname, receiver).then(msg => {
-    Id = joinRoom.toString();
-    console.log(socket.adapter);
-    if (Room) {
-      io.to(receiver).emit("updateRooms", Room);
-      Room = null;
-    }
-    io.to(Id).emit("updateChatData", msg);
-  });
-});
-
-socket.on("sendMsg", data => {
-  const { joinRoom, message, nickname, receiver } = data;
-  console.log(`입력받은 joinRoom ${joinRoom}`);
-  send(joinRoom, message, nickname, receiver).then(msg => {
-    io.to(joinRoom).emit("roomData", msg);
+  socket.on("sendMsg", data => {
+    const { joinRoom, message, nickname, receiver } = data;
+    console.log(`입력받은 joinRoom ${joinRoom}`);
+    send(joinRoom, message, nickname, receiver).then(msg => {
+      Id = joinRoom.toString();
+      console.log(socket.adapter);
+      if (Room) {
+        io.to(receiver).emit("updateRooms", Room);
+        Room = null;
+      }
+      io.to(Id).emit("updateChatData", msg);
+    });
   });
 
-  // socket.on('findRooms', (nickname) => {
-  //     find(nickname).then((chatRooms) => {
-  //         io.emit('myRooms', chatRooms);
-  //     });
-  // })
+  socket.on("sendMsg", data => {
+    const { joinRoom, message, nickname, receiver } = data;
+    console.log(`입력받은 joinRoom ${joinRoom}`);
+    send(joinRoom, message, nickname, receiver).then(msg => {
+      io.to(joinRoom).emit("roomData", msg);
+    });
+
+    // socket.on('findRooms', (nickname) => {
+    //     find(nickname).then((chatRooms) => {
+    //         io.emit('myRooms', chatRooms);
+    //     });
+    // })
+  });
 });
