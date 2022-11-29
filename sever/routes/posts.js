@@ -3,15 +3,18 @@ const { post_upload } = require("../middleware/multer/post");
 const { postsController } = require("../controllers");
 const { isLoggedIn, isNotLoggedIn } = require("../middleware/auth");
 
+// 배너 & 상단 게시물
+router.get('/other', postsController.board.other);
+
 // 전체 게시물
-router.get("/board", postsController.board.get);
+router.get("/main", postsController.board.main);
 
 // 게시물 작성
 router.post(
-  "/board",
-  isLoggedIn,
-  post_upload.array("image"),
-  postsController.post.post
+    "/board",
+    isLoggedIn,
+    post_upload.array("image"),
+    postsController.post.post
 );
 
 // 게시글 수정창

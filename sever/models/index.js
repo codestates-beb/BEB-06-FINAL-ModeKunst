@@ -20,6 +20,7 @@ const Message = require('./message');
 const Follow = require('./follow');
 const Token_price = require('./token_price');
 const Report = require('./report');
+const Banner = require('./banner');
 
 const db = {};
 
@@ -49,6 +50,7 @@ db.Message = Message;
 db.Follow = Follow;
 db.Token_price = Token_price;
 db.Report = Report;
+db.Banner = Banner;
 
 User.init(sequelize);
 Admin.init(sequelize);
@@ -68,6 +70,7 @@ Message.init(sequelize);
 Follow.init(sequelize);
 Token_price.init(sequelize);
 Report.init(sequelize);
+Banner.init(sequelize);
 
 User.associate(db);
 Like.associate(db);

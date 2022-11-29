@@ -8,10 +8,6 @@ module.exports = {
   post: async (req, res) => {
     try {
       const { email, password, passwordcheck, nickname } = req.body;
-
-      console.log(password == passwordcheck);
-      console.log(password);
-      console.log(passwordcheck);
       if (passwordcheck == password) {
         const salt = await bcrypt.genSalt(parseInt(SALT_ROUNDS));
         const hash = await bcrypt.hashSync(password, salt);

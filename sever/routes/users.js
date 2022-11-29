@@ -37,8 +37,11 @@ router.get("/pwfind/:email/:phonenumber", usersController.find.password);
 //로그인
 router.post("/login",  usersController.login.post);
 
-//보유 토큰 양
+//보유 토큰, 포인트 양
 router.get("/tokens/:nickname", isLoggedIn, usersController.tokens.get);
+
+// 포인트 -> 토큰 교환
+router.post("/tokens/", isLoggedIn, usersController.tokens.transfer);
 
 //팔로잉
 router.post("/:nickname/follow", isLoggedIn, addFollowing);

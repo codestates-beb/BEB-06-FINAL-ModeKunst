@@ -41,6 +41,10 @@ module.exports = class Notice extends Sequelize.Model{
                     type:Sequelize.INTEGER,
                     defaultValue:0,
                 },
+                token_price:{
+                    type:Sequelize.INTEGER,
+                    defaultValue: 0,
+                }
 
             },
             {sequelize,

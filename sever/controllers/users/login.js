@@ -35,7 +35,6 @@ module.exports = {
 
               const { address } = await Server.findOne({ attributes: ['address'], raw: true });
 
-
               await Server.increment({ point_amount: login }, { where: { address: address } });
 
               await User.increment({ point_amount: login }, { where: { email: email } });
