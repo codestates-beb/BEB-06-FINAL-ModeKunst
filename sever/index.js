@@ -57,6 +57,7 @@ sequelize
   });
 app.use("/profile_img", express.static("profile_img"));
 app.use("/post_img", express.static("post_img"));
+app.use("/banner_img", express.static("banner_img"));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -177,17 +178,14 @@ io.on("connection", socket => {
     });
   });
 
-  socket.on("sendMsg", data => {
-    const { joinRoom, message, nickname, receiver } = data;
-    console.log(`입력받은 joinRoom ${joinRoom}`);
-    send(joinRoom, message, nickname, receiver).then(msg => {
-      io.to(joinRoom).emit("roomData", msg);
-    });
-
-    // socket.on('findRooms', (nickname) => {
-    //     find(nickname).then((chatRooms) => {
-    //         io.emit('myRooms', chatRooms);
-    //     });
-    // })
+  socket.on("leave", roomId => {
+    console.log(`${roomId} 방을 을 나갔습니다.`);
+    socket.leave(roomId);
   });
+
+  // socket.on('findRooms', (nickname) => {
+  //     find(nickname).then((chatRooms) => {
+  //         io.emit('myRooms', chatRooms);
+  //     });
+  // })
 });

@@ -1,5 +1,6 @@
 import { useSelector, useDispatch } from "react-redux";
 import { logout } from "../../store/user";
+import { convert } from "../../store/screenMode";
 import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
@@ -16,9 +17,6 @@ const tokenVariants = {
 };
 
 export default function Header() {
-  const { userInfo: loggedInUserInfo, isLoggedIn } = useSelector(
-    state => state.user
-  );
   const [isToggleMenu, setIsToggleMenu] = useState(false);
   const [isSearchModal, setIsSearchModal] = useState(false);
   const [tokenInfo, setTokenInfo] = useState({});
@@ -27,6 +25,36 @@ export default function Header() {
   const menuRef = useRef();
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { userInfo: loggedInUserInfo, isLoggedIn } = useSelector(
+    state => state.user
+  );
+  const { currentScreenMode: screenMode } = useSelector(
+    state => state.currentScreenMode
+  );
+
+  const screenModeHandler = () => {
+    if (window.innerWidth <= 769) {
+      dispatch(convert("mobile"));
+    } else if (window.innerWidth <= 1279) {
+      dispatch(convert("tablet"));
+    } else {
+      dispatch(convert("desktop"));
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener("load", screenModeHandler);
+    window.addEventListener("resize", screenModeHandler);
+    return () => {
+      window.removeEventListener("load", screenModeHandler);
+      window.removeEventListener("resize", screenModeHandler);
+    };
+  }, []);
+
+  // 스크린 모드가 바뀌면 토글메뉴창 무조건 닫기
+  useEffect(() => {
+    if (isToggleMenu) setIsToggleMenu(false);
+  }, [screenMode]);
 
   useEffect(() => {
     window.addEventListener("click", handleClickOutside);
@@ -77,8 +105,7 @@ export default function Header() {
           text: "로그아웃 되었습니다",
         });
         toggleMenuHandler();
-        dispatch(logout());
-        // dispatch(logout(nickname));
+        dispatch(logout(loggedInUserInfo.nickname));
         navigate("/");
       }
     });
@@ -121,31 +148,31 @@ export default function Header() {
         <ul className="flex flex-col justify-between space-y-3 text-center text-sm font-title font-semibold desktop:flex-row desktop:space-y-0">
           <li
             onClick={toggleMenuHandler}
-            className="px-1.5 hover:scale-110 cursor-pointer"
+            className="px-1.5 hover:scale-110 cursor-pointer tablet:text-xl"
           >
             <Link to="/">HOME</Link>
           </li>
           <li
             onClick={toggleMenuHandler}
-            className="px-1.5 hover:scale-110 cursor-pointer"
+            className="px-1.5 hover:scale-110 cursor-pointer tablet:text-xl"
           >
             <Link to="/write">WRITE</Link>
           </li>
           <li
             onClick={toggleMenuHandler}
-            className="px-1.5 hover:scale-110 cursor-pointer"
+            className="px-1.5 hover:scale-110 cursor-pointer tablet:text-xl"
           >
             <Link to={`/user/${loggedInUserInfo.nickname}`}>MYPAGE</Link>
           </li>
           <li
             onClick={toggleMenuHandler}
-            className="px-1.5 hover:scale-110 cursor-pointer"
+            className="px-1.5 hover:scale-110 cursor-pointer tablet:text-xl"
           >
             <Link>CHAT</Link>
           </li>
           <li
             onClick={toggleMenuHandler}
-            className="px-1.5 hover:scale-110 cursor-pointer"
+            className="px-1.5 hover:scale-110 cursor-pointer tablet:text-xl"
           >
             <button onClick={() => setIsSearchModal(true)}>
               <svg
