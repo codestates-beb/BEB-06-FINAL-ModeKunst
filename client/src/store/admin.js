@@ -29,11 +29,11 @@ export const adminLogin = createAsyncThunk(
   }
 );
 
-// export const adminLogout = createAsyncThunk("admin/logout", async () => {
-//   await axios.get("http://localhost:8000/admin/logout", {
-//     withCredentials: true,
-//   });
-// });
+export const adminLogout = createAsyncThunk("admin/logout", async () => {
+  await axios.get("http://localhost:8000/admin/logout", {
+    withCredentials: true,
+  });
+});
 
 const initialAdminState = {
   isAdmin: false,
@@ -42,7 +42,7 @@ const initialAdminState = {
 };
 
 export const AdminState = createSlice({
-  name: "user",
+  name: "admin",
   initialState: initialAdminState,
   extraReducers: builder => {
     builder
@@ -54,13 +54,15 @@ export const AdminState = createSlice({
       })
       .addCase(adminLogin.rejected, (state, action) => {
         state.ErrorReasion = action.error;
+      })
+      .addCase(adminLogout.fulfilled, (state, action) => {
+        state.nickname = "";
+        state.email = "";
+        state.isAdmin = false;
+      })
+      .addCase(adminLogout.rejected, (state, action) => {
+        state.ErrorReasion = action.error;
       });
-    // .addCase(logout.fulfilled, (state, action) => {
-    //   state.isAdmin = false;
-    // })
-    // .addCase(logout.rejected, (state, action) => {
-    //   state.ErrorReasion = action.error;
-    // });
   },
 });
 

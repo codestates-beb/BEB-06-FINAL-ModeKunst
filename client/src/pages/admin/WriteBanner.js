@@ -32,8 +32,6 @@ function WriteBanner() {
       reader.readAsDataURL(e.target.files[0]);
 
       reader.onloadend = () => {
-        console.log(reader);
-        console.log(reader.result);
         const previewImgUrl = reader.result;
         if (previewImgUrl) {
           setImagePreview(previewImgUrl);
@@ -41,39 +39,6 @@ function WriteBanner() {
       };
     }
   };
-
-  //🟠이미지 미리보기 함수
-  // const getPrveiwImg = () => {
-  //   return multipleImages.map((image, index) => {
-  //     return (
-  //       <div
-  //         key={index}
-  //         className="relative mt-2 mx-2 w-44 h-44 flex justify-center"
-  //       >
-  //         <img
-  //           className="flex drop-shadow-md rounded-md"
-  //           src={imagePreview[index]}
-  //           alt=""
-  //           key={image}
-  //         />
-  //         <button onClick={() => removeImageHandler(index)}>
-  //           <svg
-  //             xmlns="http://www.w3.org/2000/svg"
-  //             viewBox="0 0 24 24"
-  //             fill="black"
-  //             className="w-6 h-6 absolute top-0 right-0 self-end drop-shadow-lg"
-  //           >
-  //             <path
-  //               fillRule="evenodd"
-  //               d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zm-1.72 6.97a.75.75 0 10-1.06 1.06L10.94 12l-1.72 1.72a.75.75 0 101.06 1.06L12 13.06l1.72 1.72a.75.75 0 101.06-1.06L13.06 12l1.72-1.72a.75.75 0 10-1.06-1.06L12 10.94l-1.72-1.72z"
-  //               clipRule="evenodd"
-  //             />
-  //           </svg>
-  //         </button>
-  //       </div>
-  //     );
-  //   });
-  // };
 
   //🟠이미지 삭제 함수
   const removeImageHandler = () => {
@@ -88,7 +53,7 @@ function WriteBanner() {
       const formData = new FormData();
       const { url } = data;
 
-      formData.append("url", url);
+      formData.append("banner_url", url);
       formData.append("banner_image", bannerImage);
 
       axios
@@ -125,7 +90,7 @@ function WriteBanner() {
     navigate("/adminlogin");
   } else if (isAdmin) {
     return (
-      <div className="mt-64 flex flex-col items-center">
+      <div className="mt-40 flex flex-col items-center">
         <h1 className="text-3xl font-bold text-center font-title">
           배너 등록하기
         </h1>
@@ -172,13 +137,6 @@ function WriteBanner() {
                     <div className="flex">
                       <label className="flex flex-col mt-2 space-y-2 justify-center items-center w-full bg-slate border-2 border-dashed border-slate-300 bg-blue-50 hover:bg-blue-100 rounded-md cursor-pointer">
                         <img src={imagePreview} alt="preview" />
-                        <input
-                          type="file"
-                          accept="image/*"
-                          className="hidden"
-                          onChange={uploadImageHandler}
-                          required
-                        />
                       </label>
                       <button onClick={() => removeImageHandler()}>
                         <svg

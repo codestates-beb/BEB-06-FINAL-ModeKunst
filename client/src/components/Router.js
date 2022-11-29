@@ -14,7 +14,7 @@ import {
   Followers,
   Search,
 } from "../pages";
-import { AdminMain, AdminSignup, AdminLogin } from "../pages/admin";
+import { AdminSignup, AdminLogin } from "../pages/admin";
 import Header from "./common/Header";
 import Footer from "./common/Footer";
 import ForgotRoutes from "./Routes/ForgotRoutes";
