@@ -12,7 +12,12 @@ router.post('/login',isNotLoggedIn,adminController.login.post);
 router.get('/logout',isLoggedIn,adminController.logout.get);
 
 //서버 관리자 공지 post
-router.post("/notice",isLoggedIn,notice_upload.array("notice_image"),adminController.notice.post);
+router.post(
+  "/notice",
+  isLoggedIn,
+  notice_upload.array("notice_image"),
+  adminController.notice.post
+);
 //서버 관리자 공지 delete
 router.delete('/notice/:noticeId',isLoggedIn,adminController.notice.delete);
 //서버 관리자 배너 추가
@@ -26,4 +31,4 @@ router.delete('/banner/:bannerId',isLoggedIn,adminController.banner.delete);
 
 //
 
-module.exports= router;
+module.exports = router;
