@@ -20,6 +20,7 @@ import Footer from "./common/Footer";
 import ForgotRoutes from "./Routes/ForgotRoutes";
 import ResetRoutes from "./Routes/ResetRoutes";
 import UserProfile from "./common/UserProfile";
+import AdminRoutes from "./Routes/AdminRoutes";
 
 export default function Router() {
   return (
@@ -41,7 +42,7 @@ export default function Router() {
         </Route>
         <Route path="/adminsignup" element={<AdminSignup />} />
         <Route path="/adminlogin" element={<AdminLogin />} />
-        <Route path="/admin/*" element={<AdminMain />} />
+        <Route path="/admin/*" element={<AdminRoutes />} />
         <Route path="/forgot/*" element={<ForgotRoutes />} />
         <Route path="/reset/*" element={<ResetRoutes />} />
         <Route path="*" element={<NotFound />} />

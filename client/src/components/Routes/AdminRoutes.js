@@ -1,12 +1,19 @@
 import { Routes, Route } from "react-router-dom";
-import { BannerList } from ".../pages/admin";
+import {
+  BannerList,
+  WriteBanner,
+  ResetBanner,
+  WriteNotice,
+} from "../../pages/admin";
 
 export default function AdminRoutes() {
   return (
     <>
-      <h1>내 정보 찾기</h1>
       <Routes>
         <Route path="banner" element={<BannerList />} />
+        <Route path="writebanner" element={<WriteBanner />} />
+        <Route path="resetbanner" element={<ResetBanner />} />
+        <Route path="writenotice" element={<WriteNotice />} />
       </Routes>
     </>
   );
