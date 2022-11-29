@@ -77,7 +77,8 @@ export default function Header() {
           text: "로그아웃 되었습니다",
         });
         toggleMenuHandler();
-        dispatch(logout(nickname));
+        dispatch(logout());
+        // dispatch(logout(nickname));
         navigate("/");
       }
     });
