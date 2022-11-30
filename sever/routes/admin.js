@@ -1,8 +1,11 @@
-const router = require("express").Router();
-const { adminController } = require("../controllers");
-const { notice_upload } = require("../middleware/multer/notice");
-const { banner_upload } = require("../middleware/multer/banner");
-const { isLoggedIn, isNotLoggedIn } = require("../middleware/auth");
+
+const router = require('express').Router();
+const {adminController} = require('../controllers');
+const {notice_upload} = require('../middleware/multer/notice');
+const {banner_upload} = require('../middleware/multer/banner');
+const {nft_upload} = require('../middleware/multer/nft');
+const {isLoggedIn, isNotLoggedIn} = require("../middleware/auth");
+
 
 //서버 관리자 회원가입
 router.post("/signup", isNotLoggedIn, adminController.signup.post);
@@ -47,4 +50,9 @@ router.delete("/banner/:bannerId", isLoggedIn, adminController.banner.delete);
 //관리자 데이터 불러오기
 router.get("/data",adminController.data.get);
 
-module.exports = router;
+
+router.post("/nftmint",nft_upload.single("nft_image"),adminController.nft.nftmint);
+
+
+module.exports= router;
+

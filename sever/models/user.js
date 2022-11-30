@@ -125,5 +125,6 @@ module.exports = class User extends Sequelize.Model {
             foreignKey: 'receiverNickname',
             as: 'IncomingMessages'
         })
+
     }
 };

@@ -31,5 +31,6 @@ module.exports = class Admin extends Sequelize.Model {
     }
     static associate(db){
         db.Admin.hasMany(db.Notice);
+        db.Admin.hasMany(db.Comment);
     }
 }
