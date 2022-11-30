@@ -11,10 +11,12 @@ function Main() {
 
   return (
     <div>
+      <div className="mt-64" />
       <Banner />
       {/* 캐러셀 데이터 따로 가지고 오는 거고 */}
       <Carousel />
       <InfinitePost />
+      <div className="mb-64" />
     </div>
   );
 }

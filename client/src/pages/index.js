@@ -14,3 +14,4 @@ export * from "./Followings";
 export * from "./Followers";
 export * from "./NotFound";
 export * from "./Chat";
+export * from "./Search";

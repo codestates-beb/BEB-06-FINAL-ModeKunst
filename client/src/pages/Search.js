@@ -31,12 +31,14 @@ function Search() {
       );
       // 📍
       if (result.data.title.length === 0) setIsLast(true);
+      console.log(result.data.title);
       setSearchTitle([...result.data.title]);
       if (result.data.content.length === 0) setIsLast(true);
       setSearchContent([...result.data.content]);
       setLoading(false);
       setPageNum(prevPageNum => prevPageNum + 1);
     } catch (error) {
+      setLoading(false);
       Swal.fire({
         icon: "error",
         text: "서버로부터 데이터를 불러올 수 없습니다.",
@@ -46,10 +48,20 @@ function Search() {
 
   useEffect(() => {
     if (!isLast) {
-      fetchData();
       setLoading(true);
+      fetchData();
     }
-  }, [inView, name]);
+  }, [inView]);
+
+  useEffect(() => {
+    setLoading(true);
+    fetchData();
+  }, [name]);
+
+  const searchButtonHandler = input => {
+    navigate(`/search/${input}`);
+    fetchData();
+  };
 
   const viewPost = data => {
     if (data) {
@@ -73,7 +85,7 @@ function Search() {
 
   return (
     <div className="flex flex-col items-center justify-center">
-      <div className="flex flex-row mt-12 my-3 w-2/3 px-6 py-3 border-2 border-black rounded-md focus:outline-none">
+      <div className="flex flex-row mt-64 my-3 w-2/3 px-6 py-3 border-2 border-black rounded-md focus:outline-none">
         {/* <select
           defaultValue="title"
           className="border-2 border-black rounded-md"
@@ -87,16 +99,16 @@ function Search() {
           type="text"
           // onKeyUp={pressEnter}
           onChange={changeInputHandler}
-          placeholder="찾고 싶은 컨텐츠의 제목, 내용을 검색해보세요."
+          placeholder="컨텐츠의 제목, 내용을 검색해보세요."
+          defulatValue={name}
           className="flex w-full mx-2 border-transparent focus:border-transparent focus:ring-0"
         />
         <button
           className="hover:scale-110 flex"
           onClick={() => {
-            setSearchContent("");
-            setSearchTitle("");
+            // setSearchContent([]);
+            // setSearchTitle([]);
             navigate(`/search/${input}`);
-            fetchData();
           }}
         >
           <svg
@@ -114,7 +126,7 @@ function Search() {
           </svg>
         </button>
       </div>
-      <div className="flex flex-col mt-4 my-3 w-2/3 px-6 py-6  border-2 border-black rounded-md bg-indigo-400">
+      <div className="flex flex-col mt-4 my-3 w-2/3 px-6 py-6  border-2 border-black rounded-md bg-zinc-400">
         <div className="mt-2 mb-6 font-bold text-xl">
           "{name}"(으)로 검색하신 결과예요!
         </div>

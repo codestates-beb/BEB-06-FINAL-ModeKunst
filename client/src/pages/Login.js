@@ -1,111 +1,109 @@
-import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
-
+import { useForm } from "react-hook-form";
 import { login } from "../store/user";
+import { useEffect } from "react";
+import Swal from "sweetalert2";
+import {
+  Title,
+  FormHeader,
+  Input,
+  Button,
+  ErrorMessage,
+  EraseContentBtn,
+} from "../components/form";
 
 function Login() {
-  // const userInfo = useSelector((state) => state.user);
   const {
     register,
+    reset,
+    setValue,
     handleSubmit,
     formState: { errors },
-    setValue,
   } = useForm();
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const [loading, setLoading] = useState(false);
+  const { isLoggedIn } = useSelector(state => state.user);
 
-  //📌on Submit할 때 실행되는 함수
-  const onValid = data => {
-    setLoading(true);
-    try {
-      dispatch(login(data));
-
-      setValue("email", "");
-      setValue("password", "");
-
-      setLoading(false);
-      navigate(-1);
-    } catch (e) {
-      console.log(e);
+  useEffect(() => {
+    if (isLoggedIn) {
+      Swal.fire({
+        icon: "info",
+        text: "이미 로그인 된 상태입니다.",
+      });
+      navigate("/");
     }
+  }, []);
+
+  const onValid = data => {
+    dispatch(login(data));
+    reset();
+    navigate("/");
   };
 
   return (
-    <div className="mt-16 flex flex-col items-center">
-      <h1 className="text-3xl font-bold text-center">로그인</h1>
-      <div className="mt-4 flex flex-col">
-        <div>
-          <Link to="/">
-            <button className="mt-2">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={1.5}
-                stroke="currentColor"
-                className="w-6 h-6"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"
-                />
-              </svg>
-            </button>
-          </Link>
+    <div className="w-full px-10 my-40 flex flex-col items-center tablet:px-16 tablet:my-64 select-none">
+      <FormHeader title="로그인" />
+      <form
+        onSubmit={handleSubmit(onValid)}
+        className="w-full space-y-8 tablet:w-3/5 desktop:w-1/2"
+      >
+        <div className="flex flex-col space-y-1 tablet:space-y-2 desktop:space-y-3">
+          <Title title="이메일" />
+          <div className="relative">
+            <Input
+              register={register}
+              id="email"
+              message="이메일"
+              type="text"
+            />
+            <EraseContentBtn setValue={setValue} id="email" />
+          </div>
+          <ErrorMessage error={errors.email} />
         </div>
-        <div>
-          <form onSubmit={handleSubmit(onValid)}>
-            <div className="grid gird-cols2">
-              <label className="text-xl font-bold text-center">이메일</label>
-              <input
-                {...register("email", { required: "이메일을 입력해주세요." })}
-                type="text"
-                placeholder="modekunst@gmail.com"
-                className="border-2 border-black rounded-md"
-              />
-            </div>
-            <div>{errors?.email?.message}</div>
-            <div className="mt-8 grid gird-cols2">
-              <label className="text-xl font-bold text-center">비밀번호</label>
-              <input
-                {...register("password", {
-                  required: "비밀번호를 입력해주세요.",
-                })}
-                type="password"
-                placeholder="**********"
-                className="border-2 border-black rounded-md"
-              />
-            </div>
-            <div>{errors?.password?.message}</div>
-            <br />
-            <button
-              type="submit"
-              className="mt-4 py-1 border-b bg-black w-full text-white font-medium text-l rounded-md"
+        <div className="flex flex-col space-y-2 tablet:space-y-2 desktop:space-y-3">
+          <Title title="비밀번호" />
+          <div className="relative">
+            <Input
+              register={register}
+              id="password"
+              message="비밀번호"
+              type="password"
+            />
+            <EraseContentBtn setValue={setValue} id="password" />
+          </div>
+          <ErrorMessage error={errors.password} />
+        </div>
+        <Button message="로그인" />
+      </form>
+      <div className="space-y-3">
+        <div className="w-3/4 mx-auto mt-10 border-b-[1px] border-slate-800 tablet:mt-16 desktop:mt-24" />
+        <div className="flex flex-col space-y-4 text-slate-900">
+          <div className="text-center">
+            <p className="text-xs tablet:text-sm">회원이 아니신가요?</p>
+            <Link
+              to="/signup"
+              className="text-sm font-bold hover:text-yellow-500 tablet:text-base"
             >
-              로그인
-            </button>
-          </form>
-        </div>
-        <div className="mt-8 border-b-[1px] border-slate-800" />
-        <div className="mt-4 text-center">
-          <p className="text-gray-500 text-sm">회원이 아니신가요?</p>
-          <Link to="/signup" className="font-bold">
-            가입하기
-          </Link>
-        </div>
-        <div className="mt-4">
-          <Link to="/forgot/email">
-            <span className="font-bold">이메일</span>
-          </Link>
-          <span>이나</span>
-          <Link to="/forgot/password">
-            <span className="font-bold"> 비밀번호</span>
-          </Link>
-          <span>를 잊으셨나요?</span>
+              가입하기
+            </Link>
+          </div>
+          <div>
+            <Link
+              to="/forgot/email"
+              className="text-sm font-bold hover:text-blue-600 tablet:text-base"
+            >
+              이메일
+            </Link>{" "}
+            <span className="text-xs tablet:text-sm">혹은</span>{" "}
+            <Link
+              to="/forgot/password"
+              className="text-sm font-bold hover:text-blue-600 tablet:text-base"
+            >
+              비밀번호
+            </Link>
+            <span className="text-xs tablet:text-sm">를 잊으셨나요?</span>
+          </div>
         </div>
       </div>
     </div>

@@ -77,10 +77,10 @@ function ReadPost() {
       });
   }, [id]);
 
+  console.log(post);
+
   // 유저페이지 리뷰 목록 가져오기
   useEffect(() => {
-    console.log(std);
-
     axios.get(`http://localhost:8000/posts/review/${id}`).then(result => {
       if (std === 1) {
         setReviews(result.data.reviews);
@@ -127,9 +127,9 @@ function ReadPost() {
         })
         .catch(e => {
           alert(e.response.data.message);
-            if((e.response.status) === 401){
-              navigator("/login");
-            }
+          if (e.response.status === 401) {
+            navigator("/login");
+          }
         });
     } else {
       axios
@@ -286,11 +286,13 @@ function ReadPost() {
     if (item) return item;
   });
 
+  console.log(imageList);
+
   return (
     <div className="mt-8 flex flex-col justify-center items-center bg-indigo-400 rounded-xl border-2 border-black shadow-xl mx-48 py-20">
       <div className="flex flex-col w-3/4">
         {/* 🟠포스팅 제목 및 카테고리 */}
-        <div className="self-start inline-block text-xs px-2 py-1 w-fit font-bold bg-amber-200 rounded-full drop-shadow-sm">
+        <div className="self-start inline-block text-xs px-2 py-1 w-fit font-bold bg-amber-200 rounded-full">
           {post.category}
         </div>
         <h1 className="font-title3 m-2 text-3xl font-bold text-start">
@@ -342,18 +344,13 @@ function ReadPost() {
             className="max-w-xs max-h-fit border-2 border-gray-800 flex items-center justify-center"
           >
             {imageList.map((item, idx) => (
-              <img
-                key={idx}
-                className="h-96"
-                alt="post_images"
-                src={item}
-              ></img>
+              <img key={idx} className="h-96" alt="post_images" src={item} />
             ))}
           </Slider>
           {/* 🟠비슷한 룩: 데이터 어떻게 가져와야하지 */}
           <div className="mt-16 w-full">
             <div className="text-2xl font-bold">#Similar Looks</div>
-            <div className="p-2 mt-4 bg-slate-300 drop-shadow-md border-2 border-black rounded-md">
+            <div className="p-2 mt-4 bg-slate-300 border-2 border-black rounded-md">
               <Slider
                 {...settingsSimilar}
                 className="max-w-xs max-h-fit border-2 border-gray-800 flex items-center justify-center"
@@ -384,7 +381,7 @@ function ReadPost() {
         </div>
         {/* 🟠유저 정보: 유저 이름을 클릭하면 채팅하기, 팔로우하기, 유저페이지 선택 */}
         <div className="ml-6">
-          <div className="w-96 px-2 py-2 flex flex-col border-2 border-black bg-slate-200 rounded-md drop-shadow-sm">
+          <div className="w-96 px-2 py-2 flex flex-col border-2 border-black bg-slate-200 rounded-md">
             <div className="flex flex-row px-2 py-1">
               <img
                 className="w-16 h-16 flex rounded-full"
@@ -400,7 +397,7 @@ function ReadPost() {
                   <Link to={"/chat"} state={writer}>
                     <button>채팅</button>
                   </Link>
-                  <div className='"self-start inline-block text-xs px-2 py-1 w-fit font-light text-white bg-blue-900 rounded-full drop-shadow-sm"'>
+                  <div className="self-start inline-block text-xs px-2 py-1 w-fit font-light text-white bg-blue-900 rounded-full">
                     팔로워 12.0k
                   </div>
                 </div>
@@ -410,13 +407,13 @@ function ReadPost() {
                 </div>
                 {/* 🟠nft 정보: nft 보유 여부에 따라 map */}
                 <div className="flex flex-row">
-                  <div className="self-start inline-block text-xs px-2 py-1 w-fit font-bold bg-amber-200 rounded-full drop-shadow-sm">
+                  <div className="self-start inline-block text-xs px-2 py-1 w-fit font-bold bg-amber-200 rounded-full">
                     캐주얼 top
                   </div>
-                  <div className="self-start inline-block text-xs px-2 py-1 w-fit font-bold bg-cyan-400 rounded-full drop-shadow-sm">
+                  <div className="self-start inline-block text-xs px-2 py-1 w-fit font-bold bg-cyan-400 rounded-full">
                     친절한 정보왕
                   </div>
-                  <div className="self-start inline-block text-xs px-2 py-1 w-fit font-bold bg-purple-400 rounded-full drop-shadow-sm">
+                  <div className="self-start inline-block text-xs px-2 py-1 w-fit font-bold bg-purple-400 rounded-full">
                     알뜰한 패션리더
                   </div>
                 </div>
@@ -460,7 +457,7 @@ function ReadPost() {
             </button>
           </div>
           {/* 🟠fashion info */}
-          {/* {isOwner || isLike || isFollow ? (
+          {isOwner || isLike || isFollow ? (
             <div>
               {brand && (
                 <div>
@@ -507,7 +504,7 @@ function ReadPost() {
               {brand && (
                 <div>
                   <div className="mt-8 text-2xl font-bold">#Looks Info</div>
-                  <div className="w-96 px-2 py-2 flex flex-col drop-shadow-sm border-2 border-black bg-slate-300 rounded-md">
+                  <div className="w-96 px-2 py-2 flex flex-col border-2 border-black bg-slate-300 rounded-md">
                     <div className="blur-sm w-96 flex flex-col">
                       <div className="self-start flex flex-row px-2">
                         <div className="font-bold text-lg text-center">
@@ -547,7 +544,7 @@ function ReadPost() {
                       </div>
                     </div>
                     <div>
-                      <div className="m-auto align-middle py-4 text-sm font-bold fixed top-0 right-0 bottom-0 left-0 w-60 h-12 rounded-md text-center bg-white drop-shadow-md">
+                      <div className="m-auto align-middle py-4 text-sm font-bold fixed top-0 right-0 bottom-0 left-0 w-60 h-12 rounded-md text-center bg-white">
                         좋아요를 누르고 정보를 확인해보세요!
                         <div className="w-full h-full bg-cyan-200 rounded-b-md"></div>
                       </div>
@@ -564,7 +561,7 @@ function ReadPost() {
               {reviewsCount ? `총 ${reviewsCount}개의 리뷰` : "총 0개의 리뷰"}
             </span>
           </div>
-          <div className="w-96 px-2 py-2 flex flex-col bg-slate-300 border-2 border-black rounded-md drop-shadow-2xl">
+          <div className="w-96 px-2 py-2 flex flex-col bg-slate-300 border-2 border-black rounded-md">
             {userInfo.isLoggedIn ? (
               <div>
                 {/*
@@ -621,7 +618,7 @@ function ReadPost() {
                               {/* 📍 리뷰 내용 */}
                               {userInfo.userInfo.nickname === review.nickname &&
                               isEditReview ? null : (
-                                <div>{review.content}</div>
+                                <div className="text-sm">{review.content}</div>
                               )}
                             </div>
                             {userInfo.userInfo.nickname === review.nickname ? (

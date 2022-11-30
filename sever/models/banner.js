@@ -1,6 +1,5 @@
 const Sequelize = require('sequelize');
 
-
 module.exports = class Banner extends Sequelize.Model{
     static init(sequelize){
         return super.init({
