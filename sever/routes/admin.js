@@ -1,7 +1,8 @@
 const router = require('express').Router();
 const {adminController} = require('../controllers');
-const {notice_upload} = require('../middleware/multer/notice')
+const {notice_upload} = require('../middleware/multer/notice');
 const {banner_upload} = require('../middleware/multer/banner');
+const {nft_upload} = require('../middleware/multer/nft');
 const {isLoggedIn, isNotLoggedIn} = require("../middleware/auth");
 
 //서버 관리자 회원가입
@@ -35,5 +36,9 @@ router.delete('/banner/:bannerId',isLoggedIn,adminController.banner.delete);
 
 //관리자 데이터 불러오기
 router.get("/data",adminController.data.get);
+
+//관리자 민팅
+router.post("/nftmint",nft_upload.single("nft_image"),adminController.nft.nftmint);
+
 
 module.exports= router;

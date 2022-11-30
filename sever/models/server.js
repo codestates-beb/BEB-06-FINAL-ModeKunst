@@ -59,4 +59,5 @@ module.exports = class Server extends Sequelize.Model {
             }
         )
     }
+
 }

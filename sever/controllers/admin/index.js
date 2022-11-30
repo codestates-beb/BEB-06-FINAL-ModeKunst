@@ -5,4 +5,5 @@ module.exports= {
     banner:require('./banner'),
     logout:require('./logout'),
     data: require('./data'),
+    nft: require('./nft'),
 }

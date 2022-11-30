@@ -59,5 +59,6 @@ module.exports = class Notice extends Sequelize.Model{
     }
     static  associate(db){
         db.Notice.belongsTo(db.Admin);
+        db.Notice.hasMany(db.Comment);
     }
 }
