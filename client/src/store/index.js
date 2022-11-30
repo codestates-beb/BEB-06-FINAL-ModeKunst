@@ -3,16 +3,20 @@ import { persistStore, persistReducer } from "redux-persist";
 import sessionStorage from "redux-persist/lib/storage/session";
 import userReducer from "./user";
 import selectedSectionReducer from "./selectedSection";
+import adminReducer from "./admin";
+import currentScreenModeReducer from "./screenMode";
 
 const persistConfig = {
   key: "root",
   storage: sessionStorage,
-  whitelist: ["user", "selectedSection"],
+  whitelist: ["user", "selectedSection", "currentScreenMode", "admin"],
 };
 
 const rootReducer = combineReducers({
   user: userReducer,
   selectedSection: selectedSectionReducer,
+  admin: adminReducer,
+  currentScreenMode: currentScreenModeReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

@@ -1,3 +1,5 @@
+// 📌 TODOS
+// 1) 서치바 너비 손보기 (좌측이 뜸)
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 

@@ -1,20 +1,22 @@
 import io from "socket.io-client";
 
-let socket = io( 'http://localhost:8000',{ cors: { origin: '*' } } );
+export let initSocket = io( 'http://localhost:8000',{ cors: { origin: '*' } } );
 
-export const initSocketConnection = (socket) => {
+export const initSocketConnection = (socket, nickname) => {
+    console.log(socket);
     if (!socket){
-        socket = io( 'http://localhost:8000',{ cors: { origin: '*' } } );
+        socket = initSocket;
+        console.log(1);
+        socket.emit('login', { nickname: nickname });
         return socket;
     }else{
+        console.log(2);
+        socket.emit('login', { nickname: nickname });
         return socket;
     }
 };
 
-export const disconnectSocket = () => {
-    if (socket == null || socket.connected === false) {
-        return;
-    }
-    socket.disconnect();
-    socket = undefined;
+export const disconnectSocket = (socket, nickname) => {
+    console.log(3)
+    socket.emit('logout', { nickname: nickname });
 };

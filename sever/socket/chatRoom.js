@@ -12,7 +12,6 @@ module.exports = {
                 },
                 raw: true
             })
-            console.log(hasChat)
             if(!hasChat){
                 try{
                     const chatRoom = await Chat.create({
@@ -25,7 +24,6 @@ module.exports = {
                 } catch (e) {
                     console.log(e);
                 }
-
             } else {
                 const receiverNickname = hasChat.receiverNickname
                 const chatRoom = hasChat.id;
@@ -39,6 +37,44 @@ module.exports = {
                 console.log('이미 존재하는 방 입니다.');
                 return { chatRoom, messages};
             }
+        }
+    },
+
+    createOrEnter: async (sender, receiver) => {
+        const hasChat = await Chat.findOne({
+            where: {
+                [Op.or] : [ {[Op.and]: [ {senderNickname: sender}, { receiverNickname: receiver} ]}, {[Op.and]: [ {senderNickname: receiver}, { receiverNickname: sender} ]} ]
+            },
+            raw: true
+        });
+        if(hasChat){
+            const chatRoom = hasChat.id;
+
+            const messages = await Message.findAll({
+                where: { ChatId: chatRoom },
+                attributes: ['message', 'createdAt', 'senderNickname'],
+                raw: true
+            });
+
+            console.log('이미 존재하는 방 입니다.');
+            return { chatRoom, messages};
+        }else{
+            if(!(sender === receiver)){
+                try{
+                    const chat = await Chat.create({
+                        senderNickname: sender,
+                        receiverNickname: receiver,
+                    });
+                    const { profile_img }  = await User.findOne({where: {nickname: receiver}, attributes:['profile_img']});
+
+                    return { room : { id: chat.dataValues.id, name: receiver, profile_img: profile_img, sender: sender } };
+                } catch (e) {
+                    console.log(e);
+                }
+            }else{
+                console.log('err');
+            }
+
         }
     },
 
@@ -97,11 +133,16 @@ module.exports = {
         if(sender){
             console.log(`입력받은 chatRoom: ${id}, sender: ${sender}, receiver: ${receiver}, message: ${message}`);
 
-            let msg = await Message.create({
+            await Message.create({
                 message: message,
                 senderNickname: sender,
                 receiverNickname: receiver,
                 ChatId: id,
+            });
+
+            const msg = await Message.findOne({
+                where: { ChatId: id},
+                order: literal('createdAt DESC')
             });
 
             return { message: msg.dataValues.message, createdAt: msg.dataValues.createdAt, senderNickname: msg.dataValues.senderNickname };
