@@ -68,26 +68,6 @@ router.post("/:email/pwupdate", usersController.pwupdate.post);
 // 채팅방 목록
 router.get("/chatRoom/:nickname", isLoggedIn, usersController.chat.find);
 
-// 채팅방 입장
-router.get(
-  "/chatRoom/:chatId/:receiver",
-  isLoggedIn,
-  usersController.chat.join
-);
-
-// 채팅방 생성
-router.post("/chatRoom/:receiver", isLoggedIn, usersController.chat.create);
-
-// 메세지 보내기
-router.post("/message", isLoggedIn, usersController.chat.send);
-
-// 채팅방 삭제
-router.post(
-  "/chatRoom/:sender/:receiver",
-  isLoggedIn,
-  usersController.chat.delete
-);
-
 //로그아웃
 router.get("/logout", isLoggedIn, usersController.logout.get);
 
