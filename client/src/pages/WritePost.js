@@ -273,6 +273,7 @@ function WritePost() {
               )}
             </div>
           </div>
+
           <div className="flex flex-col space-y-4">
             <div className="flex flex-col space-y-2">
               <Title title="옷 정보" />
@@ -285,7 +286,6 @@ function WritePost() {
                   type="checkbox"
                   checked={isChecked}
                   onClick={checkHandler}
-                  className=""
                 />
               </div>
             </div>
