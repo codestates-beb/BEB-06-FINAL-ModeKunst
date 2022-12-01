@@ -49,6 +49,9 @@ router.post("/:nickname/follow", isLoggedIn, addFollowing);
 //언팔로우
 router.post("/:nickname/unfollow", isLoggedIn, removeFollower);
 
+//신고
+router.post('/report', usersController.report.report);
+
 // 마이 페이지
 router.get("/mypage/:nickname", usersController.mypage.get);
 

@@ -341,6 +341,17 @@ function ReadPost() {
       });
   };
 
+  // 게시글 작성 유저 신고
+  const reportUser = () => {
+    console.log(1);
+    axios.post(`http://localhost:8000/users/report`, {
+      reported: writer
+    }).then((result) => {
+      alert(result.data.message);
+    });
+
+  };
+
   const moveUpdate = () => {
     // 업데이트 창 주소로 이동
   };
@@ -482,7 +493,7 @@ function ReadPost() {
               </svg>
             </button>
             <button
-              onClick={() => {}}
+              onClick={reportUser}
               className="px-0.5 text-xs text-white bg-red-400 rounded-sm hover:scale-105 tablet:px-1 tablet:text-sm desktop:rounded-md"
             >
               신고{" "}
