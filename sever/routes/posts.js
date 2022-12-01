@@ -56,4 +56,12 @@ router.get("/search/:name", postsController.search.search);
 //리뷰 목록
 router.get("/review/:postId", postsController.review.get);
 
+//래플 댓글 달기
+router.post('/noticecomment/:noticeId',isLoggedIn,postsController.noticeComment.post);
+//래플 댓글 전체 가져오기
+router.get('/noticecomment/:noticeId',postsController.noticeComment.get);
+//래플 댓글 수정하기
+router.put('/noticecomment/:noticeId',isLoggedIn,postsController.noticeComment.put);
+
+
 module.exports = router;

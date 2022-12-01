@@ -4,13 +4,16 @@ module.exports = class Chat extends Sequelize.Model {
     static init(sequelize){
         return super.init(
             {
-                deleteUser1: {
+                status: {
+                    type: Sequelize.STRING,
+                    defaultValue: '0',
+                },
+                lastChat: {
                     type: Sequelize.STRING
                 },
-                deleteUser2: {
-                    type: Sequelize.STRING
-                },
-
+                lastChatDate: {
+                    type: Sequelize.DATE
+                }
             },
             {
                 sequelize,
@@ -40,7 +43,7 @@ module.exports = class Chat extends Sequelize.Model {
         //     foreignKey: 'receiver'
         // });
         db.Chat.hasMany(db.Message,{
-            as: 'Room'
+            as: 'Message'
         });
     }
 }

@@ -344,6 +344,17 @@ function ReadPost() {
       });
   };
 
+  // 게시글 작성 유저 신고
+  const reportUser = () => {
+    console.log(1);
+    axios.post(`http://localhost:8000/users/report`, {
+      reported: writer
+    }).then((result) => {
+      alert(result.data.message);
+    });
+
+  };
+
   const moveUpdate = () => {
     // 업데이트 창 주소로 이동
   };
@@ -483,7 +494,7 @@ function ReadPost() {
               </svg>
             </button>
             <button
-              onClick={() => {}}
+              onClick={reportUser}
               className="px-0.5 text-xs text-white bg-red-400 rounded-sm hover:scale-105 tablet:px-1 tablet:text-sm desktop:rounded-md"
             >
               신고{" "}
@@ -969,6 +980,122 @@ function ReadPost() {
                         </span>
                       </div>
                     )}
+                    <div>
+                      <div>
+                        {reviews?.length ? (
+                            // ⭕️ 리뷰 뿌려주기
+                            modifiedReviews.map((review, idx) => {
+                              return (
+                                  <div key={idx}>
+                                    <div>
+                                      <Link to={`/user/${review.nickname}`}>
+                                        <div className="mt-4 font-bold">
+                                          {review.nickname}
+                                        </div>
+                                      </Link>
+                                      <span className="text-xs font-semibold inline-block px-1 py-0.5 bg-cyan-400 rounded-full text-slate-50">
+                                {review.create_at}
+                              </span>
+                                      {/* 📍 리뷰 내용 */}
+                                      {userInfo.userInfo.nickname === review.nickname &&
+                                      isEditReview ? null : (
+                                          <div className="text-sm">{review.content}</div>
+                                      )}
+                                    </div>
+                                    {userInfo.userInfo.nickname === review.nickname ? (
+                                        <div className="space-x-2">
+                                          {/* 📍 수정 버튼 */}
+                                          {!isEditReview ? (
+                                              // 수정모드 OFF
+                                              <div>
+                                                <button
+                                                    onClick={() => {
+                                                      setIsEditReview(true);
+                                                      setEditTargetReview(review.content);
+                                                    }}
+                                                    className="bg-yellow-300 px-2 py-0.5 rounded-full inline-block text-center text-xs text-slate-800"
+                                                >
+                                                  수정
+                                                </button>
+                                                <button
+                                                    className="bg-pink-300 px-2 py-0.5 rounded-full inline-block text-center text-xs text-slate-800"
+                                                    onClick={deleteReview}
+                                                >
+                                                  삭제
+                                                </button>
+                                              </div>
+                                          ) : (
+                                              // 수정모드 ON
+                                              <div>
+                                                <input
+                                                    type="text"
+                                                    value={editTargetReview}
+                                                    onChange={e =>
+                                                        setEditTargetReview(e.target.value)
+                                                    }
+                                                />
+                                                <button
+                                                    onClick={() => {
+                                                      setIsEditReview(false);
+                                                    }}
+                                                >
+                                                  취소
+                                                </button>
+                                                <button onClick={editReview}>수정</button>
+                                              </div>
+                                          )}
+                                        </div>
+                                    ) : null}
+                                  </div>
+                              );
+                            })
+                        ) : (
+                            <div>리뷰가 없습니다.</div>
+                        )}
+                      </div>
+                      <div className="flex justify-center">
+                        {!isLast && (
+                            <button
+                                onClick={showReviewsByFour}
+                                className="bg-slate-50 hover:bg-yellow-200 px-2 py-1 text-base font-semibold rounded-full shadow-md"
+                            >
+                              <svg
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                  strokeWidth={2}
+                                  stroke="currentColor"
+                                  className="w-4 h-4"
+                              >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M19.5 8.25l-7.5 7.5-7.5-7.5"
+                                />
+                              </svg>
+                            </button>
+                        )}
+                        {!isFirst && (
+                            <button
+                                onClick={initReviews}
+                                className="bg-slate-50 hover:bg-yellow-200 px-2 py-1 text-base font-semibold rounded-full shadow-md"
+                            >
+                              <svg
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                  strokeWidth={2}
+                                  stroke="currentColor"
+                                  className="w-4 h-4"
+                              >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M4.5 12.75l7.5-7.5 7.5 7.5m-15 6l7.5-7.5 7.5 7.5"
+                                />
+                              </svg>
+                            </button>
+                        )}
+                      </div>
+                    </div>
                   </div>
 
                   {reviewsCount > 0 ? (
@@ -1013,3 +1140,4 @@ function ReadPost() {
 }
 
 export { ReadPost };
+

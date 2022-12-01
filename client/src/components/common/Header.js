@@ -147,26 +147,6 @@ export default function Header() {
         )}
       >
         <ul className="flex flex-col justify-between space-y-3 text-center text-sm font-title font-semibold desktop:flex-row desktop:space-y-0">
-          <li
-            onClick={toggleMenuHandler}
-            className="px-1.5 hover:scale-110 cursor-pointer tablet:text-xl"
-          >
-            <button onClick={() => setIsSearchModal(true)}>
-              <svg
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={2}
-                stroke="currentColor"
-                className="w-5 h-5"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
-                />
-              </svg>
-            </button>
-          </li>
           {[
             { section: "NOTICE", to: "/" },
             { section: "WRITE", to: "/write" },

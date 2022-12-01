@@ -18,7 +18,6 @@ module.exports = {
             //파일이 있을 때, 래플 등록
             if (token_price > 0) {
                 if (req.files.length > 0) {
-                    console.log("잉잉", req.files);
                     const {host} = req.headers;
                     let imageList = [];
                     req.files.map((file, idx) => {
@@ -67,7 +66,6 @@ module.exports = {
                 }
             }
             if (token_price == 0) {
-                console.log('엌엌')
                 if (req.files.length > 0) {
                     const {host} = req.headers;
                     let imageList = [];

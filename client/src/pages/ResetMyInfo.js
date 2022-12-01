@@ -44,6 +44,13 @@ function ResetMyInfo() {
   const [phoneVerifyCode, setPhoneVerifyCode] = useState("");
 
   useEffect(() => {
+    axios.get("http://localhost:8000/users/update").then(result => {
+      const data = result.data.data?.user_info;
+      console.log(data);
+    });
+  }, []);
+
+  useEffect(() => {
     if (image && image.length > 0) {
       const file = image[0];
       setImagePreview(URL.createObjectURL(file));

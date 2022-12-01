@@ -6,7 +6,7 @@ module.exports = {
 
   // 배너 && 상단 게시물
   other: async (req, res) => {
-    const banner = Banner.findAll({
+    const banner = await Banner.findAll({
       order: literal('createdAt DESC'),
       attributes: ['id', 'image', 'url', 'createdAt'],
       raw: true

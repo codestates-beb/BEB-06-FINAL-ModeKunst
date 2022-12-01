@@ -784,7 +784,7 @@ module.exports = {
   // 게시물 수정 창
   updatePost: async (req, res) => {
     const { postId } = req.params;
-    const have_info = await Post.findOne({
+    const { have_info } = await Post.findOne({
       where: { id: postId },
       attributes: ["have_info"],
       raw: true,

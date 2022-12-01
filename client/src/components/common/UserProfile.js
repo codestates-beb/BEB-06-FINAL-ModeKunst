@@ -122,20 +122,20 @@ export default function UserProfile() {
                 </div>
               </div>
             </div>
-            <div>
-              <div className="mt-8 flex space-x-1 text-xs">
-                <span className="py-0.5 px-1 text-white bg-slate-700 rounded-full">
-                  {user.height}cm
-                </span>
-                <span className="py-0.5 px-1 text-white bg-slate-700 rounded-full">
-                  {user.weight}kg
-                </span>
-              </div>
-              <div className="mt-1">
-                <span className="text-xs font-semibold px-1 py-0.5 bg-slate-300 rounded-full">
-                  팔로워 {followAmount > 0 ? followAmount : 0}
-                </span>
-              </div>
+          </div>
+          <div>
+            <div className="mt-8 flex space-x-1 text-xs">
+              <span className="py-0.5 px-1 text-white bg-slate-700 rounded-full">
+                {user.height}cm
+              </span>
+              <span className="py-0.5 px-1 text-white bg-slate-700 rounded-full">
+                {user.weight}kg
+              </span>
+            </div>
+            <div className="mt-1">
+              <span className="text-xs font-semibold px-1 py-0.5 bg-slate-300 rounded-full">
+                팔로워 {followAmount > 0 ? followAmount : 0}
+              </span>
             </div>
           </div>
           <div className="my-auto">
