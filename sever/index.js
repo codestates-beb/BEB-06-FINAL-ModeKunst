@@ -58,6 +58,7 @@ sequelize
 app.use("/profile_img", express.static("profile_img"));
 app.use("/post_img", express.static("post_img"));
 app.use("/banner_img", express.static("banner_img"));
+app.use("/notice_img", express.static("notice_img"));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
