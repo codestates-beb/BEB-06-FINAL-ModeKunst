@@ -9,7 +9,7 @@ module.exports = {
     },
     extend: {
       fontFamily: {
-        title: ["NanumSquareNeo-Variable", "sans-serif"],
+        title: ["EliceDigitalBaeum-Bd", "sans-serif"],
         content: ["Pretendard-Regular", "sans-serif"],
       },
     },

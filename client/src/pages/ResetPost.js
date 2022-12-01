@@ -2,25 +2,22 @@ import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { useSelector } from "react-redux";
+import { FormHeader } from "../components/form/FormHeader";
 import axios from "axios";
-
 import Swal from "sweetalert2";
-
-//📌 to do
-// 1. 받아온 이미지 데이터가 url임 file 객체가 필요함
-// 2. upstream 값을 받아와야 함 - 이미 toppost 인 경우 처리 필요
-// 3. 수정한 데이터를 완전히 갈아끼우는 형식이 될 거 같음
+import { Button, ErrorMessage, Input, Title } from "../components/form";
 
 function ResetPost() {
   const { id } = useParams();
-  const userInfo = useSelector(state => state.user);
+  const { userInfo: loggedInUser, isLoggedIn } = useSelector(
+    state => state.user
+  );
 
   const [post, setPost] = useState("");
   const [brand, setBrand] = useState("");
   const [size, setSize] = useState("");
   const [names, setNames] = useState("");
 
-  const isLoggedIn = userInfo.isLoggedIn;
   const navigate = useNavigate();
   let fileList = [];
   let fileName1;
@@ -33,7 +30,6 @@ function ResetPost() {
     register,
     handleSubmit,
     formState: { errors },
-    watch,
   } = useForm();
 
   const [isChecked, setIsChecked] = useState(false);
@@ -118,7 +114,7 @@ function ResetPost() {
     return new File([blob], filename, metadata);
   };
 
-  //🟠이미지 업로드 함수(onChange)
+  // 이미지 업로드 함수(onChange)
   const uploadImageHandler = e => {
     let reader = new FileReader();
     if (e.target.files[0]) {
@@ -143,40 +139,40 @@ function ResetPost() {
     };
   };
 
-  //🟠이미지 미리보기 함수
-  const getPrveiwImg = () => {
-    return multipleImages.map((image, index) => {
-      return (
-        <div
-          key={index}
-          className="relative mt-2 mx-2 w-44 h-44 flex justify-center"
-        >
+  // 이미지 미리보기 함수
+  const getPreviewImg = () => {
+    return multipleImages.map((_, idx) => (
+      <div key={idx} className="relative">
+        <div className="p-0.5 bg-black rounded-md overflow-hidden">
           <img
-            className="flex drop-shadow-md rounded-md"
-            src={imagePreview[index]}
-            alt=""
-            key={image}
+            alt="upload_image"
+            src={imagePreview[idx]}
+            className="w-full h-48 object-cover aspect-square hover:opacity-75"
           />
-          <button onClick={() => removeImageHandler(index)}>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="black"
-              className="w-6 h-6 absolute top-0 right-0 self-end drop-shadow-lg"
-            >
-              <path
-                fillRule="evenodd"
-                d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zm-1.72 6.97a.75.75 0 10-1.06 1.06L10.94 12l-1.72 1.72a.75.75 0 101.06 1.06L12 13.06l1.72 1.72a.75.75 0 101.06-1.06L13.06 12l1.72-1.72a.75.75 0 10-1.06-1.06L12 10.94l-1.72-1.72z"
-                clipRule="evenodd"
-              />
-            </svg>
-          </button>
         </div>
-      );
-    });
+        <button
+          onClick={() => removeImageHandler(idx)}
+          className="absolute -top-2 -right-1"
+        >
+          <svg
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={2}
+            stroke="currentColor"
+            className="p-1 w-5 h-5 bg-yellow-500 stroke-white rounded-full hover:scale-110"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        </button>
+      </div>
+    ));
   };
 
-  //🟠이미지 삭제 함수
+  // 이미지 삭제 함수
   const removeImageHandler = index => {
     const imgArr = multipleImages.filter((el, i) => i !== index);
     const imgNameArr = imagePreview.filter((el, i) => i !== index);
@@ -252,7 +248,7 @@ function ResetPost() {
         formData.append("image", image_4);
         formData.append("image", image_5);
 
-        console.log(formData.get("image"));
+        console.log(formData);
 
         axios
           .put(`http://localhost:8000/posts/${id}`, formData)
@@ -277,268 +273,262 @@ function ResetPost() {
     }
   };
 
-  if (!isLoggedIn && post.userNickname === userInfo.userInfo.nickname) {
-    alert("로그인 후 이용해주세요.");
-    navigate("/");
+  if (!isLoggedIn && post.userNickname === loggedInUser.nickname) {
+    Swal.fire({
+      icon: "warning",
+      text: "로그인 후 이용해주세요.",
+    }).then(() => navigate("/login"));
   } else {
     return (
-      <div className="mt-8 flex flex-col items-center">
-        <h1 className="text-3xl font-bold text-center">수정하기</h1>
-        <div className="mt-4 w-3/5">
-          <div>
-            <form onSubmit={handleSubmit(onValid)}>
-              <div className="grid gird-cols2">
-                <label className="text-xl font-bold text-start">title</label>
-                <input
-                  {...register("title", { required: "제목을 입력해주세요." })}
-                  defaultValue={post.title}
-                  type="text"
-                  placeholder="제목을 입력해주세요."
-                  className="border-2 border-black rounded-md"
-                />
-              </div>
-              <div className="text-xs text-red-500 font-semibold">
-                {errors?.title?.message}
-              </div>
-              <div className="mt-8 grid gird-cols2">
-                <label className="text-xl font-bold text-start">contents</label>
-                <textarea
-                  {...register("contents", {
-                    required: "내용을 입력해주세요.",
-                  })}
-                  defaultValue={post.content}
-                  type="text"
-                  placeholder="내용을 입력해주세요."
-                  className="border-2 border-black rounded-md"
-                />
-              </div>
-              <div className="text-xs text-red-500 font-semibold">
-                {errors?.contents?.message}
-              </div>
-              <div className="mt-8 grid gird-cols2">
-                <label className="text-xl font-bold text-start">category</label>
-                <select
-                  defaultValue={post.category}
-                  {...register("category", {
-                    required: "카테고리를 선택해주세요.",
-                  })}
-                  className="border-2 border-black rounded-md"
+      <div className="w-full px-10 my-40 flex flex-col items-center tablet:px-16 tablet:my-64 select-none">
+        <FormHeader title="포스트 수정" />
+        <form
+          onSubmit={handleSubmit(onValid)}
+          className="w-full space-y-8 tablet:w-3/5 desktop:w-1/2"
+        >
+          <div className="flex flex-col space-y-2">
+            <Title title="제목" />
+            <Input
+              register={register}
+              id="title"
+              defaultValue={post.title}
+              type="text"
+              message="제목"
+            />
+            <ErrorMessage error={errors.title} />
+          </div>
+          <div className="flex flex-col space-y-2">
+            <Title title="내용" />
+            <textarea
+              {...register("contents", {
+                required: "내용을 입력해주세요.",
+              })}
+              type="text"
+              defaultValue={post.content}
+              placeholder="내용을 입력해주세요."
+              className="px-4 py-2 text-sm bg-transparent border-2 border-black rounded-md focus:outline-none focus:border-[3px]"
+            />
+            <ErrorMessage error={errors.contents} />
+          </div>
+          <div className="flex flex-col space-y-4">
+            <Title title="카테고리" />
+            <select
+              defaultValue={post.category}
+              {...register("category", {
+                required: "카테고리를 선택해주세요.",
+              })}
+              className="px-2 py-1 text-sm bg-transparent border-2 border-black rounded-md focus:outline-none focus:border-[3px]"
+            >
+              <option value="casual">캐주얼</option>
+              <option value="dandy">댄디</option>
+              <option value="normcore">놈코어</option>
+              <option value="street">스트릿</option>
+            </select>
+          </div>
+
+          <div className="flex flex-col space-y-4">
+            <Title title="이미지" />
+            <div className="space-y-4">
+              <label className="w-1/5 px-4 py-2 mx-auto flex flex-col justify-center items-center bg-violet-700 hover:bg-yellow-500 rounded-full cursor-pointer">
+                <svg
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={3}
+                  className="w-4 h-4 stroke-slate-50 tablet:w-5 tablet:h-5"
                 >
-                  <option value="casual">캐주얼</option>
-                  <option value="dandy">댄디</option>
-                  <option value="normcore">놈코어</option>
-                  <option value="street">스트릿</option>
-                </select>
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M12 4.5v15m7.5-7.5h-15"
+                  />
+                </svg>
+                <span className="text-xs font-semibold text-slate-50">
+                  {multipleImages ? (
+                    <div>{multipleImages.length} / 5</div>
+                  ) : null}
+                </span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={uploadImageHandler}
+                  required
+                />
+                <ErrorMessage error={errors.image} />
+              </label>
+              {imagePreview && (
+                <div className="grid grid-cols-2 gap-2 tablet:grid-cols-3 desktop:grid-cols-5 desktop:gap-5">
+                  {getPreviewImg()}
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="flex flex-col space-y-4">
+            <div className="flex flex-col space-y-2">
+              <Title title="옷 정보" />
+              <div className="flex items-center space-x-2">
+                <span className="text-xs font-semibold text-violet-700">
+                  체크하면 옷 정보 입력란이 추가됩니다
+                </span>
+                <input
+                  {...register("fashion-info")}
+                  type="checkbox"
+                  onClick={checkHandler}
+                  checked={isChecked}
+                  defaultValue={isChecked}
+                />
               </div>
-              <div className="mt-8 grid gird-cols2">
-                {/* 🟠 이미지 파일 */}
-                <label className="text-xl font-bold text-start">images</label>
-                <div className="flex flex-wrap">
-                  <div className="flex">
-                    <label className="flex flex-col mt-2 space-y-2 justify-center items-center w-44 h-44 bg-slate border-2 border-dashed border-slate-300 bg-blue-50 hover:bg-blue-100 cursor-pointer rounded-md">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        strokeWidth={1.5}
-                        stroke="currentColor"
-                        className="w-6 h-6"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M12 4.5v15m7.5-7.5h-15"
-                        />
-                      </svg>
-                      <span className="text-xs font-semibold text-slate-800">
-                        {multipleImages ? (
-                          <div>{multipleImages.length} / 5</div>
-                        ) : (
-                          <div></div>
-                        )}
-                      </span>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        onChange={uploadImageHandler}
-                      />
-                      <span className="text-xs text-red-500 font-semibold">
-                        {errors?.image?.message}
-                      </span>
-                    </label>
-                    {imagePreview && (
-                      <div className="flex flex-row">{getPrveiwImg()}</div>
-                    )}
+            </div>
+            {isChecked && (
+              <div className="flex flex-col space-y-3">
+                <div className="flex justify-between items-center space-x-4">
+                  <span className="text-sm font-semibold">상의</span>
+                  <div className="space-x-1">
+                    <input
+                      name="top_brand"
+                      placeholder="브랜드명"
+                      defaultValue={brand?.top}
+                      {...register("top_brand")}
+                      className="px-2 py-1 border-b-2 border-b-black bg-transparent placeholder:text-xs placeholder:text-yellow-500 focus:outline-none focus:border-b-[3px]"
+                    />
+                    <input
+                      name="top_name"
+                      placeholder="제품명"
+                      defaultValue={names?.top}
+                      {...register("top_name")}
+                      className="px-2 py-1 border-b-2 border-b-black bg-transparent placeholder:text-xs placeholder:text-yellow-500 focus:outline-none focus:border-b-[3px]"
+                    />
+                    <select
+                      name="top_size"
+                      defaultValue={size?.top}
+                      {...register("top_size")}
+                      className="bg-transparent text-xs focus:outline-none"
+                    >
+                      <option value="S">S</option>
+                      <option value="M">M</option>
+                      <option value="L">L</option>
+                      <option value="XL">XL</option>
+                    </select>
                   </div>
                 </div>
-              </div>
-              <div className="mt-8 grid gird-cols2">
-                <div>
-                  <label className="text-xl font-bold text-start">
-                    fashion info
-                  </label>
-                  <input
-                    {...register("fashion-info", { required: false })}
-                    type="checkbox"
-                    onClick={checkHandler}
-                    checked={isChecked}
-                    defaultValue={isChecked}
-                  />
-                  {isChecked && (
-                    <div>
-                      <div>
-                        <span>상의</span>
-                        <input
-                          name="top_brand"
-                          className="border-2 border-black rounded-md"
-                          placeholder="브랜드명"
-                          defaultValue={brand?.top}
-                          {...register("top_brand", { required: false })}
-                        ></input>
-                        <input
-                          name="top_name"
-                          className="border-2 border-black rounded-md"
-                          placeholder="제품명"
-                          defaultValue={names?.top}
-                          {...register("top_name", { required: false })}
-                        ></input>
-                        <select
-                          name="top_size"
-                          defaultValue={size?.top}
-                          {...register("top_size", { required: false })}
-                          className="border-2 border-black rounded-md"
-                        >
-                          <option value="S">S</option>
-                          <option value="M">M</option>
-                          <option value="L">L</option>
-                          <option value="XL">XL</option>
-                        </select>
-                        *
-                      </div>
-                      <div>
-                        <span>하의</span>
-                        <input
-                          name="pants_brand"
-                          className="border-2 border-black rounded-md"
-                          placeholder="브랜드명"
-                          defaultValue={brand?.pants}
-                          {...register("pants_brand", { required: false })}
-                        ></input>
-                        <input
-                          name="pants_name"
-                          className="border-2 border-black rounded-md"
-                          placeholder="제품명"
-                          defaultValue={names?.pants}
-                          {...register("pants_name", { required: false })}
-                        ></input>
-                        <select
-                          name="pants_size"
-                          defaultValue={size?.pants}
-                          {...register("pants_size", { required: false })}
-                          className="border-2 border-black rounded-md"
-                        >
-                          <option value="S">S</option>
-                          <option value="M">M</option>
-                          <option value="L">L</option>
-                          <option value="XL">XL</option>
-                        </select>
-                        *
-                      </div>
-                      <div>
-                        <span>신발</span>
-                        <input
-                          name="shoes_brand"
-                          className="border-2 border-black rounded-md"
-                          placeholder="브랜드명"
-                          defaultValue={brand?.shoes}
-                          {...register("shoes_brand", { required: false })}
-                        ></input>
-                        <input
-                          name="shoes_name"
-                          className="border-2 border-black rounded-md"
-                          placeholder="제품명"
-                          defaultValue={names?.shoes}
-                          {...register("shoes_name", { required: false })}
-                        ></input>
-                        <select
-                          name="shoes_size"
-                          defaultValue={size?.shoes}
-                          {...register("shoes_size", { required: false })}
-                          className="border-2 border-black rounded-md"
-                        >
-                          <option value="230">230</option>
-                          <option value="240">240</option>
-                          <option value="250">250</option>
-                          <option value="260">260</option>
-                        </select>
-                        *
-                      </div>
-                      <div onClick={infoAddHandler}>
-                        {/* 🟠brand.outer 에러 수정 필요: undefined */}
-                        {(isAdded || brand?.outer) && (
-                          <div>
-                            <span>아우터</span>
-                            <input
-                              name="outer_brand"
-                              className="border-2 border-black rounded-md"
-                              placeholder="브랜드명"
-                              defaultValue={brand.outer}
-                              {...register("outer_brand", {
-                                required: false,
-                              })}
-                            ></input>
-                            <input
-                              name="outer_name"
-                              className="border-2 border-black rounded-md"
-                              placeholder="제품명"
-                              defaultValue={names.outer}
-                              {...register("outer_name", { required: false })}
-                            ></input>
-                            <select
-                              name="outer_size"
-                              defaultValue={size.outer}
-                              {...register("outer_size", { required: false })}
-                              className="border-2 border-black rounded-md"
-                            >
-                              <option value="S">S</option>
-                              <option value="M">M</option>
-                              <option value="L">L</option>
-                              <option value="XL">XL</option>
-                            </select>
-                          </div>
-                        )}
-
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          strokeWidth={1.5}
-                          stroke="currentColor"
-                          className="w-6 h-6"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M12 9v6m3-3H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"
-                          />
-                        </svg>
-                      </div>
-                    </div>
-                  )}
-                  {!isChecked && <div></div>}
+                <div className="flex justify-between items-center space-x-4">
+                  <span className="text-sm font-semibold">하의</span>
+                  <div className="space-x-1">
+                    <input
+                      name="pants_brand"
+                      placeholder="브랜드명"
+                      defaultValue={brand?.pants}
+                      {...register("pants_brand")}
+                      className="px-2 py-1 border-b-2 border-b-black bg-transparent placeholder:text-xs placeholder:text-yellow-500 focus:outline-none focus:border-b-[3px]"
+                    />
+                    <input
+                      name="pants_name"
+                      placeholder="제품명"
+                      defaultValue={names?.pants}
+                      {...register("pants_name")}
+                      className="px-2 py-1 border-b-2 border-b-black bg-transparent placeholder:text-xs placeholder:text-yellow-500 focus:outline-none focus:border-b-[3px]"
+                    />
+                    <select
+                      name="pants_size"
+                      defaultValue={size?.pants}
+                      {...register("pants_size")}
+                      className="bg-transparent text-xs focus:outline-none"
+                    >
+                      <option value="S">S</option>
+                      <option value="M">M</option>
+                      <option value="L">L</option>
+                      <option value="XL">XL</option>
+                    </select>
+                  </div>
                 </div>
+                <div className="flex justify-between items-center space-x-4">
+                  <span className="text-sm font-semibold">신발</span>
+                  <div className="space-x-1">
+                    <input
+                      name="shoes_brand"
+                      placeholder="브랜드명"
+                      defaultValue={brand?.shoes}
+                      {...register("shoes_brand")}
+                      className="px-2 py-1 border-b-2 border-b-black bg-transparent placeholder:text-xs placeholder:text-yellow-500 focus:outline-none focus:border-b-[3px]"
+                    />
+                    <input
+                      name="shoes_name"
+                      placeholder="제품명"
+                      defaultValue={names?.shoes}
+                      {...register("shoes_name")}
+                      className="px-2 py-1 border-b-2 border-b-black bg-transparent placeholder:text-xs placeholder:text-yellow-500 focus:outline-none focus:border-b-[3px]"
+                    />
+                    <select
+                      name="shoes_size"
+                      defaultValue={size?.shoes}
+                      {...register("shoes_size")}
+                      className="bg-transparent text-xs focus:outline-none"
+                    >
+                      <option value="240">240</option>
+                      <option value="250">250</option>
+                      <option value="260">260</option>
+                      <option value="270">270</option>
+                      <option value="280">280</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* brand.outer 에러 수정 필요: undefined */}
+                {/* <div onClick={infoAddHandler}>
+                    {(isAdded || brand?.outer) && (
+                      <div>
+                        <span>아우터</span>
+                        <input
+                          name="outer_brand"
+                          className="border-2 border-black rounded-md"
+                          placeholder="브랜드명"
+                          defaultValue={brand.outer}
+                          {...register("outer_brand", {
+                            required: false,
+                          })}
+                        ></input>
+                        <input
+                          name="outer_name"
+                          className="border-2 border-black rounded-md"
+                          placeholder="제품명"
+                          defaultValue={names.outer}
+                          {...register("outer_name")}
+                        ></input>
+                        <select
+                          name="outer_size"
+                          defaultValue={size.outer}
+                          {...register("outer_size")}
+                          className="border-2 border-black rounded-md"
+                        >
+                          <option value="S">S</option>
+                          <option value="M">M</option>
+                          <option value="L">L</option>
+                          <option value="XL">XL</option>
+                        </select>
+                      </div>
+                    )}
+
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth={1.5}
+                      stroke="currentColor"
+                      className="w-6 h-6"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M12 9v6m3-3H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                  </div> */}
               </div>
-              <button
-                type="submit"
-                className="my-8 py-1 border-b bg-black w-full text-white font-medium text-l rounded-md"
-              >
-                게시물 수정
-              </button>
-              <div className="h-20" />
-            </form>
+            )}
           </div>
-        </div>
+          <Button message="수정" />
+        </form>
       </div>
     );
   }

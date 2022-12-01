@@ -1,77 +1,166 @@
-import axios from "axios";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
+import axios from "axios";
 import Swal from "sweetalert2";
-
-function cls(...classnames) {
-  return classnames.join(" ");
-}
+import cls from "../utils/setClassnames";
+import {
+  Button,
+  EraseContentBtn,
+  ErrorMessage,
+  FormHeader,
+  Input,
+  Title,
+  VerifyInputs,
+} from "../components/form";
+import { useSelector } from "react-redux";
 
 function ForgotPassword() {
-  // 인증방법 선택
-  const [verifyMethod, setVerifyMethod] = useState("email");
-  // 이메일 검증용 상태
-  const [emailVerifyInput, setEmailVerifyInput] = useState(false);
-  const [emailVerifyBtn, setEmailVerifyBtn] = useState(true);
-  const [emailVerified, setEmailVerified] = useState(false);
-  const [emailDisabled, setEmailDisabled] = useState(false);
-  const [emailVerifyCode, setEmailVerifyCode] = useState("");
-  // 핸드폰 검증용 상태
-  const [phoneVerifyInput, setPhoneVerifyInput] = useState(false);
-  const [phoneVerifyBtns, setPhoneVerifyBtns] = useState(true);
-  const [phoneVerified, setPhoneVerified] = useState(false);
-  const [phoneDisabled, setPhoneDisabled] = useState(false);
-  const [phoneVerifyCode, setPhoneVerifyCode] = useState("");
+  const { isLoggedIn } = useSelector(state => state.user);
+  const {
+    handleSubmit,
+    register,
+    setValue,
+    watch,
+    formState: { errors },
+  } = useForm();
   const navigate = useNavigate();
+  const [verifyMethod, setVerifyMethod] = useState("email");
+  const [verifyCode, setVerifyCode] = useState("");
+  const [emailVerifyInput, setEmailVerifyInput] = useState(false);
+  const [phoneVerifyInput, setPhoneVerifyInput] = useState(false);
 
-  const { handleSubmit, register, setValue, watch } = useForm();
+  useEffect(() => {
+    isLoggedIn && navigate("/");
+  }, []);
 
-  const onValid = data => {
-    axios
-      .get(
-        `http://localhost:8000/users/pwfind/${watch("email")}/${watch("phone")}`
-      )
-      .then(console.log)
-      .catch(console.log);
+  // 이메일 인증코드 발송
+  const emailVerifyCodeHandler = async () => {
+    try {
+      if (watch("email") === "") {
+        Swal.fire({
+          icon: "warning",
+          text: "이메일을 입력하세요.",
+        });
+      } else {
+        const result = await axios.get(
+          `http://localhost:8000/users/sendEmail/?email=${watch(
+            "email"
+          )}&phoneNumber=${watch("phone")}`
+        );
+        if (result.status === 200) {
+          setEmailVerifyInput(true);
+          Swal.fire({
+            icon: "success",
+            text: "인증코드가 발송되었습니다. 이메일을 확인해주세요.",
+          });
+        }
+      }
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        text: `${error.message}`,
+      });
+    }
+  };
+
+  // 이메일 인증코드
+  const emailVerifyHandler = async () => {
+    try {
+      const result = await axios.post(
+        "http://localhost:8000/users/checkEmail",
+        {
+          email: watch("email"),
+          code: verifyCode,
+        }
+      );
+      if (result.status === 200) {
+        Swal.fire({
+          icon: "success",
+          text: "인증이 완료되었습니다. 비밀번호를 변경해주세요.",
+        }).then(() => navigate(`/reset/password/${watch("email")}`));
+      }
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        text: `${error.message}`,
+      });
+    }
+  };
+
+  // 문자 인증코드 발송
+  const smsVerifyCodeHandler = async () => {
+    try {
+      if (watch("phone_number") === "") {
+        Swal.fire({
+          icon: "warning",
+          text: "핸드폰 번호를 입력하세요.",
+        });
+      } else {
+        const result = await axios.get(
+          `http://localhost:8000/users/sendSms/?email=${watch(
+            "email"
+          )}&phoneNumber=${watch("phone")}`
+        );
+        if (result.status === 200) {
+          setPhoneVerifyInput(true);
+          Swal.fire({
+            icon: "success",
+            text: "인증코드가 발송되었습니다. 핸드폰을 확인해주세요.",
+          });
+        }
+      }
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        text: `${error.message}`,
+      });
+    }
+  };
+
+  // 문자 인증코드
+  const smsVerifyHandler = async () => {
+    try {
+      const result = await axios.post("http://localhost:8000/users/checkSms", {
+        phone_number: watch("phone"),
+        code: verifyCode,
+      });
+      if (result.status === 200) {
+        Swal.fire({
+          icon: "success",
+          text: "인증이 완료되었습니다. 비밀번호를 변경해주세요.",
+        }).then(() => navigate(`/reset/password/${watch("email")}`));
+      }
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        text: `${error.message}`,
+      });
+    }
+  };
+
+  const onValid = () => {
+    // DON'T ERASE
+    // 현 페이지의 폼은 기존과 다르게 사용됨.
+    // 제출 버튼이 존재하지만 폼의 내용을 제출하는 것이 아니라 이메일 및 핸드폰 인증 관련 기능을 담당함
   };
 
   return (
-    <div className="mt-16 py-10 max-w-3xl mx-auto bg-slate-900">
-      <div className="max-w-xl mx-auto mb-16">
-        <button className="w-8 h-8 flex justify-center items-center rounded-lg bg-violet-600 hover:bg-violet-700 shadow-md">
-          <svg
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={2.5}
-            stroke="currentColor"
-            className="w-5 h-5 text-slate-100"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"
-            />
-          </svg>
-        </button>
-        <h1 className="text-center text-yellow-500 text-3xl font-bold select-none">
-          비밀번호 찾기
-        </h1>
-      </div>
-
-      <div className="mx-auto mb-12 space-y-6 flex flex-col items-center max-w-xl">
-        <h3 className="text-xl text-slate-100 font-semibold">인증방법</h3>
-        <div className="space-x-20">
+    <div className="w-full px-10 my-40 flex flex-col items-center tablet:px-16 tablet:my-64 select-none">
+      <FormHeader title="비밀번호 찾기" />
+      <div className="mx-auto mb-12 space-y-6 flex flex-col items-center max-w-xl tablet:mb-16 tablet:space-y-10 desktop:mb-20">
+        <h3 className="text-lg font-semibold tablet:text-2xl">인증방법</h3>
+        <div className="space-x-8 tablet:space-x-16 desktop:space-x-24">
           <button
             onClick={() => {
               setVerifyMethod("email");
               setValue("phone", "");
             }}
             className={cls(
-              "text-sm font-semibold px-4 py-1 rounded-full shadow-xl hover:scale-105",
+              "px-2 py-1 rounded-full shadow-lg text-xs font-medium hover:scale-105 tablet:px-4 tablet:text-sm tablet:font-semibold",
               verifyMethod === "email"
-                ? "text-slate-100 bg-violet-700"
-                : " text-slate-100 bg-violet-400"
+                ? "text-slate-100 bg-yellow-500"
+                : " text-slate-100 bg-black"
             )}
           >
             이메일
@@ -82,308 +171,64 @@ function ForgotPassword() {
               setValue("email", "");
             }}
             className={cls(
-              "text-sm font-semibold px-4 py-1 rounded-full shadow-xl hover:scale-105",
+              "px-2 py-1 rounded-full shadow-lg text-xs font-medium hover:scale-105 tablet:px-4 tablet:text-sm tablet:font-semibold",
               verifyMethod === "phone"
-                ? "text-slate-100 bg-violet-700"
-                : "text-slate-100 bg-violet-400"
+                ? "text-slate-100 bg-yellow-500"
+                : "text-slate-100 bg-black"
             )}
           >
             핸드폰
           </button>
         </div>
       </div>
-
       <form
         onSubmit={handleSubmit(onValid)}
-        className="flex flex-col items-center space-y-16"
+        className="w-full space-y-8 tablet:w-3/5 desktop:w-1/2"
       >
-        <div className="flex flex-col space-y-4">
-          <label className="text-lg text-slate-100 font-bold select-none">
-            이메일
-          </label>
-
+        <div className="flex flex-col space-y-1 tablet:space-y-2 desktop:space-y-3">
+          <Title title="이메일" />
           <div className="relative">
-            <input
+            <Input
+              register={register}
+              id="email"
+              message="이메일"
               type="text"
-              {...register("email", { required: "이메일을 입력하세요" })}
-              className="w-80 px-3 pb-1 text-sm text-slate-100 bg-transparent border-b-2 focus:border-b-[3px] border-b-slate-300 focus:outline-none"
             />
-            {/* 🟢 입력값삭제 버튼 */}
-            <div className="flex items-center space-x-3 absolute right-3 top-1.5">
-              <div
-                onClick={() => !emailDisabled && setValue("email", "")}
-                className="cursor-pointer select-none"
-              >
-                <svg
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={2}
-                  stroke="currentColor"
-                  className="w-3 h-3 text-slate-300"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-              </div>
-            </div>
+            <EraseContentBtn setValue={setValue} id="email" />
           </div>
-          {/* 🟢 이메일 검증코드 제출하기 버튼 */}
+          <ErrorMessage error={errors.email} />
         </div>
-
-        <div className="flex flex-col space-y-4">
-          <label className="text-lg text-slate-100 font-bold select-none">
-            핸드폰 번호
-          </label>
-
+        <div className="flex flex-col space-y-1 tablet:space-y-2 desktop:space-y-3">
+          <Title title="핸드폰 번호" />
           <div className="relative">
-            <input
+            <Input
+              register={register}
+              id="phone"
+              message="핸드폰 번호"
               type="text"
-              {...register("phone", { required: "핸드폰 번호를 입력하세요" })}
-              className="w-80 px-3 pb-1 text-sm text-slate-100 bg-transparent border-b-2 focus:border-b-[3px] border-b-slate-300 focus:outline-none"
             />
-            {/* 🟠 핸드폰 번호 */}
-            {/* 🟢 검증 버튼 & 입력값삭제 버튼 & 이메일 검증 여부 표시 */}
-            {verifyMethod === "phone" && (
-              <div>
-                <div className="flex items-center space-x-3 absolute right-3 -top-0.5">
-                  <div
-                    onClick={() => {
-                      setPhoneVerifyInput(true);
-                      setPhoneDisabled(true);
-                      axios
-                        .get(
-                          `http://localhost:8000/users/sendSms/?email=${watch(
-                            "email"
-                          )}&phoneNumber=${watch("phone")}`
-                        )
-                        .then(result => alert(result.data.message));
-                    }}
-                    className="cursor-pointer select-none hover:scale-110"
-                  >
-                    <svg
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      strokeWidth={2}
-                      stroke="currentColor"
-                      className="w-5 h-5 text-slate-300"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
-                      />
-                    </svg>
-                  </div>
-                  <div
-                    onClick={() => !phoneDisabled && setValue("phone", "")}
-                    className="cursor-pointer select-none"
-                  >
-                    <svg
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      strokeWidth={2}
-                      stroke="currentColor"
-                      className="w-3 h-3 text-slate-300"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M6 18L18 6M6 6l12 12"
-                      />
-                    </svg>
-                  </div>
-                  {!emailVerified ? (
-                    <div className="w-5 h-5 flex justify-center items-center text-xs text-red-500 font-medium rounded-full">
-                      <svg
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        strokeWidth={1.5}
-                        stroke="currentColor"
-                        className="w-5 h-5"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                        />
-                      </svg>
-                    </div>
-                  ) : (
-                    <div className="flex justify-center items-center text-xs text-green-500 font-medium rounded-full">
-                      <svg
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        strokeWidth={2}
-                        stroke="currentColor"
-                        className="w-5 h-5"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                        />
-                      </svg>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
+            <EraseContentBtn setValue={setValue} id="phone" />
           </div>
-          {/* 🟢 핸드폰 번호 검증코드 제출하기 버튼 */}
-          {phoneVerifyInput && (
-            <div className="flex space-x-2">
-              <div className="flex justify-center items-center px-2 text-xs font-medium text-slate-500 rounded-md">
-                인증코드
-              </div>
-              <input
-                type="text"
-                onChange={e => setPhoneVerifyCode(e.target.value)}
-                className="px-3 border-b-2 border-b-slate-500 w-1/3 focus:outline-none text-xs text-slate-400 font-medium"
-              />
-              <div
-                onClick={async () => {
-                  try {
-                    const data = await axios.post(
-                      "http://localhost:8000/users/checkSms",
-                      {
-                        email: watch("phone"),
-                        code: emailVerifyCode,
-                      }
-                    );
-                    if (data.status === 200) {
-                      setPhoneVerifyBtns(false);
-                      setPhoneVerifyInput(false);
-                      setPhoneVerified(true);
-                      alert("인증이 완료되었습니다");
-                    }
-                  } catch (error) {
-                    alert("인증을 진행할 수 없습니다", error.toString());
-                  }
-                }}
-                className="flex justify-center items-center w-4 h-4 text-slate-400 hover:text-white hover:bg-slate-400 rounded-full cursor-pointer"
-              >
-                <svg
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={2}
-                  stroke="currentColor"
-                  className="w-3 h-3"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"
-                  />
-                </svg>
-              </div>
-            </div>
-          )}
+          <ErrorMessage error={errors.phone} />
         </div>
-
         {verifyMethod === "email" ? (
-          <div>
-            {/* 로직
-              1) 검증버튼 누르면 인증코드 입력란이 보여지고
-              2) 검증버튼은 사라진다
-            */}
-            {emailVerifyInput && (
-              <div className="flex space-x-2">
-                <div className="flex justify-center items-center px-2 text-xs font-medium text-slate-500 rounded-md">
-                  인증코드
-                </div>
-                <input
-                  type="text"
-                  onChange={e => setEmailVerifyCode(e.target.value)}
-                  className="px-3 border-b-2 border-b-slate-500 w-1/3 focus:outline-none text-xs text-slate-400 font-medium"
-                />
-                <div
-                  onClick={async () => {
-                    try {
-                      const data = await axios.post(
-                        "http://localhost:8000/users/checkEmail",
-                        {
-                          email: watch("email"),
-                          code: emailVerifyCode,
-                        }
-                      );
-                      if (data.status === 200) {
-                        Swal.fire({
-                          icon: "success",
-                          text: "인증이 완료되었습니다. 비밀번호 변경 페이지로 이동합니다.",
-                        }).then(() => navigate("/reset/password"));
-                        // 잘못된 인증코드를 입력한다면??????
-                      }
-                    } catch (error) {
-                      Swal.fire({
-                        icon: "error",
-                        text: "올바르지 않은 인증코드입니다.",
-                      });
-                    }
-                  }}
-                  className="flex justify-center items-center w-4 h-4 text-slate-400 hover:text-white hover:bg-slate-400 rounded-full cursor-pointer"
-                >
-                  <svg
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={2}
-                    stroke="currentColor"
-                    className="w-3 h-3"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"
-                    />
-                  </svg>
-                </div>
-              </div>
-            )}
-            {emailVerifyBtn && (
-              <div
-                onClick={async () => {
-                  try {
-                    await axios.get(
-                      `http://localhost:8000/users/sendEmail/?email=${watch(
-                        "email"
-                      )}&phoneNumber=${watch("phone")}`
-                    );
-                    setEmailVerifyInput(true);
-                    setEmailDisabled(true);
-                    setEmailVerifyBtn(false);
-                    Swal.fire({
-                      icon: "success",
-                      text: "입력하신 이메일로 인증코드가 발송되었습니다.",
-                    });
-                  } catch (error) {
-                    Swal.fire({
-                      icon: "error",
-                      text: "인증을 진행할 수 없습니다. 입력하신 정보를 확인해주세요.",
-                    });
-                  }
-                }}
-                className="flex justify-center items-center p-2 bg-violet-700 hover:scale-105 rounded-full cursor-pointer"
-              >
-                <svg
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={2.5}
-                  stroke="currentColor"
-                  className="w-5 h-5 text-slate-100"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
-                  />
-                </svg>
-              </div>
-            )}
-          </div>
-        ) : null}
+          <Button
+            clickHandler={emailVerifyCodeHandler}
+            message="인증코드 발송"
+          />
+        ) : (
+          <Button clickHandler={smsVerifyCodeHandler} message="인증코드 발송" />
+        )}
       </form>
+      <VerifyInputs
+        verifyInput={
+          verifyMethod === "email" ? emailVerifyInput : phoneVerifyInput
+        }
+        setVerifyCode={setVerifyCode}
+        verifyHandler={
+          verifyMethod === "email" ? emailVerifyHandler : smsVerifyHandler
+        }
+      />
     </div>
   );
 }

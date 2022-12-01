@@ -116,7 +116,7 @@ module.exports = class User extends Sequelize.Model {
         db.User.hasMany(db.Chat, {
             foreignKey: 'receiverNickname',
             as: 'Receiver',
-        })
+        });
         db.User.hasMany(db.Message, {
             foreignKey: 'senderNickname',
             as: 'OutgoingMessages'
@@ -124,6 +124,8 @@ module.exports = class User extends Sequelize.Model {
         db.User.hasMany(db.Message, {
             foreignKey: 'receiverNickname',
             as: 'IncomingMessages'
-        })
+        });
+        db.User.hasOne(db.Comment);
+
     }
 };

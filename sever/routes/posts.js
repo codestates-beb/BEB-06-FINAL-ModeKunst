@@ -4,17 +4,17 @@ const { postsController } = require("../controllers");
 const { isLoggedIn, isNotLoggedIn } = require("../middleware/auth");
 
 // 배너 & 상단 게시물
-router.get('/other', postsController.board.other);
+router.get("/other", postsController.board.other);
 
 // 전체 게시물
 router.get("/main", postsController.board.main);
 
 // 게시물 작성
 router.post(
-    "/board",
-    isLoggedIn,
-    post_upload.array("image"),
-    postsController.post.post
+  "/board",
+  isLoggedIn,
+  post_upload.array("image"),
+  postsController.post.post
 );
 
 // 게시글 수정창
@@ -55,5 +55,13 @@ router.get("/search/:name", postsController.search.search);
 
 //리뷰 목록
 router.get("/review/:postId", postsController.review.get);
+
+//래플 댓글 달기
+router.post('/noticecomment/:noticeId',isLoggedIn,postsController.noticeComment.post);
+//래플 댓글 전체 가져오기
+router.get('/noticecomment/:noticeId',postsController.noticeComment.get);
+//래플 댓글 수정하기
+router.put('/noticecomment/:noticeId',isLoggedIn,postsController.noticeComment.put);
+
 
 module.exports = router;

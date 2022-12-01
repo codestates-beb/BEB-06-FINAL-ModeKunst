@@ -14,6 +14,7 @@ module.exports = {
 
     //수정할 내용들
     const new_profile_img = req.file?.path; //새파일
+
     const new_path = `http://${host}/${new_profile_img}`;// 새파일 경로
     const { nickname, phone_number, height, weight, gender, sns_url } =req.body;
     //기존의 내용과 새로운 내용들 비교 하나라도 틀리면 바로 수정

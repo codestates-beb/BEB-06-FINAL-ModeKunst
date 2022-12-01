@@ -35,7 +35,7 @@ router.get("/emailfind/:nickname/:phonenumber", usersController.find.email);
 router.get("/pwfind/:email/:phonenumber", usersController.find.password);
 
 //로그인
-router.post("/login",  usersController.login.post);
+router.post("/login", usersController.login.post);
 
 //보유 토큰, 포인트 양
 router.get("/tokens/:nickname", isLoggedIn, usersController.tokens.get);
@@ -55,7 +55,6 @@ router.get("/mypage/:nickname", usersController.mypage.get);
 // 유저 정보 수정
 router.post(
   "/update",
-  isLoggedIn,
   profile_upload.single("profile_image"),
   usersController.update.post
 );

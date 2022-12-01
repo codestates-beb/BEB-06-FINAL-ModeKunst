@@ -1,107 +1,78 @@
-import axios from "axios";
-import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
+import { useForm } from "react-hook-form";
 import Swal from "sweetalert2";
+import axios from "axios";
+import {
+  Button,
+  EraseContentBtn,
+  FormHeader,
+  Input,
+  Title,
+} from "../components/form";
 
 function ForgotEmail() {
-  const { register, handleSubmit, watch } = useForm();
-  const [targetEmail, setTargetEmail] = useState("");
+  const { register, handleSubmit, setValue, reset, watch } = useForm();
   const navigate = useNavigate();
-
-  useEffect(() => {
-    targetEmail &&
-      Swal.fire({
-        icon: "success",
-        text: `${targetEmail}`,
-      }).then(() => navigate("/login"));
-  }, [targetEmail, navigate]);
 
   const onValid = async data => {
     try {
-      const result = await axios.get(
+      const {
+        data: {
+          data: { email },
+        },
+      } = await axios.get(
         `http://localhost:8000/users/emailFind/${watch("nickname")}/${watch(
           "phone_number"
         )}`
       );
-      setTargetEmail(result.data.data.email);
+      Swal.fire({
+        icon: "success",
+        text: `${watch("nickname")}님의 이메일은 ${email} 입니다.`,
+      }).then(() => {
+        reset();
+        navigate("/login");
+      });
     } catch (error) {
       Swal.fire({
         icon: "error",
-        text: "이메일을 찾을 수 없습니다. 확인후 다시 시도해주세요.",
+        text: "이메일을 찾을 수 없습니다. 확인 후 다시 시도해주세요.",
       });
     }
   };
 
   return (
-    <div className="mt-16 max-w-3xl mx-auto">
-      <div className="max-w-xl mx-auto mb-32">
-        <button
-          className="w-8 h-8 flex justify-center items-center rounded-lg bg-slate-100 hover:bg-slate-900 hover:text-white shadow-md"
-          onClick={() => navigate(-1)}
-        >
-          <svg
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={2}
-            stroke="currentColor"
-            className="w-5 h-5"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"
-            />
-          </svg>
-        </button>
-        <h1 className="text-center font-bold text-slate-900 text-3xl">
-          이메일 찾기
-        </h1>
-      </div>
-
+    <div className="w-full px-10 my-40 flex flex-col items-center tablet:px-16 tablet:my-64 select-none">
+      <FormHeader title="이메일 찾기" />
       <form
         onSubmit={handleSubmit(onValid)}
-        className="flex flex-col items-center space-y-16"
+        className="w-full space-y-8 tablet:w-3/5 desktop:w-1/2"
       >
-        <div className="flex flex-col space-y-4">
-          <label className="text-lg text-slate-900 font-bold select-none">
-            닉네임
-          </label>
-          <input
-            type="text"
-            {...register("nickname")}
-            className="w-72 px-3 pb-1 text-sm border-b-2 focus:border-b-[3px] border-b-slate-800 focus:outline-none"
-          />
-        </div>
-
-        <div className="flex flex-col space-y-4">
-          <label className="text-lg text-slate-900 font-bold select-none">
-            핸드폰번호
-          </label>
-          <div>
-            <input
+        <div className="flex flex-col space-y-1 tablet:space-y-2 desktop:space-y-3">
+          <Title title="닉네임" />
+          <div className="relative">
+            <Input
+              register={register}
+              id="nickname"
               type="text"
-              {...register("phone_number")}
-              className="w-72 px-3 pb-1 text-sm border-b-2 focus:border-b-[3px] border-b-slate-800 focus:outline-none"
+              message="닉네임"
             />
+            <EraseContentBtn setValue={setValue} id="nickname" />
           </div>
         </div>
-
-        <button className="flex justify-center items-center p-2 text-white bg-slate-800 hover:scale-105 rounded-full select-none">
-          <svg
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={2}
-            stroke="currentColor"
-            className="w-5 h-5"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
+        <div className="flex flex-col space-y-1 tablet:space-y-2 desktop:space-y-3">
+          <Title title="핸드폰 번호" />
+          <div className="relative">
+            <Input
+              register={register}
+              id="phone_number"
+              type="text"
+              message="핸드폰 번호"
+              placeholder="-를 제외하고 입력해주세요"
             />
-          </svg>
-        </button>
+            <EraseContentBtn setValue={setValue} id="phone_number" />
+          </div>
+        </div>
+        <Button message="검색" />
       </form>
     </div>
   );
