@@ -4,11 +4,12 @@ import { convert } from "../../store/screenMode";
 import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import cls from "../../utils/setClassnames";
-import SearchBar from "./SearchBar";
-import Swal from "sweetalert2";
-import logo from "../../assets/modekunst.png";
 import axios from "axios";
+import Swal from "sweetalert2";
+import NavMenu from "./NavMenu";
+import SearchBar from "./SearchBar";
+import logo from "../../assets/modekunst.png";
+import cls from "../../utils/setClassnames";
 
 const tokenVariants = {
   initial: { opacity: 0, y: -3, transition: { duration: 0.15 } },
@@ -150,30 +151,6 @@ export default function Header() {
             onClick={toggleMenuHandler}
             className="px-1.5 hover:scale-110 cursor-pointer tablet:text-xl"
           >
-            <Link to="/">HOME</Link>
-          </li>
-          <li
-            onClick={toggleMenuHandler}
-            className="px-1.5 hover:scale-110 cursor-pointer tablet:text-xl"
-          >
-            <Link to="/write">WRITE</Link>
-          </li>
-          <li
-            onClick={toggleMenuHandler}
-            className="px-1.5 hover:scale-110 cursor-pointer tablet:text-xl"
-          >
-            <Link to={`/user/${loggedInUserInfo.nickname}`}>MYPAGE</Link>
-          </li>
-          <li
-            onClick={toggleMenuHandler}
-            className="px-1.5 hover:scale-110 cursor-pointer tablet:text-xl"
-          >
-            <Link>CHAT</Link>
-          </li>
-          <li
-            onClick={toggleMenuHandler}
-            className="px-1.5 hover:scale-110 cursor-pointer tablet:text-xl"
-          >
             <button onClick={() => setIsSearchModal(true)}>
               <svg
                 fill="none"
@@ -190,6 +167,19 @@ export default function Header() {
               </svg>
             </button>
           </li>
+          {[
+            { section: "NOTICE", to: "/" },
+            { section: "WRITE", to: "/write" },
+            { section: "MYPAGE", to: `/user/${loggedInUserInfo.nickname}` },
+            { section: "CHAT", to: "/chat" },
+          ].map((item, idx) => (
+            <NavMenu
+              key={idx}
+              to={item.to}
+              section={item.section}
+              handler={toggleMenuHandler}
+            />
+          ))}
         </ul>
         {/* 로그인 & 회원가입 */}
         {isLoggedIn ? (
@@ -286,7 +276,7 @@ export default function Header() {
       </div>
 
       {isSearchModal && (
-        <SearchBar ref={searchModalRef} closeModal={setIsSearchModal} />
+        <SearchBar innerRef={searchModalRef} closeModal={setIsSearchModal} />
       )}
     </nav>
   );
