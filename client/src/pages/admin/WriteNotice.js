@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { useSelector } from "react-redux";
@@ -43,7 +43,6 @@ function WriteNotice() {
 
     reader.onloadend = () => {
       console.log(reader);
-      console.log(reader.result);
       const previewImgUrl = reader.result;
       if (previewImgUrl) {
         setImagePreview([...imagePreview, previewImgUrl]);
@@ -96,55 +95,47 @@ function WriteNotice() {
   //🟠onSubmit 시에 데이터 유효하면 실행되는 함수
   const onValid = data => {
     console.log(data);
-    if (multipleImages?.length < 3) {
-      Swal.fire({
-        icon: "info",
-        text: "사진은 3장 이상 업로드해주세요.",
-      });
-    } else {
-      try {
-        const formData = new FormData();
-        const { title, contents, top_brand } = data;
+    try {
+      const formData = new FormData();
+      const { title, contents, token_price } = data;
+      console.log(multipleImages);
+      const image_1 = multipleImages[0];
+      const image_2 = multipleImages[1];
+      const image_3 = multipleImages[2];
+      const image_4 = multipleImages[3];
+      const image_5 = multipleImages[4];
 
-        console.log(top_brand);
+      formData.append("title", title);
+      formData.append("content", contents);
+      formData.append("token_price", token_price);
+      formData.append("notice_image", image_1);
+      formData.append("notice_image", image_2);
+      formData.append("notice_image", image_3);
+      formData.append("notice_image", image_4);
+      formData.append("notice_image", image_5);
 
-        const image_1 = multipleImages[0];
-        const image_2 = multipleImages[1];
-        const image_3 = multipleImages[2];
-        const image_4 = multipleImages[3];
-        const image_5 = multipleImages[4];
-
-        formData.append("title", title);
-        formData.append("content", contents);
-        formData.append("image", image_1);
-        formData.append("image", image_2);
-        formData.append("image", image_3);
-        formData.append("image", image_4);
-        formData.append("image", image_5);
-
-        axios
-          .post("http://localhost:8000/posts/board", formData, {
-            withCredentials: true,
-          })
-          .then(result => {
-            const data = result.data;
-            console.log(formData);
-            Swal.fire({
-              icon: "success",
-              text: `${data.message}`,
-            });
-            navigate(`/post/${data.data.postId}`);
-          })
-          .catch(e => {
-            console.log(e);
-            Swal.fire({
-              icon: "info",
-              text: "업로드에 실패했습니다.",
-            });
+      axios
+        .post("http://localhost:8000/admin/notice", formData, {
+          withCredentials: true,
+        })
+        .then(result => {
+          const data = result.data;
+          console.log(data);
+          Swal.fire({
+            icon: "success",
+            text: `${data.message}`,
           });
-      } catch (e) {
-        console.log(e);
-      }
+          navigate(`/notice/${data.data.noticeId}`);
+        })
+        .catch(e => {
+          console.log(e);
+          Swal.fire({
+            icon: "info",
+            text: "업로드에 실패했습니다.",
+          });
+        });
+    } catch (e) {
+      console.log(e);
     }
   };
 
@@ -157,7 +148,7 @@ function WriteNotice() {
     navigate("/");
   } else {
     return (
-      <div className="mt-64 flex flex-col items-center">
+      <div className="mt-48 flex flex-col items-center">
         <h1 className="text-3xl font-bold text-center font-title">
           공지 / 래플 작성
         </h1>
@@ -229,7 +220,6 @@ function WriteNotice() {
                         accept="image/*"
                         className="hidden"
                         onChange={uploadImageHandler}
-                        required
                       />
                       <span className="text-xs text-red-500 font-semibold">
                         {errors?.image?.message}
@@ -246,14 +236,16 @@ function WriteNotice() {
                   필요한 MODE 토큰
                 </label>
                 <input
-                  {...register("title")}
-                  type="text"
-                  placeholder="토큰 양을 입력해주세요."
+                  {...register("token_price", {
+                    required: "래플이 아닌 일반 공지인 경우 0을 기재해주세요.",
+                  })}
+                  type="token_price"
+                  defaultValue="0"
                   className="border-2 border-black rounded-md"
                 />
               </div>
               <div className="text-xs text-red-500 font-semibold">
-                {errors?.title?.message}
+                {errors?.token_price?.message}
               </div>
               <button
                 type="submit"
