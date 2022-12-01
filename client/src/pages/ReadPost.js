@@ -16,6 +16,9 @@ function ReadPost() {
   // 전역 state
   const { id } = useParams();
   const userInfo = useSelector(state => state.user);
+  const { isAdmin, nickname: adminNickname } = useSelector(
+    state => state.admin
+  );
   const navigate = useNavigate();
 
   // 포스트, 리뷰 관련 state
@@ -457,7 +460,7 @@ function ReadPost() {
             </button>
           </div>
           {/* 🟠fashion info */}
-          {isOwner || isLike || isFollow ? (
+          {isOwner || isLike || isFollow || isAdmin ? (
             <div>
               {brand && (
                 <div>
@@ -543,11 +546,9 @@ function ReadPost() {
                         <div className="ml-2">사이즈 {size.shoes}</div>
                       </div>
                     </div>
-                    <div>
-                      <div className="m-auto align-middle py-4 text-sm font-bold fixed top-0 right-0 bottom-0 left-0 w-60 h-12 rounded-md text-center bg-white">
-                        좋아요를 누르고 정보를 확인해보세요!
-                        <div className="w-full h-full bg-cyan-200 rounded-b-md"></div>
-                      </div>
+                    <div className="fixed m-auto align-middle py-4 text-sm font-bold top-0 right-0 bottom-0 left-0 w-60 h-12 rounded-md text-center bg-white">
+                      좋아요를 누르고 정보를 확인해보세요!
+                      <div className="w-full h-full bg-cyan-200 rounded-b-md"></div>
                     </div>
                   </div>
                 </div>
@@ -562,7 +563,7 @@ function ReadPost() {
             </span>
           </div>
           <div className="w-96 px-2 py-2 flex flex-col bg-slate-300 border-2 border-black rounded-md">
-            {userInfo.isLoggedIn ? (
+            {userInfo.isLoggedIn || isAdmin ? (
               <div>
                 {/*
                     isOwner = 포스트 작성한 유저 판단 기준
@@ -575,13 +576,16 @@ function ReadPost() {
                 {isOwner ? null : haveReview ? null : (
                   <div className="flex flex-col">
                     <div className="flex flex-row">
-                      <img
-                        className="w-6 h-6 rounded-full"
-                        alt="loggedin_user_profile"
-                        src={userInfo.userInfo.profile_img}
-                      />
+                      {userInfo.isLoggedIn && (
+                        <img
+                          className="w-6 h-6 rounded-full"
+                          alt="loggedin_user_profile"
+                          src={userInfo.userInfo.profile_img}
+                        />
+                      )}
                       <div className="font-bold">
-                        {userInfo.userInfo.nickname}
+                        {userInfo.isLoggedIn && userInfo.userInfo.nickname}
+                        {isAdmin && adminNickname}
                       </div>
                     </div>
                     <input
