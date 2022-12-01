@@ -77,7 +77,7 @@ export default function Header() {
           text: "로그아웃 되었습니다",
         });
         toggleMenuHandler();
-        dispatch(logout(nickname));
+        dispatch(logout(loggedInUserInfo.nickname));
         navigate("/");
       }
     });
@@ -140,7 +140,7 @@ export default function Header() {
             onClick={toggleMenuHandler}
             className="px-1.5 hover:scale-110 cursor-pointer"
           >
-            <Link>CHAT</Link>
+            <Link to={'/chat'}>CHAT</Link>
           </li>
           <li
             onClick={toggleMenuHandler}

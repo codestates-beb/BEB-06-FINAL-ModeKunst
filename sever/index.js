@@ -8,7 +8,7 @@ const fs = require("fs");
 const indexRouter = require("./routes/index");
 const { sequelize } = require("./models");
 const { insertServerAddress, deploy20, deploy721 } = require("./contract/Web3");
-const { create, createOrEnter, find, send, join } = require("./socket/chatRoom");
+const { create, createOrEnter, find, send, join, leave } = require("./socket/chatRoom");
 
 const app = express();
 const port = 8000;
@@ -51,6 +51,7 @@ sequelize
     });
 app.use("/profile_img", express.static("profile_img"));
 app.use("/post_img", express.static("post_img"));
+app.use("/banner_img", express.static("banner_img"));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -125,22 +126,29 @@ io.on("connection", socket => {
         console.log(socket.adapter.rooms);
     });
 
+    //DM
     socket.on('createOrEnter', (data) => {
         const { sender, receiver } = data;
+        // 먼저 DM 보낸 사람이랑 받는 사람으로 DB에 방이 있는지 확인 후 데이터 값 클라이언트에 전달
+        // 1. 방이 있으면 전에 있던 데이터와 방 ID
+        // 2. 방이 없으면 방 생성 후 받는사람 강제 join
         createOrEnter(sender, receiver).then((result) => {
             console.log(socket.adapter.rooms);
             if(result?.messages){
                 Id = (result.chatRoom).toString();
                 socket.join(Id);
-                io.to(Id).emit('roomData', { room: result.chatRoom, messages: result.messages });
+                io.to(sender).emit('roomData', { room: result.chatRoom, messages: result.messages });
             }else{
-                Id = (result.room.id).toString();
-                Room = result.room;
-                let receiver = (result.room.name);
-                socket.join(Id);
-                io.in(receiver).socketsJoin(Id);
-                io.to(Nickname).emit('updateRooms', result?.room);
-                //io.to(receiver).emit('updateRooms', result?.room);
+                Id = (result?.room.id)
+                if(Id){
+                    Id = result.room.id.toString();
+                    Room = result.room;
+                    let receiver = (result.room.name);
+                    socket.join(Id);
+                    io.in(receiver).socketsJoin(Id);
+                    io.to(sender).emit('updateRooms', result?.room);
+                    //io.to(receiver).emit('updateRooms', result?.room);
+                }
             }
         });
     });
@@ -152,7 +160,7 @@ io.on("connection", socket => {
         join(roomId, nickname, receiver).then((messages) => {
             Id = (roomId).toString();
             socket.join(Id);
-            io.to(Id).emit('roomData', messages);
+            io.to(nickname).emit('roomData', messages);
         });
     });
 
@@ -166,18 +174,24 @@ io.on("connection", socket => {
                 io.to(receiver).emit('updateRooms', Room);
                 Room = null;
             }
+            if(socket.adapter.rooms.get(Id).size === 1){
+                io.to(receiver).emit('updateChatData', msg);
+            }
             io.to(Id).emit('updateChatData', msg);
         });
     });
 
-    socket.on('leave', (roomId) => {
-        console.log(`${roomId} 방을 을 나갔습니다.`)
-        socket.leave(roomId);
+    socket.on('leave', (data) => {
+        console.log(data);
+        const { joinRoom, nickname, receiver } = data;
+        leave(joinRoom, nickname, receiver).then((result) => {
+            console.log(result);
+            console.log(socket.adapter.rooms);
+            console.log(nickname);
+            io.to(nickname).emit('deleteRoom', result);
+        })
+        console.log(`${joinRoom} 방을 을 나갔습니다.`);
+        socket.leave(joinRoom);
     });
 
-    // socket.on('findRooms', (nickname) => {
-    //     find(nickname).then((chatRooms) => {
-    //         io.emit('myRooms', chatRooms);
-    //     });
-    // })
 });
