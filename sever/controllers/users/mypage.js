@@ -132,4 +132,27 @@ module.exports = {
       console.log(err);
     }
   },
+
+  updatePage: async (req, res) => {
+    const nickname = req.session.user?.nickname;
+
+    if(nickname){
+      const user_info = await User.findOne({
+        attributes: ['nickname', 'profile_img', 'phone_number', 'height', 'weight', 'gender', 'sns_url'],
+        where: { nickname: nickname },
+        raw: true
+      });
+
+      res.status(200).json({
+        message: `${nickname}님의 정보`,
+        data: {
+          user_info
+        }
+      });
+    }else{
+     res.status(401).json({
+       message: '로그인 이후 사용 가능합니다.'
+     })
+    }
+  }
 };
