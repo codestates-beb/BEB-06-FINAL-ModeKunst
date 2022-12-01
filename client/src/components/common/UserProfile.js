@@ -4,21 +4,18 @@ import { select } from "../../store/selectedSection";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, Outlet, useParams, useNavigate } from "react-router-dom";
-
-function cls(...classnames) {
-  return classnames.join(" ");
-}
+import cls from "../../utils/setClassnames";
 
 export default function UserProfile() {
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const userInfo = useSelector(state => state.user);
-
+  const { userInfo: loggedInUser, isLoggedIn } = useSelector(
+      state => state.user
+  );
   const selectedSection = useSelector(
       state => state.selectedSection
   ).selectedSection;
-
-  const nickname = useParams().nickname;
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { nickname } = useParams();
   const [user, setUsers] = useState("");
   const [followAmount, setFollowAmount] = useState("");
   const [posts, setPosts] = useState("");
@@ -27,6 +24,7 @@ export default function UserProfile() {
   const [followings, setFollowings] = useState("");
   const [isFollow, setIsFollow] = useState();
 
+  // 📍 result가 안 받아와져
   useEffect(() => {
     async function fetchData() {
       try {
@@ -34,6 +32,7 @@ export default function UserProfile() {
             `http://localhost:8000/users/mypage/${nickname}`,
             { withCredentials: true }
         );
+        console.log(result);
         const {
           user,
           follow_amount,
@@ -62,6 +61,9 @@ export default function UserProfile() {
     fetchData();
   }, [nickname]);
 
+  console.log(user);
+  console.log(nickname);
+
   const followUser = () => {
     axios
         .post(`http://localhost:8000/users/${nickname}/follow`, {
@@ -89,27 +91,25 @@ export default function UserProfile() {
   };
 
   return (
-      <div className="select-none min-w-[900px]">
+      <div className="w-full px-10 my-40 flex flex-col items-center tablet:px-16 tablet:my-64 select-none">
         <div className="mt-16 px-20 py-14 max-w-5xl mx-auto shadow-xl rounded-3xl">
           <div className="flex space-x-20">
             <div>
               <img
                   alt="profile_image"
+                  // 📍 user <-> loggedInUser 흠...
                   src={user.profile_img}
                   className="w-56 h-56 object-cover bg-slate-200 shadow-lg rounded-full"
               />
             </div>
             <div className="flex flex-col justify-evenly py-8 flex-1">
               <div className="space-y-4">
-                <div className="text-3xl font-semibold">{user.nickname}</div>
-                {
-                  userInfo.userInfo.nickname === nickname ?
-                      null
-                      :
-                      <Link to={"/chat"} state={user.nickname}>
-                        <button>채팅</button>
-                      </Link>
-                }
+                <div className="text-3xl font-semibold">{nickname}</div>
+                {loggedInUser.nickname === nickname ? null : (
+                    <Link to={"/chat"} state={user.nickname}>
+                      <button>채팅</button>
+                    </Link>
+                )}
                 <div className="mt-1 flex space-x-2 text-xs">
                   <div className="px-1 py-0.5 bg-blue-300 font-semibold rounded-full">
                     선크림사야돼
@@ -133,13 +133,13 @@ export default function UserProfile() {
                 </div>
                 <div className="mt-1">
                 <span className="text-xs font-semibold px-1 py-0.5 bg-slate-300 rounded-full">
-                  {followAmount}
+                  팔로워 {followAmount > 0 ? followAmount : 0}
                 </span>
                 </div>
               </div>
             </div>
             <div className="my-auto">
-              {userInfo.userInfo.nickname === nickname ? null : isFollow ? (
+              {loggedInUser.nickname === nickname ? null : isFollow ? (
                   <button
                       className="text-base font-semibold text-yellow-400 hover:text-violet-500 py-1 px-2 bg-violet-500 hover:bg-yellow-400 rounded-full shadow-md cursor-pointer"
                       onClick={unfollowUser}
@@ -155,6 +155,7 @@ export default function UserProfile() {
                   </button>
               )}
             </div>
+            <Link to="/reset/myinfo">프로필 수정</Link>
           </div>
         </div>
 

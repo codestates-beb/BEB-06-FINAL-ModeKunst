@@ -55,6 +55,9 @@ router.post('/report', usersController.report.report);
 // 마이 페이지
 router.get("/mypage/:nickname", usersController.mypage.get);
 
+// 유저 정보 수정 창
+router.get('/update', usersController.mypage.updatePage);
+
 // 유저 정보 수정
 router.post(
   "/update",
