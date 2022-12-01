@@ -210,10 +210,10 @@ function WritePost() {
       icon: "info",
       text: "로그인 후 이용해주세요.",
     });
-    navigate("/");
+    navigate("/login");
   } else {
     return (
-      <div className="mt-8 flex flex-col items-center">
+      <div className="mt-64 flex flex-col items-center">
         <h1 className="text-3xl font-bold text-center">작성하기</h1>
         <div className="mt-4 w-3/5">
           <div>

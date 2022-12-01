@@ -43,7 +43,7 @@ app.use(
 );
 
 sequelize
-  .sync({ force: false })
+  .sync({ force: false})
   .then(() => {
     console.log("DB 연결 성공...");
     insertServerAddress().then(() => {
@@ -92,6 +92,7 @@ http.listen(port, () => {
   const post_dir = "./post_img";
   const notice_dir = "./notice_img";
   const banner_dir = "./banner_img";
+  const nft_dir ="./nft_img";
   if (!fs.existsSync(profile_dir)) {
     fs.mkdirSync(profile_dir);
   }
@@ -104,6 +105,9 @@ http.listen(port, () => {
   if (!fs.existsSync(banner_dir)) {
     fs.mkdirSync(banner_dir);
   }
+    if(!fs.existsSync(nft_dir)){
+        fs.mkdirSync(nft_dir);
+    }
   console.log("Listening...");
 });
 
