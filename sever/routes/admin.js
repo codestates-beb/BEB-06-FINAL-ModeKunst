@@ -12,18 +12,26 @@ router.post("/login", isNotLoggedIn, adminController.login.post);
 router.get("/logout", isLoggedIn, adminController.logout.get);
 
 //서버 관리자 공지 post
-
-router.post("/notice",isLoggedIn,notice_upload.array("notice_image"),adminController.notice.post);
+router.post(
+  "/notice",
+  isLoggedIn,
+  notice_upload.array("notice_image"),
+  adminController.notice.post
+);
 //서버 관리자 공지 get
-router.get('/notice/:noticeId',isLoggedIn,adminController.notice.get);
+router.get("/notice/:noticeId", isLoggedIn, adminController.notice.get);
 //서버 관리자 공지 업데이트
-router.put('/notice/:noticeId',isLoggedIn,notice_upload.array("notice_image"),adminController.notice.put);
+router.put(
+  "/notice/:noticeId",
+  isLoggedIn,
+  notice_upload.array("notice_image"),
+  adminController.notice.put
+);
 //서버 관리자 공지 delete
-router.delete('/notice/:noticeId',isLoggedIn,adminController.notice.delete);
+router.delete("/notice/:noticeId", isLoggedIn, adminController.notice.delete);
 
 //서버 관리자 공지 리스트 불러오기
-router.get('/notice',adminController.notice.getAllList);
-
+router.get("/notice", adminController.notice.getAllList);
 
 //서버 관리자 배너 추가
 router.post(
@@ -45,6 +53,6 @@ router.get("/banner", isLoggedIn, adminController.banner.get);
 router.delete("/banner/:bannerId", isLoggedIn, adminController.banner.delete);
 
 //관리자 데이터 불러오기
-router.get("/data",adminController.data.get);
+router.get("/data", adminController.data.get);
 
 module.exports = router;
