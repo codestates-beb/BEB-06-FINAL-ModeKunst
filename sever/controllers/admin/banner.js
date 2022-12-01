@@ -1,23 +1,22 @@
-const {Banner} = require('../../models');
-const fs = require('fs');
-const path = require('path')
-const {banner} = require("./index");
-
+const { Banner } = require("../../models");
+const fs = require("fs");
+const path = require("path");
+const { banner } = require("./index");
 
 module.exports = {
+
     //광고 배너 추가하기
     post: async (req, res) => {
         const banner_image = req.file.filename;
         const {banner_url} = req.body;
 
-        console.log(req.file);
-        console.log(banner_image);
 
         try {
             //배너 이미지 있을 때,
             if (banner_image && banner_url) {
                 const {host} = req.headers;
-                const imagePath = `http://${host}/${banner_image}`;
+                const imagePath = `http://${host}/banner_img/${banner_image}`;
+
 
                 let banner = await Banner.create({
                     image: imagePath,
@@ -66,7 +65,7 @@ module.exports = {
         const {host} = req.headers;
         const {bannerId} = req.params;
 
-        console.log(bannerId);
+        console.log(host);
 
         let banner_image = req.file.filename;
         let {banner_url} = req.body;
@@ -98,6 +97,7 @@ module.exports = {
 
                 let imagePath = `http://${host}/${banner_image}`;
 
+
                 await Banner.update({image: imagePath, url: banner_url}, {where: {id: bannerId}});
 
                 return res.status(200).json({
@@ -110,50 +110,68 @@ module.exports = {
 
 
         } catch (err) {
+
             console.log(err);
+          }
         }
 
+        let imagePath = `http://${host}/banner_img/${banner_image}`;
 
-    },
+        await Banner.update(
+          { image: imagePath, url: banner_url },
+          { where: { id: bannerId } }
+        );
 
-    delete: async (req, res) => {
-        const {bannerId} = req.params;
+        return res.status(200).json({
+          message: "배너가 변경 되었습니다.",
+          data: {
+            banner_image: imagePath,
+            banner_url: banner_url,
+          },
+        });
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  },
 
+  delete: async (req, res) => {
+    const { bannerId } = req.params;
 
-        try {
-            const banner_image = await Banner.findOne({
-                attributes: ['image'],
-                where: {id: bannerId}
-            });
-            if (banner_image) {
-                const filename = banner_image.dataValues.image.slice(22);
+    try {
+      const banner_image = await Banner.findOne({
+        attributes: ["image"],
+        where: { id: bannerId },
+      });
+      if (banner_image) {
+        const filename = banner_image.dataValues.image.slice(22);
 
-                console.log(filename, '이미지 이름');
-                if (fs.existsSync(path.join(__dirname, '..', '..', 'banner_img', `${filename}`))) {
-                    try {
-                        fs.unlinkSync(path.join(__dirname, '..', '..', 'banner_img', `${filename}`));
-                    } catch (err) {
-                        console.log('multer Err');
-                        console.log(err);
-                    }
-                }
-
-                //파일 삭제 후 db 삭제
-
-                await Banner.destroy({
-                    where: {id: bannerId}
-                });
-
-                return res.status(200).json({message: "배너가 삭제 되었습니다."})
-
-            }
-
-        } catch (err) {
-            return res.status(404).json({message: "데이터가 없습니다."});
-
+        console.log(filename, "이미지 이름");
+        if (
+          fs.existsSync(
+            path.join(__dirname, "..", "..", "banner_img", `${filename}`)
+          )
+        ) {
+          try {
+            fs.unlinkSync(
+              path.join(__dirname, "..", "..", "banner_img", `${filename}`)
+            );
+          } catch (err) {
+            console.log("multer Err");
+            console.log(err);
+          }
         }
 
-    },
+        //파일 삭제 후 db 삭제
 
+        await Banner.destroy({
+          where: { id: bannerId },
+        });
 
-}
+        return res.status(200).json({ message: "배너가 삭제 되었습니다." });
+      }
+    } catch (err) {
+      return res.status(404).json({ message: "데이터가 없습니다." });
+    }
+  },
+};

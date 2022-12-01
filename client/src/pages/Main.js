@@ -14,10 +14,12 @@ function Main() {
   // 👇🏻👇🏻 axios 👇🏻👇🏻
 
   return (
-    <div className="px-10 my-40 tablet:px-16 tablet:my-64">
+    <div>
+      <div className="mt-64" />
       <Banner />
       <Carousel />
       <InfinitePosts />
+      <div className="mb-64" />
     </div>
   );
 }
