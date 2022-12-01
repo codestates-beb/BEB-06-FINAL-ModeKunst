@@ -13,14 +13,13 @@ import styled from "styled-components";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import { convert } from "../store/screenMode";
-// import CardPost from "../components/common/CardPost";
 import Card from "../components/common/Carousel/Card";
 import cls from "../utils/setClassnames";
 
 const StyledSlider = styled(Slider)`
   width: 100%;
   position: relative;
-  background-color: ${props => (props.std ? "#A0D995" : "#F8B400")};
+  background-color: ${props => (props.std === 2 ? "#A0D995" : "#F8B400")};
   .slick-prev::before,
   .slick-next::before {
     opacity: 0;
@@ -56,10 +55,10 @@ const DivPre = styled.div`
   }
 `;
 const SlickSlider = props => {
-  const { settings, children } = props;
+  const { settings, children, colorStd } = props;
 
   return (
-    <StyledSlider std={children?.length > 3} {...settings}>
+    <StyledSlider std={colorStd} {...settings}>
       {children}
     </StyledSlider>
   );
@@ -76,6 +75,10 @@ function ReadPost() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const reviewRef = useRef();
+
+  // 슬라이더 색깔
+  const COLOR_STD1 = 1;
+  const COLOR_STD2 = 2;
 
   // 포스트 & 리뷰 관련 state
   const [brand, setBrand] = useState("");
@@ -458,8 +461,6 @@ function ReadPost() {
     ),
   };
 
-  console.log(likeCount);
-
   return (
     <div className="w-full px-10 my-40 flex flex-col items-center tablet:px-16 tablet:my-64 select-none">
       {/* 포스트 제목 & 기타 버튼 모음 */}
@@ -516,9 +517,6 @@ function ReadPost() {
         <div className="border-b-[2px] border-black" />
         <div className="px-2 w-full flex justify-between">
           <div className="flex items-center space-x-2 tablet:space-x-3">
-            <span className="text-xs px-1 py-0.5 text-white bg-black rounded-full shadow-sm tablet:text-sm">
-              {writer}
-            </span>
             {isOwner && (
               <div className="flex space-x-1 tablet:space-x-2">
                 <button className="flex justify-center items-center px-1 text-xs rounded-md tablet:p-1 tablet:text-sm tablet:rounded-md">
@@ -548,7 +546,6 @@ function ReadPost() {
                   d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"
                 />
               </svg>
-
               <span>{post.createdAt}</span>
             </div>
             <div className="flex items-center space-x-0.5">
@@ -577,74 +574,84 @@ function ReadPost() {
       </div>
 
       {/* 포스트 섹션들 */}
-      <div className="w-full mt-8 space-y-14 grid grid-cols-1 gap-1">
-        {/* 🟠 유저 정보: 유저 이름을 클릭하면 채팅하기, 팔로우하기, 유저페이지 선택 */}
-        <div className="w-full mx-auto text-center space-y-2 bg-slate-300 border-[3px] border-black rounded-md tablet:w-2/3">
-          <div className="flex items-center space-x-5 px-4 py-3">
-            <img
-              src={writerProfile}
-              alt="write_profile"
-              className="w-10 h-10 rounded-full"
-            />
-            <div className="flex flex-col items-start space-y-0.5">
-              <div className="space-x-1">
-                <span className="text-base font-semibold">
-                  <Link to={`/user/${writer}`}>{writer}</Link>
-                </span>
-                <button className="p-1 bg-blue-500 rounded-full hover:bg-yellow-500">
-                  <Link to={"/chat"} state={writer}>
-                    <svg
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      strokeWidth={2}
-                      className="w-3 h-3 stroke-slate-100 tablet:w-4 tablet:h-4"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M20.25 8.511c.884.284 1.5 1.128 1.5 2.097v4.286c0 1.136-.847 2.1-1.98 2.193-.34.027-.68.052-1.02.072v3.091l-3-3c-1.354 0-2.694-.055-4.02-.163a2.115 2.115 0 01-.825-.242m9.345-8.334a2.126 2.126 0 00-.476-.095 48.64 48.64 0 00-8.048 0c-1.131.094-1.976 1.057-1.976 2.192v4.286c0 .837.46 1.58 1.155 1.951m9.345-8.334V6.637c0-1.621-1.152-3.026-2.76-3.235A48.455 48.455 0 0011.25 3c-2.115 0-4.198.137-6.24.402-1.608.209-2.76 1.614-2.76 3.235v6.226c0 1.621 1.152 3.026 2.76 3.235.577.075 1.157.14 1.74.194V21l4.155-4.155"
-                      />
-                    </svg>
-                  </Link>
-                </button>
-              </div>
-              <div className="flex space-x-1 tablet:space-x-2">
-                <div className="inline-block text-xs px-1 py-0.5 font-semibold bg-amber-200 rounded-full drop-shadow-sm">
-                  이스터 에그
+      <div className="w-full grid grid-cols-1 gap-1 place-items-start tablet:grid-cols-2">
+        {/* 유저 정보: 유저 이름을 클릭하면 채팅하기, 팔로우하기, 유저페이지 선택 */}
+        <div className="w-full mx-auto space-y-6 tablet:space-y-8 desktop:space-y-10 tablet:w-5/6">
+          <div className="space-y-2">
+            <h3 className="pt-6 text-xl text-center font-bold font-title tablet:pt-10 tablet:text-3xl desktop:pt-14 desktop:text-4xl">
+              # 글쓴이 정보
+            </h3>
+            <h5 className="text-base text-center font-title tablet:text-lg desktop:text-xl">
+              해당 포스트의 주인입니다
+            </h5>
+          </div>
+          <div className="bg-slate-300 border-[3px] border-black rounded-md">
+            <div className="flex items-center space-x-5 px-4 py-3">
+              <img
+                src={writerProfile}
+                alt="write_profile"
+                className="w-10 h-10 rounded-full"
+              />
+              <div className="flex flex-col items-start space-y-0.5">
+                <div className="space-x-1">
+                  <span className="text-base font-semibold">
+                    <Link to={`/user/${writer}`}>{writer}</Link>
+                  </span>
+                  <button className="p-1 bg-blue-500 rounded-full hover:bg-yellow-500">
+                    <Link to={"/chat"} state={writer}>
+                      <svg
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        strokeWidth={2}
+                        className="w-3 h-3 stroke-slate-100 tablet:w-4 tablet:h-4"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M20.25 8.511c.884.284 1.5 1.128 1.5 2.097v4.286c0 1.136-.847 2.1-1.98 2.193-.34.027-.68.052-1.02.072v3.091l-3-3c-1.354 0-2.694-.055-4.02-.163a2.115 2.115 0 01-.825-.242m9.345-8.334a2.126 2.126 0 00-.476-.095 48.64 48.64 0 00-8.048 0c-1.131.094-1.976 1.057-1.976 2.192v4.286c0 .837.46 1.58 1.155 1.951m9.345-8.334V6.637c0-1.621-1.152-3.026-2.76-3.235A48.455 48.455 0 0011.25 3c-2.115 0-4.198.137-6.24.402-1.608.209-2.76 1.614-2.76 3.235v6.226c0 1.621 1.152 3.026 2.76 3.235.577.075 1.157.14 1.74.194V21l4.155-4.155"
+                        />
+                      </svg>
+                    </Link>
+                  </button>
                 </div>
-                <div className="inline-block text-xs px-1 py-0.5 font-semibold bg-cyan-400 rounded-full drop-shadow-sm">
-                  내가 짱이다
-                </div>
-                <div className="inline-block text-xs px-1 py-0.5 font-semibold bg-purple-400 rounded-full drop-shadow-sm">
-                  자라 가야됨
+                <div className="flex space-x-1 tablet:space-x-2">
+                  <div className="inline-block text-xs px-1 py-0.5 font-semibold bg-amber-200 rounded-full drop-shadow-sm">
+                    이스터 에그
+                  </div>
+                  <div className="inline-block text-xs px-1 py-0.5 font-semibold bg-cyan-400 rounded-full drop-shadow-sm">
+                    내가 짱이다
+                  </div>
+                  <div className="inline-block text-xs px-1 py-0.5 font-semibold bg-purple-400 rounded-full drop-shadow-sm">
+                    자라 가야됨
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-          <div className="w-2/3 mx-auto mt-4 border-b-2 border-slate-400" />
-          <div className="px-5 mt-2 mb-4 font-semibold tablet:px-10">
-            {post.content}
-          </div>
-          <div className="flex items-center px-2 py-2 space-x-0.5 tablet:space-x-1 tablet:px-4">
-            <button onClick={likeHandler}>
-              <svg
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={1.5}
-                stroke="currentColor"
-                className={cls(
-                  "w-5 h-5 tablet:w-6 tablet:h-6",
-                  isLike ? "fill-red" : ""
-                )}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"
-                />
-              </svg>
-            </button>
-            <span className="">{likeCount > 0 ? likeCount : 0}</span>
+            <div className="w-2/3 mx-auto mt-4 border-b-2 border-slate-400" />
+            <div className="px-5 mt-2 mb-4 font-semibold tablet:px-10">
+              {post.content}
+            </div>
+            <div className="flex items-center px-2 py-2 space-x-0.5 tablet:space-x-1 tablet:px-4">
+              <button onClick={likeHandler}>
+                <svg
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={1.5}
+                  stroke="currentColor"
+                  className={cls(
+                    "w-5 h-5 tablet:w-6 tablet:h-6",
+                    isLike ? "fill-red" : ""
+                  )}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"
+                  />
+                </svg>
+              </button>
+              <span className="">{likeCount > 0 ? likeCount : 0}</span>
+            </div>
           </div>
         </div>
 
@@ -660,6 +667,7 @@ function ReadPost() {
             {SlickSlider({
               settings,
               screenMode,
+              colorStd: 1,
               children: imageList.map((item, idx) => (
                 <Card key={idx} imageUrl={item} />
               )),
@@ -679,6 +687,7 @@ function ReadPost() {
             {SlickSlider({
               settings,
               screenMode,
+              colorStd: 2,
               children: similarLook
                 ? similarLook.map((item, idx) => (
                     <Card key={idx} imageUrl={item.image_1} />
@@ -816,20 +825,20 @@ function ReadPost() {
           )}
 
           {/* review */}
-        <div className="w-full mx-auto space-y-2 tablet:w-3/5 desktop:w-1/2">
-          <div className="flex flex-col">
+        <div className="w-full mx-auto space-y-6 tablet:space-y-8 desktop:space-y-10 tablet:w-5/6">
+          <div className="space-y-2">
             <h3 className="pt-6 text-xl text-center font-bold font-title tablet:pt-10 tablet:text-3xl desktop:pt-14 desktop:text-4xl">
               # 리뷰
             </h3>
-            <h5 className="text-base font-title text-center mt-1">
-              리뷰 작성은 최대 1회 가능합니다!
+            <h5 className="text-base text-center font-title tablet:text-lg desktop:text-xl">
+              리뷰 작성은 최대 1회까지 가능합니다
             </h5>
-            <span className="text-xs self-end tablet:text-sm">
-              {reviewsCount ? `총 ${reviewsCount}개의 리뷰` : "총 0개의 리뷰"}
-            </span>
           </div>
 
-          <div className="px-2 py-2 flex flex-col bg-purple-500 border-[3px] border-black rounded-md drop-shadow-2xl">
+          <div className="px-2 py-4 flex flex-col bg-purple-500 border-[3px] border-black rounded-2xl drop-shadow-2xl">
+            <span className="mr-2 text-xs text-slate-50 font-semibold self-end tablet:text-sm">
+              {reviewsCount > 0 && `총 ${reviewsCount}개의 리뷰`}
+            </span>
             {isLoggedIn ? (
               <div>
                 {isOwner ? null : haveReview ? null : (
@@ -863,7 +872,6 @@ function ReadPost() {
                 <div>
                   <div className="px-10 py-7 space-y-3 divide-y-2 divide-black tablet:space-y-7 desktop:space-y-9">
                     {reviews?.length ? (
-                      // ⭕️ 리뷰 뿌려주기
                       modifiedReviews.map((review, idx) => {
                         return (
                           <div key={idx}>
@@ -954,36 +962,23 @@ function ReadPost() {
                         );
                       })
                     ) : (
-                      <div>리뷰가 없습니다.</div>
-                    )}
-                  </div>
-
-                  <div className="flex justify-center relative">
-                    <button
-                      onClick={showReviewsByFour}
-                      className="inline-block mx-auto mt-2 font-semibold text-xs px-1.5 py-0.5 bg-yellow-500 rounded-full shadow-sm hover:scale-105 cursor-pointer"
-                    >
-                      4개씩 펼치기
-                    </button>
-                    {!isFirst && (
-                      <button
-                        onClick={initReviews}
-                        className="absolute bottom-0.5 right-0.5 hover:scale-110"
-                      >
+                      <div className="flex flex-col items-center space-y-2">
                         <svg
                           fill="none"
                           viewBox="0 0 24 24"
                           strokeWidth={2}
-                          stroke="currentColor"
-                          className="w-4 h-4 tablet:w-5 tablet:h-5"
+                          className="w-8 h-8 tablet:w-10 tablet:h-10 stroke-slate-50"
                         >
                           <path
                             strokeLinecap="round"
                             strokeLinejoin="round"
-                            d="M4.5 12.75l7.5-7.5 7.5 7.5m-15 6l7.5-7.5 7.5 7.5"
+                            d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"
                           />
                         </svg>
-                      </button>
+                        <span className="text-lg text-slate-50 font-semibold">
+                          리뷰가 없습니다
+                        </span>
+                      </div>
                     )}
                     <div>
                       <div>
@@ -1102,6 +1097,37 @@ function ReadPost() {
                       </div>
                     </div>
                   </div>
+
+                  {reviewsCount > 0 ? (
+                    <div className="flex justify-center relative">
+                      <button
+                        onClick={showReviewsByFour}
+                        className="inline-block mx-auto mt-2 font-semibold text-xs px-1.5 py-0.5 bg-yellow-500 rounded-full shadow-sm hover:scale-105 cursor-pointer"
+                      >
+                        4개씩 펼치기
+                      </button>
+                      {!isFirst && (
+                        <button
+                          onClick={initReviews}
+                          className="absolute bottom-0.5 right-0.5 hover:scale-110"
+                        >
+                          <svg
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            strokeWidth={2}
+                            stroke="currentColor"
+                            className="w-4 h-4 tablet:w-5 tablet:h-5"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M4.5 12.75l7.5-7.5 7.5 7.5m-15 6l7.5-7.5 7.5 7.5"
+                            />
+                          </svg>
+                        </button>
+                      )}
+                    </div>
+                  ) : null}
                 </div>
               </div>
             ) : null}
