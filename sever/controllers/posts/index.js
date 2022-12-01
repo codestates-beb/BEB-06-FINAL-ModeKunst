@@ -5,4 +5,5 @@ module.exports = {
     upstream: require('./upstream'),
     review: require('./review'),
     search: require('./search'),
+    noticeComment: require('./noticeComment'),
 }
