@@ -106,7 +106,7 @@ module.exports = {
   nftlist : async(req,res)=>{
     try{
       const nftList = await Token.findAll({
-        attributes:["title","image","description","token_rul"],
+        attributes:["title","image","description","token_url"],
       });
 
       console.log(nftList,"nfts 내용");
