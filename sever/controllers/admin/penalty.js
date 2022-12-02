@@ -60,11 +60,14 @@ module.exports ={
                 attributes:["reported_amount","nickname"]
             });
 
-            const reports = reportUserList.map((el,idx)=>{
-                return {
-                    nickname: el.dataValues.nickname,
-                    report_count : el.dataValues.reported_amount,
+            const reports = reportUserList.filter((el)=>{
+                if(el.dataValues.reported_amount >=1){
+                    return {
+                        nickname: el.dataValues.nickname,
+                        report_count : el.dataValues.reported_amount,
+                    }
                 }
+
             })
 
             return res.status(200).json({reports});
