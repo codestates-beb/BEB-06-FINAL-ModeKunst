@@ -158,7 +158,7 @@ export default function Header() {
             onClick={toggleMenuHandler}
             className="px-1.5 hover:scale-110 cursor-pointer tablet:text-xl"
           >
-            <Link to="/">HOME</Link>
+            <Link to="/notice">NOTICE</Link>
           </li>
           <li
             onClick={toggleMenuHandler}
