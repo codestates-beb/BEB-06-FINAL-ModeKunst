@@ -1,11 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import axios from "axios";
-import { initSocket } from '../socket/socket'
+import { initSocket, initSocketConnection } from '../socket/socket'
 import { useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
-
-
-
 
 
 function Chat(props) {
@@ -28,6 +25,11 @@ function Chat(props) {
 
     //let socket = io( 'http://localhost:8000',{ cors: { origin: '*' } } );
     let socket = initSocket;
+    useEffect(() => {
+
+        initSocketConnection(socket, nickname)
+
+    }, [])
 
     useEffect(() => {
         axios.get(`http://localhost:8000/users/chatRoom/${nickname}`)
@@ -43,6 +45,7 @@ function Chat(props) {
         if(DMReceiver){
             socket.emit('createOrEnter', { sender: nickname, receiver: DMReceiver});
 
+            setReceiver(DMReceiver);
             DMReceiver = false;
         }
     }, [DMReceiver])
@@ -74,6 +77,7 @@ function Chat(props) {
     }, [setChatRooms])
 
     socket.on('roomData', (data) => {
+        console.log(data);
         if(data?.room){
             setJoinRoom(data.room);
             setChatData(data.messages);
@@ -100,7 +104,6 @@ function Chat(props) {
     };
 
     const sendMsg = () => {
-        console.log(receiver);
         socket.emit('sendMsg', { joinRoom, message, nickname, receiver });
     }
 
@@ -124,24 +127,59 @@ function Chat(props) {
         }
     }, [box]);
 
+    const leaveRoom = () => {
+        setJoinRoom('');
+        setChatData('');
+        socket.emit('leave', { joinRoom, nickname, receiver });
+    }
+
+    socket.on('deleteRoom', data => {
+        console.log(data);
+        setChatRooms(data);
+    });
+
 
     return (
         <div>
+            <div>1</div>
+            <div>2</div>
+            <div>3</div>
+            <div>4</div>
+            <div>5</div>
+            <div>6</div>
+            <div>7</div>
+            <div>8</div>
+            <div>9</div>
+            <div>10</div>
+            <div>11</div>
+            <div>12</div>
+            <div>13</div>
+            <div>14</div>
             <div>
                 {
-                    chatRooms.length
+                    chatRooms
                         ?
-                        chatRooms.map((room, i) => {
-                            return(
-                                <div key={i}>
-                                    <img
-                                        src={room.profile_img}
-                                        className="w-10 h-10 object-cover bg-slate-200 shadow-lg rounded-full"
-                                    />
-                                    <span onClick={enter} id={room.id}>{room.name}</span>
-                                </div>
-                            )
-                        })
+                        chatRooms[0]
+                            ?chatRooms.map((room, i) => {
+                                return(
+                                    <div key={i}>
+                                        <img
+                                            src={room.profile_img}
+                                            className="w-10 h-10 object-cover bg-slate-200 shadow-lg rounded-full"
+                                        />
+                                        <span onClick={enter} id={room.id}>{room.name}</span>
+                                        {
+                                            room.lastChat
+                                                ?
+                                                <span>마지막 채팅: {room.lastChat}</span>
+                                                :
+                                                null
+                                        }
+                                    </div>
+                                )
+                            })
+                            :
+                            <div>채팅 목록이 없습니다.</div>
                         :
                         <div>채팅 목록이 없습니다.</div>
                 }
@@ -150,35 +188,52 @@ function Chat(props) {
                 {
                     joinRoom
                         ?
-                        chatData.length
+                        chatData
                             ?
-                            <div>
-                                <div><button>X</button></div>
-                                {
-                                    chatData.map((chat, i) => {
-                                        return(
-                                            <div key={i}>
-                                                <p>{chat.senderNickname}</p>
-                                                <p>{chat.message}</p>
-                                                <p>{chat.createdAt}</p>
-                                            </div>
-                                        );
-                                    })
-                                }
+                            chatData.length
+                                ?
                                 <div>
-                                    <input onChange={writeMsg}/>
+                                    <div><button onClick={leaveRoom}>X</button></div>
                                     {
-                                        message
-                                            ?
-                                            <button onClick={sendMsg}>send</button>
-                                            :
-                                            null
+                                        chatData.map((chat, i) => {
+                                            return(
+                                                <div key={i}>
+                                                    <p>{chat.senderNickname}</p>
+                                                    <p>{chat.message}</p>
+                                                    <p>{chat.createdAt}</p>
+                                                </div>
+                                            );
+                                        })
                                     }
+                                    <div>
+                                        <input onChange={writeMsg}/>
+                                        {
+                                            message
+                                                ?
+                                                <button onClick={sendMsg}>send</button>
+                                                :
+                                                null
+                                        }
+                                    </div>
                                 </div>
-                            </div>
+                                :
+                                <div>
+                                    <div><button onClick={leaveRoom}>X</button></div>
+                                    <div>대화 내용이 없습니다.</div>
+                                    <div>
+                                        <input onChange={writeMsg}/>
+                                        {
+                                            message
+                                                ?
+                                                <button onClick={sendMsg}>send</button>
+                                                :
+                                                null
+                                        }
+                                    </div>
+                                </div>
                             :
                             <div>
-                                <div><button>X</button></div>
+                                <div><button onClick={leaveRoom}>X</button></div>
                                 <div>대화 내용이 없습니다.</div>
                                 <div>
                                     <input onChange={writeMsg}/>
@@ -193,7 +248,6 @@ function Chat(props) {
                             </div>
                         :
                         null
-
                 }
             </div>
             <div>

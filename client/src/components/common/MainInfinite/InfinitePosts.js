@@ -5,7 +5,7 @@ import HashLoader from "react-spinners/HashLoader";
 import Swal from "sweetalert2";
 import CardPost from "../CardPost";
 
-export default function InfinitePost() {
+export default function InfinitePosts() {
   const [mainPosts, setMainPosts] = useState([]);
   const [pageNum, setPageNum] = useState(1);
   const [isLast, setIsLast] = useState(false);

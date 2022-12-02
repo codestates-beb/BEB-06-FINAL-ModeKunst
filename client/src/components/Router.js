@@ -23,10 +23,12 @@ import ForgotRoutes from "./Routes/ForgotRoutes";
 import ResetRoutes from "./Routes/ResetRoutes";
 import UserProfile from "./common/UserProfile";
 import AdminRoutes from "./Routes/AdminRoutes";
+import ScrollTop from "./common/ScrollTop";
 
 export default function Router() {
   return (
     <BrowserRouter>
+      <ScrollTop />
       <Header />
       <Routes>
         <Route path="/" element={<Main />} />

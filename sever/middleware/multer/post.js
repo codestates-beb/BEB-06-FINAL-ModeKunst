@@ -17,7 +17,6 @@ let storage = multer.diskStorage({
     cb(null, "./post_img"); //파일 저장 공간
   },
   filename: function (req, file, cb) {
-    console.log(file);
     cb(null, `${getNow()}_${file.originalname}`); //파일명
   },
   limits: {

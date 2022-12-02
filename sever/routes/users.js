@@ -49,8 +49,14 @@ router.post("/:nickname/follow", isLoggedIn, addFollowing);
 //언팔로우
 router.post("/:nickname/unfollow", isLoggedIn, removeFollower);
 
+//신고
+router.post('/report', usersController.report.report);
+
 // 마이 페이지
 router.get("/mypage/:nickname", usersController.mypage.get);
+
+// 유저 정보 수정 창
+router.get('/update', usersController.mypage.updatePage);
 
 // 유저 정보 수정
 router.post(
@@ -67,26 +73,6 @@ router.post("/:email/pwupdate", usersController.pwupdate.post);
 
 // 채팅방 목록
 router.get("/chatRoom/:nickname", isLoggedIn, usersController.chat.find);
-
-// 채팅방 입장
-router.get(
-  "/chatRoom/:chatId/:receiver",
-  isLoggedIn,
-  usersController.chat.join
-);
-
-// 채팅방 생성
-router.post("/chatRoom/:receiver", isLoggedIn, usersController.chat.create);
-
-// 메세지 보내기
-router.post("/message", isLoggedIn, usersController.chat.send);
-
-// 채팅방 삭제
-router.post(
-  "/chatRoom/:sender/:receiver",
-  isLoggedIn,
-  usersController.chat.delete
-);
 
 //로그아웃
 router.get("/logout", isLoggedIn, usersController.logout.get);

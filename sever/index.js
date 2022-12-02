@@ -14,6 +14,7 @@ const {
   find,
   send,
   join,
+  leave,
 } = require("./socket/chatRoom");
 
 const app = express();
@@ -128,70 +129,79 @@ io.on("connection", socket => {
     socket.on("disconnect", () => {
       console.log(`${Nickname} 로그아웃`);
     });
-  });
 
-  socket.on("login", data => {
-    const { nickname } = data;
-    Nickname = nickname;
-    socket.join(Nickname);
-    console.log(socket.adapter.rooms);
-  });
-
-  socket.on("createOrEnter", data => {
-    const { sender, receiver } = data;
-    createOrEnter(sender, receiver).then(result => {
+    socket.on("login", data => {
+      const { nickname } = data;
+      Nickname = nickname;
+      socket.join(Nickname);
       console.log(socket.adapter.rooms);
-      if (result?.messages) {
-        Id = result.chatRoom.toString();
+    });
+
+    socket.on("createOrEnter", data => {
+      console.log(socket.adapter.rooms);
+      const { sender, receiver } = data;
+      // 먼저 DM 보낸 사람이랑 받는 사람으로 DB에 방이 있는지 확인 후 데이터 값 클라이언트에 전달
+      // 1. 방이 있으면 전에 있던 데이터와 방 ID
+      // 2. 방이 없으면 방 생성 후 받는사람 강제 join
+      createOrEnter(sender, receiver).then(result => {
+        console.log(socket.adapter.rooms);
+        if (result?.messages) {
+          Id = result.chatRoom.toString();
+          socket.join(Id);
+          io.to(sender).emit("roomData", {
+            room: result.chatRoom,
+            messages: result.messages,
+          });
+        } else {
+          Id = result?.room.id;
+          if (Id) {
+            Id = result.room.id.toString();
+            Room = result.room;
+            let receiver = result.room.name;
+            socket.join(Id);
+            io.in(receiver).socketsJoin(Id);
+            io.to(sender).emit("updateRooms", result?.room);
+          }
+        }
+      });
+    });
+
+    socket.on("enterRooms", data => {
+      const { roomId, nickname, receiver } = data;
+      console.log(`입력받은 roomId ${roomId}`);
+      join(roomId, nickname, receiver).then(messages => {
+        Id = roomId.toString();
         socket.join(Id);
-        io.to(Id).emit("roomData", {
-          room: result.chatRoom,
-          messages: result.messages,
-        });
-      } else {
-        Id = result.room.id.toString();
-        Room = result.room;
-        let receiver = result.room.name;
-        socket.join(Id);
-        io.in(receiver).socketsJoin(Id);
-        io.to(Nickname).emit("updateRooms", result?.room);
-        //io.to(receiver).emit('updateRooms', result?.room);
-      }
+        io.to(nickname).emit("roomData", messages);
+      });
+    });
+
+    socket.on("sendMsg", data => {
+      const { joinRoom, message, nickname, receiver } = data;
+      console.log(`입력받은 joinRoom ${joinRoom}`);
+      send(joinRoom, message, nickname, receiver).then(msg => {
+        Id = joinRoom.toString();
+        if (Room) {
+          io.to(receiver).emit("updateRooms", Room);
+          Room = null;
+        }
+        if (socket.adapter.rooms.get(Id).size === 1) {
+          io.to(receiver).emit("updateChatData", msg);
+        }
+        io.to(Id).emit("updateChatData", msg);
+      });
+    });
+
+    socket.on("leave", data => {
+      console.log(data);
+      const { joinRoom, nickname, receiver } = data;
+      leave(joinRoom, nickname, receiver).then(result => {
+        console.log(result);
+        console.log(socket.adapter.rooms);
+        io.to(nickname).emit("deleteRoom", result);
+      });
+      console.log(`${joinRoom} 방을 을 나갔습니다.`);
+      socket.leave(joinRoom);
     });
   });
-
-  socket.on("enterRooms", data => {
-    const { roomId, nickname, receiver } = data;
-    console.log(`입력받은 roomId ${roomId}`);
-    join(roomId, nickname, receiver).then(messages => {
-      Id = roomId.toString();
-      socket.join(Id);
-      io.to(Id).emit("roomData", messages);
-    });
-  });
-
-  socket.on("sendMsg", data => {
-    const { joinRoom, message, nickname, receiver } = data;
-    console.log(`입력받은 joinRoom ${joinRoom}`);
-    send(joinRoom, message, nickname, receiver).then(msg => {
-      Id = joinRoom.toString();
-      console.log(socket.adapter);
-      if (Room) {
-        io.to(receiver).emit("updateRooms", Room);
-        Room = null;
-      }
-      io.to(Id).emit("updateChatData", msg);
-    });
-  });
-
-  socket.on("leave", roomId => {
-    console.log(`${roomId} 방을 을 나갔습니다.`);
-    socket.leave(roomId);
-  });
-
-  // socket.on('findRooms', (nickname) => {
-  //     find(nickname).then((chatRooms) => {
-  //         io.emit('myRooms', chatRooms);
-  //     });
-  // })
 });
