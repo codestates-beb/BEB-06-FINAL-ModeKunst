@@ -26,13 +26,15 @@ function Chat(props) {
     //let socket = io( 'http://localhost:8000',{ cors: { origin: '*' } } );
     let socket = initSocket;
     useEffect(() => {
+
         initSocketConnection(socket, nickname)
+
     }, [])
+
     useEffect(() => {
         axios.get(`http://localhost:8000/users/chatRoom/${nickname}`)
             .then((result) => {
                 const { chatRoomName } = result.data.data;
-                console.log(chatRoomName)
                 if(Array.isArray(chatRoomName)){
                     setChatRooms(chatRoomName);
                 }
@@ -75,11 +77,11 @@ function Chat(props) {
     }, [setChatRooms])
 
     socket.on('roomData', (data) => {
+        console.log(data);
         if(data?.room){
             setJoinRoom(data.room);
             setChatData(data.messages);
         }else{
-            console.log(data);
             setChatData(data);
         }
     });
@@ -102,7 +104,6 @@ function Chat(props) {
     };
 
     const sendMsg = () => {
-        console.log(receiver);
         socket.emit('sendMsg', { joinRoom, message, nickname, receiver });
     }
 
@@ -128,15 +129,8 @@ function Chat(props) {
 
     const leaveRoom = () => {
         setJoinRoom('');
-        setChatData();
+        setChatData('');
         socket.emit('leave', { joinRoom, nickname, receiver });
-    }
-    if(chatRooms){
-        console.log(chatRooms)
-        console.log(1)
-        console.log(chatRooms[0])
-    }else {
-        console.log(2)
     }
 
     socket.on('deleteRoom', data => {
@@ -194,32 +188,49 @@ function Chat(props) {
                 {
                     joinRoom
                         ?
-                        chatData.length
+                        chatData
                             ?
-                            <div>
-                                <div><button onClick={leaveRoom}>X</button></div>
-                                {
-                                    chatData.map((chat, i) => {
-                                        return(
-                                            <div key={i}>
-                                                <p>{chat.senderNickname}</p>
-                                                <p>{chat.message}</p>
-                                                <p>{chat.createdAt}</p>
-                                            </div>
-                                        );
-                                    })
-                                }
+                            chatData.length
+                                ?
                                 <div>
-                                    <input onChange={writeMsg}/>
+                                    <div><button onClick={leaveRoom}>X</button></div>
                                     {
-                                        message
-                                            ?
-                                            <button onClick={sendMsg}>send</button>
-                                            :
-                                            null
+                                        chatData.map((chat, i) => {
+                                            return(
+                                                <div key={i}>
+                                                    <p>{chat.senderNickname}</p>
+                                                    <p>{chat.message}</p>
+                                                    <p>{chat.createdAt}</p>
+                                                </div>
+                                            );
+                                        })
                                     }
+                                    <div>
+                                        <input onChange={writeMsg}/>
+                                        {
+                                            message
+                                                ?
+                                                <button onClick={sendMsg}>send</button>
+                                                :
+                                                null
+                                        }
+                                    </div>
                                 </div>
-                            </div>
+                                :
+                                <div>
+                                    <div><button onClick={leaveRoom}>X</button></div>
+                                    <div>대화 내용이 없습니다.</div>
+                                    <div>
+                                        <input onChange={writeMsg}/>
+                                        {
+                                            message
+                                                ?
+                                                <button onClick={sendMsg}>send</button>
+                                                :
+                                                null
+                                        }
+                                    </div>
+                                </div>
                             :
                             <div>
                                 <div><button onClick={leaveRoom}>X</button></div>

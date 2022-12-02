@@ -38,7 +38,7 @@ app.use(
 );
 
 sequelize
-    .sync({ force: false})
+    .sync({ force: false })
     .then(() => {
         console.log("DB 연결 성공...");
         insertServerAddress().then(() => {
@@ -133,6 +133,7 @@ io.on("connection", socket => {
         });
 
         socket.on('createOrEnter', (data) => {
+            console.log(socket.adapter.rooms);
             const { sender, receiver } = data;
             // 먼저 DM 보낸 사람이랑 받는 사람으로 DB에 방이 있는지 확인 후 데이터 값 클라이언트에 전달
             // 1. 방이 있으면 전에 있던 데이터와 방 ID
@@ -152,7 +153,6 @@ io.on("connection", socket => {
                         socket.join(Id);
                         io.in(receiver).socketsJoin(Id);
                         io.to(sender).emit('updateRooms', result?.room);
-                        //io.to(receiver).emit('updateRooms', result?.room);
                     }
                 }
             });
@@ -173,7 +173,6 @@ io.on("connection", socket => {
             console.log(`입력받은 joinRoom ${joinRoom}`)
             send(joinRoom, message, nickname, receiver ).then((msg) => {
                 Id = (joinRoom).toString();
-                console.log(socket.adapter);
                 if(Room){
                     io.to(receiver).emit('updateRooms', Room);
                     Room = null;
@@ -191,7 +190,6 @@ io.on("connection", socket => {
             leave(joinRoom, nickname, receiver).then((result) => {
                 console.log(result);
                 console.log(socket.adapter.rooms);
-                console.log(nickname);
                 io.to(nickname).emit('deleteRoom', result);
             })
             console.log(`${joinRoom} 방을 을 나갔습니다.`);

@@ -1,21 +1,15 @@
 const { Chat, Message, User } = require('../../models');
 const { Op, literal, fn} = require('sequelize');
-const { Server } = require('socket.io');
-const cors = require("cors");
-let io;
-let server;
-function getSocket(http){
-    io = new Server(http,{
-        cors: {
-            origin: "http://localhost:3000",
-            methods: ["POST", "GET", "OPTIONS", "PUT", "DELETE"],
-            credentials: true,
-        }
+
+async function findMsg(roomId, status){
+    return await Message.findAll({
+        where: { ChatId: roomId, status: {[Op.and] : ['0', {[Op.and] : [{[Op.not]: 1}, {[Op.not]: status}]}]}},
+        attributes: ['message', 'createdAt', 'senderNickname'],
+        order: literal('createdAt ASC'),
+        raw: true
     });
-    io.on('connection', function(socket){
-        console.log(test);
-    })
 }
+
 
 module.exports = {
 
@@ -33,18 +27,27 @@ module.exports = {
                 raw: true
             });
 
-            console.log(chatRoom);
+
             const chatRoomName = chatRoom.map((a) => {
                 let profile_img;
+                const message = findMsg(a.id, a.senderNickname);
                 if(sender === a.senderNickname){
                     profile_img = a['Receiver.profile_img'];
-                    return { id: a.id, name: a.receiverNickname, profile_img: profile_img, lastChat: a.lastChat, lastChatDate: a.lastChatDate }
+                    if(message){
+                        return { id: a.id, name: a.receiverNickname, profile_img: profile_img, lastChat: a.lastChat, lastChatDate: a.lastChatDate }
+                    }else{
+                        return { id: a.id, name: a.receiverNickname, profile_img: profile_img, lastChatDate: a.lastChatDate }
+                    }
                 }else if(sender === a.receiverNickname){
                     profile_img = a['Sender.profile_img'];
-                    return { id: a.id, name: a.senderNickname, profile_img: profile_img, lastChat: a.lastChat, lastChatDate: a.lastChatDate }
+                    if(message){
+                        return { id: a.id, name: a.senderNickname, profile_img: profile_img, lastChat: a.lastChat, lastChatDate: a.lastChatDate }
+                    }else{
+                        return { id: a.id, name: a.senderNickname, profile_img: profile_img, lastChatDate: a.lastChatDate }
+                    }
                 }
             });
-            console.log(chatRoomName)
+
             res.status(200).json({
                 message: `${sender}님의 채팅방 목록`,
                 data: {
