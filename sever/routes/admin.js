@@ -56,10 +56,24 @@ router.get("/banner", isLoggedIn, adminController.banner.get);
 router.delete("/banner/:bannerId", isLoggedIn, adminController.banner.delete);
 
 //관리자 데이터 불러오기
-router.get("/data", adminController.data.get);
+router.get("/data", isLoggedIn,adminController.data.get);
+//nft 민팅하기
+router.post("/nftmint",isLoggedIn,nft_upload.single("nft_image"),adminController.nft.nftmint);
+//관리자 nftlist 불러오기
+router.get("/nftlist",isLoggedIn,adminController.nft.nftlist);
 
 
-router.post("/nftmint",nft_upload.single("nft_image"),adminController.nft.nftmint);
+//사용자 페널티
+router.post('/penalty/:nickname',adminController.penalty.penalty);
+
+//사용자 페널티 취소
+router.post('/penaltycancel/:nickname',adminController.penalty.cancelpenalty);
+
+//사용자 리포트 리스트
+router.get('/report',adminController.penalty.reportlist);
+
+//사용자 페널티 알람
+router.get('/penaltyalarm',adminController.penalty.penaltyalarm);
 
 
 module.exports= router;

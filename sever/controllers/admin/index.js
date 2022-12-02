@@ -6,4 +6,5 @@ module.exports= {
     logout:require('./logout'),
     data: require('./data'),
     nft: require('./nft'),
+    penalty: require('./penalty'),
 }
