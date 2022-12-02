@@ -7,7 +7,7 @@ import user from "../store/user";
 import axios from "axios";
 import Banner from "../components/common/Banner";
 import Carousel from "../components/common/Carousel/Carousel";
-import InfinitePosts from "../components/common/MainInfinite/InfinitePosts";
+import InfinitePost from "../components/common/MainInfinite/InfinitePost";
 
 function Main() {
   // const userInfo = useSelector(state => state.user);
@@ -18,7 +18,7 @@ function Main() {
       <div className="mt-64" />
       <Banner />
       <Carousel />
-      <InfinitePosts />
+      <InfinitePost />
       <div className="mb-64" />
     </div>
   );
