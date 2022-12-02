@@ -352,7 +352,6 @@ function ResetPost() {
                   accept="image/*"
                   className="hidden"
                   onChange={uploadImageHandler}
-                  required
                 />
                 <ErrorMessage error={errors.image} />
               </label>

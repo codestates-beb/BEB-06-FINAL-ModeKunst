@@ -24,9 +24,10 @@ function Login() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { isLoggedIn } = useSelector(state => state.user);
+  const { isAdmin } = useSelector(state => state.admin);
 
   useEffect(() => {
-    if (isLoggedIn) {
+    if (isLoggedIn || isAdmin) {
       Swal.fire({
         icon: "info",
         text: "이미 로그인 된 상태입니다.",

@@ -176,6 +176,7 @@ function WritePost() {
         })
         .then(result => {
           const data = result.data;
+          console.log(data);
           Swal.fire({
             icon: "success",
             text: `${data.message}`,
@@ -183,6 +184,7 @@ function WritePost() {
           navigate(`/post/${data.data.postId}`);
         })
         .catch(error => {
+          console.log(error);
           Swal.fire({
             icon: "info",
             text: "업로드에 실패했습니다.",
