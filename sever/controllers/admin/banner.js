@@ -92,7 +92,9 @@ module.exports = {
           }
         }
 
+
         let imagePath = `http://${host}/banner_img/${banner_image}`;
+
 
         await Banner.update(
           { image: imagePath, url: banner_url },

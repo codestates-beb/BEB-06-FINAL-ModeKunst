@@ -19,6 +19,7 @@
 
 import { motion } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
+import cls from "../../utils/setClassnames";
 
 const parentVariant = {
   initial: { y: 0 },
@@ -29,9 +30,8 @@ const childVariant = {
   action: { y: -105 },
 };
 
-export default function CardPost({ post, section }) {
+export default function PostCard({ post, section }) {
   const navigate = useNavigate();
-  console.log(post);
 
   return (
     <motion.div
@@ -53,23 +53,31 @@ export default function CardPost({ post, section }) {
         className="py-1.5 absolute left-0 right-0 -bottom-24 flex justify-around items-center text-slate-100 bg-black bg-opacity-50"
       >
         {/* profile_img & UserNickname */}
-        <div className="flex flex-col items-center">
-          <img
-            className="w-10 h-10 object-cover rounded-full"
-            src={post.profile_img}
-            alt="user_profile"
-          />
-          <span
-            onClick={() => {
-              navigate(`/user/${post.UserNickname}`);
-            }}
-            className="text-xs hover:scale-105"
-          >
-            {post.UserNickname}
-          </span>
-        </div>
+        {section === "hotposts" ? null : (
+          <div className="flex flex-col items-center">
+            <img
+              className="w-10 h-10 object-cover rounded-full"
+              src={post.profile_img}
+              alt="user_profile"
+            />
+            <span
+              onClick={() => {
+                navigate(`/user/${post.UserNickname}`);
+              }}
+              className="text-xs hover:scale-105"
+            >
+              {post.UserNickname}
+            </span>
+          </div>
+        )}
         {/* category & title & views, likes_num, reviews_num */}
-        <div className="flex flex-col items-end">
+        {/* <div className="flex flex-col items-end"> */}
+        <div
+          className={cls(
+            "flex flex-col",
+            section === "hotposts" ? "items-center" : "items-end"
+          )}
+        >
           {/* category & title */}
           <div className="flex items-center space-x-2 text-xs">
             <span className="px-1 bg-yellow-500 rounded-full text-center">
