@@ -116,9 +116,11 @@ function AdminMain() {
             </div>
           </Link>
           <div className="hover:bg-slate-200">
-            <button className="font-content m-2 hover:font-bold">
-              NFT 관리
-            </button>
+            <Link to="/admin/nft">
+              <button className="font-content m-2 hover:font-bold">
+                NFT 관리
+              </button>
+            </Link>
           </div>
         </div>
         <div className="self-center w-4/5 bg-slate-100 rounded-md text-center space-y-4 px-4 py-4">
