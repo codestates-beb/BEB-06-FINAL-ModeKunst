@@ -1,15 +1,18 @@
+// 🗒 TODOS
+// 1) SearchBar 사라져서 추가해야 함
+
 import { useSelector, useDispatch } from "react-redux";
 import { logout } from "../../store/user";
-import { adminLogout } from "../../store/admin";
 import { convert } from "../../store/screenMode";
 import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import cls from "../../utils/setClassnames";
-import SearchBar from "./SearchBar";
-import Swal from "sweetalert2";
-import logo from "../../assets/modekunst.png";
 import axios from "axios";
+import Swal from "sweetalert2";
+import NavMenu from "./NavMenu";
+import SearchBar from "./SearchBar";
+import logo from "../../assets/modekunst.png";
+import cls from "../../utils/setClassnames";
 
 const tokenVariants = {
   initial: { opacity: 0, y: -3, transition: { duration: 0.15 } },
@@ -31,9 +34,6 @@ export default function Header() {
   );
   const { currentScreenMode: screenMode } = useSelector(
     state => state.currentScreenMode
-  );
-  const { nickname: adminNickname, isAdmin } = useSelector(
-    state => state.admin
   );
 
   const screenModeHandler = () => {
@@ -109,11 +109,7 @@ export default function Header() {
           text: "로그아웃 되었습니다",
         });
         toggleMenuHandler();
-        if (isLoggedIn) {
-          dispatch(logout(loggedInUserInfo.nickname));
-        } else if (isAdmin) {
-          dispatch(adminLogout());
-        }
+        dispatch(logout(loggedInUserInfo.nickname));
         navigate("/");
       }
     });
@@ -154,53 +150,22 @@ export default function Header() {
         )}
       >
         <ul className="flex flex-col justify-between space-y-3 text-center text-sm font-title font-semibold desktop:flex-row desktop:space-y-0">
-          <li
-            onClick={toggleMenuHandler}
-            className="px-1.5 hover:scale-110 cursor-pointer tablet:text-xl"
-          >
-            <Link to="/notice">NOTICE</Link>
-          </li>
-          <li
-            onClick={toggleMenuHandler}
-            className="px-1.5 hover:scale-110 cursor-pointer tablet:text-xl"
-          >
-            <Link to="/write">WRITE</Link>
-          </li>
-          <li
-            onClick={toggleMenuHandler}
-            className="px-1.5 hover:scale-110 cursor-pointer tablet:text-xl"
-          >
-            <Link to={`/user/${loggedInUserInfo.nickname}`}>MYPAGE</Link>
-          </li>
-          <li
-            onClick={toggleMenuHandler}
-            className="px-1.5 hover:scale-110 cursor-pointer tablet:text-xl"
-          >
-            <Link to={'/chat'}>CHAT</Link>
-          </li>
-          <li
-            onClick={toggleMenuHandler}
-            className="px-1.5 hover:scale-110 cursor-pointer tablet:text-xl"
-          >
-            <button onClick={() => setIsSearchModal(true)}>
-              <svg
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={2}
-                stroke="currentColor"
-                className="w-5 h-5"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
-                />
-              </svg>
-            </button>
-          </li>
+          {[
+            { section: "NOTICE", to: "/" },
+            { section: "WRITE", to: "/write" },
+            { section: "MYPAGE", to: `/user/${loggedInUserInfo.nickname}` },
+            { section: "CHAT", to: "/chat" },
+          ].map((item, idx) => (
+            <NavMenu
+              key={idx}
+              to={item.to}
+              section={item.section}
+              handler={toggleMenuHandler}
+            />
+          ))}
         </ul>
         {/* 로그인 & 회원가입 */}
-        {isLoggedIn || isAdmin ? (
+        {isLoggedIn ? (
           <div className="self-end flex flex-col items-center space-y-2 text-xs text-white desktop:items-end">
             <button
               onClick={logoutHandler}
@@ -217,8 +182,7 @@ export default function Header() {
                   to={`/user/${loggedInUserInfo.nickname}`}
                   className="text-indigo-800 text-sm font-semibold"
                 >
-                  {isLoggedIn && loggedInUserInfo.nickname}
-                  {isAdmin && adminNickname}
+                  {loggedInUserInfo.nickname}
                 </Link>{" "}
                 님, Ready to Change?
               </span>
@@ -295,7 +259,7 @@ export default function Header() {
       </div>
 
       {isSearchModal && (
-        <SearchBar ref={searchModalRef} closeModal={setIsSearchModal} />
+        <SearchBar innerRef={searchModalRef} closeModal={setIsSearchModal} />
       )}
     </nav>
   );

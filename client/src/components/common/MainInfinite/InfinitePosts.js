@@ -1,29 +1,25 @@
+import { useEffect, useState, useRef } from "react";
 import axios from "axios";
-import { useInView } from "react-intersection-observer";
-import { useEffect, useState } from "react";
-import HashLoader from "react-spinners/HashLoader";
 import Swal from "sweetalert2";
 import CardPost from "../CardPost";
+import ClipLoader from "react-spinners/ClipLoader";
 
-export default function InfinitePosts() {
-  const [mainPosts, setMainPosts] = useState([]);
+export default function InfinitePost() {
+  const [posts, setPosts] = useState([]);
   const [pageNum, setPageNum] = useState(1);
-  const [isLast, setIsLast] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const { ref, inView } = useInView();
+  const [isLoading, setIsLoading] = useState(false);
+  const pageEndRef = useRef();
 
-  const fetchData = async () => {
+  const fetchPosts = async pageNum => {
+    setIsLoading(true);
     try {
-      const result = await axios.get(
-        `http://localhost:8000/posts/main/?page=${pageNum}`,
-        { withCredentials: true }
-      );
-      // console.log(result.data.posts);
-      // 📍
-      if (result.data.posts.length === 0) setIsLast(true);
-      setMainPosts(prevPosts => [...prevPosts, ...result.data.posts]);
-      setLoading(false);
-      setPageNum(prevPageNum => prevPageNum + 1);
+      const {
+        data: { posts },
+      } = await axios.get(`http://localhost:8000/posts/main/?page=${pageNum}`, {
+        withCredentials: true,
+      });
+      setPosts(prevPosts => [...prevPosts, ...posts]);
+      setIsLoading(false);
     } catch (error) {
       Swal.fire({
         icon: "error",
@@ -32,30 +28,46 @@ export default function InfinitePosts() {
     }
   };
 
+  // loadMore -> pageNum 증가 -> fetchPosts -> 기존 포스트에 더할 포스트 더 불러옴
+  const loadMore = () => {
+    setPageNum(prevPageNum => prevPageNum + 1);
+  };
+
   useEffect(() => {
-    // 📍 if문
-    if (!isLast) {
-      fetchData();
-      setLoading(true);
+    fetchPosts(pageNum);
+  }, [pageNum]);
+
+  useEffect(() => {
+    if (isLoading) {
+      const observer = new IntersectionObserver(
+        entries => {
+          if (entries[0].isIntersecting) {
+            loadMore();
+          }
+        },
+        { threshold: 1 }
+      );
+      observer.observe(pageEndRef.current);
     }
-  }, [inView]);
+  }, [isLoading]);
 
   return (
-    <div className="mt-32 space-y-10 mx-auto flex flex-col items-center max-w-[1000px]">
-      <h1 className="text-3xl font-semibold"># 뜨끈뜨끈한 신상룩</h1>
-      <div className="mb-10 px-20 py-16 space-y-2 shadow-2xl rounded-xl bg-slate-100">
-        <div className="grid grid-cols-3 gap-16">
-          {mainPosts.map((post, idx) => (
-            <div key={idx}>
-              <CardPost post={post} section="mainPosts" />
-            </div>
-          ))}
-        </div>
-        <div ref={ref} className="w-1 h-1"></div>
-        <div className="flex justify-center">
-          {loading && <HashLoader color={"#36d7b7"} />}
-        </div>
+    <div className="relative my-32 px-10 pt-2 pb-16 rounded-2xl tablet:pt-6 tablet:pb-20 tablet:rounded-t-3xl desktop:px-20 desktop:pb-24">
+      <div className="absolute top-0 left-0 right-0 mx-auto w-2/5 border-t-4 border-t-blue-500" />
+      <h3 className="pt-6 text-xl text-center font-bold font-title tablet:pt-10 tablet:text-3xl desktop:pt-14 desktop:text-4xl">
+        # 실시간 LOOK ⌚️
+      </h3>
+      <div className="pt-8 grid grid-cols-1 gap-8 tablet:grid-cols-2 tablet:pt-12 desktop:grid-cols-4 desktop:gap-28 desktop:pt-16">
+        {posts.map((post, idx) => (
+          <CardPost section="main" key={idx} post={post} />
+        ))}
       </div>
+      {isLoading && (
+        <div className="mt-10 text-center">
+          <ClipLoader color="#2155CD" />
+        </div>
+      )}
+      <div ref={pageEndRef} className="w-4 h-4 mx-auto" />
     </div>
   );
 }
