@@ -9,8 +9,8 @@ module.exports = class Message extends Sequelize.Model {
                     allowNull: false
                 },
                 status: {
-                    type: Sequelize.INTEGER,
-                    defaultValue: 0,
+                    type: Sequelize.STRING,
+                    defaultValue: '0',
                 }
             },
             {

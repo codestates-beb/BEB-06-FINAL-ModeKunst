@@ -17,41 +17,20 @@ module.exports = {
                 });
                 if(!top_post){
                     try {
-                        const { token_amount } = await User.findOne({ where: { nickname: nickname }, attributes: ['token_amount'], raw: true});
+                        const { point_amount } = await User.findOne({ where: { nickname: nickname }, attributes: ['point_amount'], raw: true});
 
                         const price = await Token_price.findOne({ where: { id: 1 }, attributes: ['top_post'], raw: true });
                         const top_post_price = price.top_post;
 
-                        if(token_amount >= top_post_price){
+                        if(point_amount >= top_post_price){
 
 
                             const serverInfo = await Server.findOne({ attributes: ['address', 'erc20'], raw: true });
-                            const { address, erc20 } = serverInfo;
+                            const { address  } = serverInfo;
 
-                            const contract = await new web3.eth.Contract(abi20, erc20);
+                            await User.decrement({ point_amount: top_post_price } , { where: { nickname: nickname }});
 
-                            const ApproveData = contract.methods.approve(userSession.address, top_post_price).encodeABI();
-                            const approveRawTransaction = { 'to': erc20, 'gas': 100000, "data": ApproveData };
-                            const approveSignTx = await web3.eth.accounts.signTransaction(approveRawTransaction, serverPKey);
-                            await web3.eth.sendSignedTransaction(approveSignTx.rawTransaction);
-
-                            const transferFromData =  contract.methods.transferFrom(userSession.address, address, top_post_price).encodeABI();
-                            const transferRawTransaction = { 'to': erc20, 'gas': 100000, "data": transferFromData };
-                            const transferSignTx = await web3.eth.accounts.signTransaction(transferRawTransaction, serverPKey);
-                            await web3.eth.sendSignedTransaction(transferSignTx.rawTransaction);
-
-                            const server_eth = await getBalance(address);
-                            const serverBalance = await contract.methods.balanceOf(address).call();
-                            const clientBalance = await contract.methods.balanceOf(userSession.address).call();
-
-                            await Server.update({
-                                eth_amount: server_eth,
-                                token_amount: serverBalance
-                            }, { where: { address: address } });
-
-                            await User.update({
-                                token_amount: clientBalance
-                            }, { where: { email: userSession.email } });
+                            await Server.increment({ used_point: top_post_price }, { where: { address: address } });
 
                             await Post.update({ top_post: true }, { where: { id: id } });
 

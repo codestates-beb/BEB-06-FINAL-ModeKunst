@@ -69,6 +69,7 @@ function ReadPost() {
   const { userInfo: loggedInUser, isLoggedIn } = useSelector(
     state => state.user
   );
+
   const { currentScreenMode: screenMode } = useSelector(
     state => state.currentScreenMode
   );
@@ -94,7 +95,6 @@ function ReadPost() {
   const [isFollow, setIsFollow] = useState(false);
   const [haveReview, setHaveReview] = useState(false);
 
-  console.log(writer);
 
   const imageList = [
     post.image_1,
@@ -189,6 +189,7 @@ function ReadPost() {
   }, [reviewsCount, toggleReview]);
 
   const sendMessage = () => {};
+
 
   const likeHandler = () => {
     Swal.fire({
@@ -1002,12 +1003,12 @@ function ReadPost() {
                                 {review.create_at}
                               </span>
                                       {/* 📍 리뷰 내용 */}
-                                      {userInfo.userInfo.nickname === review.nickname &&
+                                      {loggedInUser.nickname === review.nickname &&
                                       isEditReview ? null : (
                                           <div className="text-sm">{review.content}</div>
                                       )}
                                     </div>
-                                    {userInfo.userInfo.nickname === review.nickname ? (
+                                    {loggedInUser.nickname === review.nickname ? (
                                         <div className="space-x-2">
                                           {/* 📍 수정 버튼 */}
                                           {!isEditReview ? (

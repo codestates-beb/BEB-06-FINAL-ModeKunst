@@ -4,7 +4,7 @@ const { many } = require('../controllers/function/createdAt');
 //[Op.not]: status
 async function findMsg(roomId, status){
     return await Message.findAll({
-        where: { ChatId: roomId, status: {[Op.and] : [0, {[Op.and] : [{[Op.not]: 1}, {[Op.not]: status}]}]}},
+        where: { ChatId: roomId, status: {[Op.and] : ['0', {[Op.and] : [{[Op.not]: 1}, {[Op.not]: status}]}]}},
         attributes: ['message', 'createdAt', 'senderNickname'],
         order: literal('createdAt ASC'),
         raw: true
@@ -28,7 +28,7 @@ module.exports = {
                 where: { status: sender, id: chatRoom  }
             }).then((result) => {
                 if(result){
-                    result.update({ status: null });
+                    result.update({ status: '0' });
                 }
             });
 
@@ -62,13 +62,20 @@ module.exports = {
 
         const messages = await findMsg(id, sender);
 
-
         return messages
     },
 
     send: async (id, message, sender, receiver) => {
         if(sender){
             console.log(`입력받은 chatRoom: ${id}, sender: ${sender}, receiver: ${receiver}, message: ${message}`);
+            await Chat.findOne({
+                where: { status: receiver, id: id  }
+            }).then((result) => {
+                console.log(result);
+                if(result){
+                    result.update({ status: '0' });
+                }
+            });
 
             await Message.create({
                 message: message,
@@ -96,7 +103,7 @@ module.exports = {
     leave: async (roomId, nickname, receiver) => {
         try{
             let { status } = await Chat.findOne({ where: { id: roomId }, attributes: ['status'], raw: true });
-
+            status = status === 0;
             if(status) {
                 await Message.destroy({where: {ChatId: roomId}})
                 await Chat.destroy({where: { id: roomId }});
@@ -114,10 +121,38 @@ module.exports = {
                 });
             }
 
-            const rooms = await Chat.findAll({
-                where: { [Op.not]: {status: nickname} }
+            let chatRoom = await Chat.findAll({
+                where: {
+                    [Op.or] : [{[Op.and]: [{senderNickname: nickname }, { status: { [Op.not] : nickname } } ] }, {[Op.and]: [{receiverNickname: nickname}, {status: {[Op.not]: nickname}}]}]
+                },
+                include: [ { model: User, attributes: ['profile_img'], as: 'Receiver' }, { model: User, attributes: ['profile_img'], as: 'Sender' } ],
+                attributes: ['id', 'lastChat', 'lastChatDate', 'senderNickname', 'receiverNickname'],
+                raw: true
             });
-            return rooms
+            console.log(chatRoom);
+
+            const chatRoomName = chatRoom.map((a) => {
+                let profile_img;
+                const message = findMsg(a.id, a.senderNickname);
+                if(nickname === a.senderNickname){
+                    profile_img = a['Receiver.profile_img'];
+                    if(message){
+                        return { id: a.id, name: a.receiverNickname, profile_img: profile_img, lastChat: a.lastChat, lastChatDate: a.lastChatDate }
+                    }else{
+                        return { id: a.id, name: a.receiverNickname, profile_img: profile_img, lastChatDate: a.lastChatDate }
+                    }
+                }else if(nickname === a.receiverNickname){
+                    profile_img = a['Sender.profile_img'];
+                    if(message){
+                        return { id: a.id, name: a.receiverNickname, profile_img: profile_img, lastChat: a.lastChat, lastChatDate: a.lastChatDate }
+                    }else{
+                        return { id: a.id, name: a.receiverNickname, profile_img: profile_img, lastChatDate: a.lastChatDate }
+                    }
+                }
+            });
+
+            console.log(chatRoomName)
+            return chatRoomName
         } catch (e) {
             console.log('sequelize Err')
         }

@@ -651,110 +651,156 @@ module.exports = {
   put: async (req, res) => {
     const { host } = req.headers;
     const { postId } = req.params;
+    const nickname = req.session.user?.nickname;
 
     let { title, content, category, haveInfo  } = req.body;
     const { outer_brand, top_brand, pants_brand, shoes_brand, outer_name, top_name, pants_name, shoes_name, outer_size, top_size, pants_size, shoes_size } = req.body;
     haveInfo = haveInfo === 'true';
+    if(nickname){
+      const files = req.files;
+      if(files <= 2) {
+        files.map((file) => {
+          if (fs.existsSync(path.join(__dirname, '..', '..', 'post_img', `${file.filename}`))) {
+            try {
+              fs.unlinkSync(path.join(__dirname, '..', '..', 'post_img', `${file.filename}`));
+            } catch (e) {
+              console.log('multer Err');
+              console.log(e);
+            }
+          }
+        });
+        res.status(404).json({
+          message: '3개 이상의 사진을 등록 해주세요.'
+        })
+      }else{
+        const images = await Post.findOne({
+          attributes: ['image_1', 'image_2', 'image_3', 'image_4', 'image_5'],
+          where: { id: postId}
+        });
 
-    const files = req.files;
-    if(files <= 2) {
-      files.map((file) => {
-        if (fs.existsSync(path.join(__dirname, '..', '..', 'post_img', `${file.filename}`))) {
+        if(images){
+          let imagePathList = Object.values(images.dataValues);
+
+          const fileNames = imagePathList.map((path) => {
+            if(path){
+              return path.slice(31);
+            }
+          });
+          fileNames.map((name) => {
+            if(name){
+              if(fs.existsSync(path.join(__dirname, '..', '..', 'post_img', `${name}`))){
+                try{
+                  fs.unlinkSync(path.join(__dirname, '..', '..', 'post_img', `${name}`));
+                } catch (e) {
+                  console.log('multer Err');
+                  console.log(e);
+                }
+              }
+            }
+          });
+
+          let imageList = [];
+          files.map((file) => {
+            imageList.push(file.path);
+          });
+
+          imagePathList = imageList.map((image) => {
+            return `http://${host}/${image}`;
+          });
+
+
+          const [image_1, image_2, image_3, image_4, image_5] = imagePathList;
+
+          //수저 전 게시글에 product_info가 있는지 확인하는 변수
+          const {have_info} = await Post.findOne({ attributes: ['have_info'], where: {id: postId}});
+
           try {
-            fs.unlinkSync(path.join(__dirname, '..', '..', 'post_img', `${file.filename}`));
+            if(!have_info){
+              if(haveInfo){
+                await Post.update(
+                    { title: title, content: content, category: category, haveInfo: haveInfo, image_1: image_1, image_2: image_2, image_3: image_3, image_4: image_4, image_5: image_5, have_info: true },
+                    { where: { id: postId } }
+                );
+                await Product_brand.create({
+                  outer: outer_brand,
+                  top: top_brand,
+                  pants: pants_brand,
+                  shoes: shoes_brand,
+                  PostId: postId
+                });
+                await Product_name.create({
+                  outer: outer_name,
+                  top: top_name,
+                  pants: pants_name,
+                  shoes: shoes_name,
+                  PostId: postId
+                });
+                await Product_size.create({
+                  outer: outer_size,
+                  top: top_size,
+                  pants: pants_size,
+                  shoes: shoes_size,
+                  PostId: postId
+                });
+
+                await User.increment({point_amount: 2}, {where: {nickname: req.session.user.nickname}})
+              }else{
+                await Post.update(
+                    { title: title, content: content, category: category, haveInfo: haveInfo, image_1: image_1, image_2: image_2, image_3: image_3, image_4: image_4, image_5: image_5 },
+                    { where: { id: postId } }
+                );
+              }
+            }else{
+              if(haveInfo){
+                await Post.update(
+                    { title: title, content: content, category: category, haveInfo: haveInfo, image_1: image_1, image_2: image_2, image_3: image_3, image_4: image_4, image_5: image_5 },
+                    { where: { id: postId } }
+                );
+                await Product_brand.update({
+                  outer: outer_brand,
+                  top: top_brand,
+                  pants: pants_brand,
+                  shoes: shoes_brand,
+                }, { where: { id: postId } });
+                await Product_name.update({
+                  outer: outer_name,
+                  top: top_name,
+                  pants: pants_name,
+                  shoes: shoes_name,
+                }, { where: { id: postId } });
+                await Product_size.update({
+                  outer: outer_size,
+                  top: top_size,
+                  pants: pants_size,
+                  shoes: shoes_size,
+                }, { where: { id: postId } });
+              }else{
+                await Post.update(
+                    { title: title, content: content, category: category, haveInfo: haveInfo, image_1: image_1, image_2: image_2, image_3: image_3, image_4: image_4, image_5: image_5 },
+                    { where: { id: postId } }
+                );
+              }
+            }
+
+
+            res.status(200).json({
+              message: '게시물이 수정 되었습니다.',
+              data: {
+                postId
+              }
+            })
           } catch (e) {
-            console.log('multer Err');
+            console.log('sequelize Err');
             console.log(e);
           }
         }
-      });
-      res.status(404).json({
-        message: '3개 이상의 사진을 등록 해주세요.'
-      })
-    }else{
-      const images = await Post.findOne({
-        attributes: ['image_1', 'image_2', 'image_3', 'image_4', 'image_5'],
-        where: { id: postId}
-      });
 
-      if(images){
-        let imagePathList = Object.values(images.dataValues);
-
-        const fileNames = imagePathList.map((path) => {
-          if(path){
-            return path.slice(31);
-          }
-        });
-        fileNames.map((name) => {
-          if(name){
-            if(fs.existsSync(path.join(__dirname, '..', '..', 'post_img', `${name}`))){
-              try{
-                fs.unlinkSync(path.join(__dirname, '..', '..', 'post_img', `${name}`));
-              } catch (e) {
-                console.log('multer Err');
-                console.log(e);
-              }
-            }
-          }
-        });
-
-        let imageList = [];
-        files.map((file) => {
-          imageList.push(file.path);
-        });
-
-        imagePathList = imageList.map((image) => {
-          return `http://${host}/${image}`;
-        });
-
-
-        const [image_1, image_2, image_3, image_4, image_5] = imagePathList;
-
-        try {
-          if(haveInfo){
-            await Post.update(
-                { title: title, content: content, category: category, haveInfo: haveInfo, image_1: image_1, image_2: image_2, image_3: image_3, image_4: image_4, image_5: image_5 },
-                { where: { id: postId } }
-            );
-            await Product_brand.update({
-              outer: outer_brand,
-              top: top_brand,
-              pants: pants_brand,
-              shoes: shoes_brand,
-            }, { where: { id: postId } });
-            await Product_name.update({
-              outer: outer_name,
-              top: top_name,
-              pants: pants_name,
-              shoes: shoes_name,
-            }, { where: { id: postId } });
-            await Product_size.update({
-              outer: outer_size,
-              top: top_size,
-              pants: pants_size,
-              shoes: shoes_size,
-            }, { where: { id: postId } });
-          }else{
-            await Post.update(
-                { title: title, content: content, category: category, haveInfo: haveInfo, image_1: image_1, image_2: image_2, image_3: image_3, image_4: image_4, image_5: image_5 },
-                { where: { id: postId } }
-            );
-          }
-
-          res.status(200).json({
-            message: '게시물이 수정 되었습니다.',
-            data: {
-              postId
-            }
-          })
-        } catch (e) {
-          console.log('sequelize Err');
-          console.log(e);
-        }
       }
-
+    }else{
+      res.status(401).json({
+        message: '로그인 이후 사용해주세요.'
+      })
     }
-
   },
 
   // 게시물 삭제
