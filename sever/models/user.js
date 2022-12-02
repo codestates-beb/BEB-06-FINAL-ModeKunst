@@ -73,7 +73,11 @@ module.exports = class User extends Sequelize.Model {
                 reported_amount: {
                     type: Sequelize.INTEGER,
                     defaultValue: 0,
-                }
+                },
+                penalty: {
+                    type: Sequelize.BIGINT,
+                    defaultValue: 0,
+                },
             },
             {
                 sequelize,
