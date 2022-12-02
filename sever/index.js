@@ -59,6 +59,7 @@ app.use("/profile_img", express.static("profile_img"));
 app.use("/post_img", express.static("post_img"));
 app.use("/banner_img", express.static("banner_img"));
 app.use("/notice_img", express.static("notice_img"));
+app.use("/nft_img", express.static("nft_img"));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -93,6 +94,7 @@ http.listen(port, () => {
   const post_dir = "./post_img";
   const notice_dir = "./notice_img";
   const banner_dir = "./banner_img";
+  const nft_dir = "./nft_img";
   if (!fs.existsSync(profile_dir)) {
     fs.mkdirSync(profile_dir);
   }
@@ -104,6 +106,9 @@ http.listen(port, () => {
   }
   if (!fs.existsSync(banner_dir)) {
     fs.mkdirSync(banner_dir);
+  }
+  if (!fs.existsSync(nft_dir)) {
+    fs.mkdirSync(nft_dir);
   }
   console.log("Listening...");
 });

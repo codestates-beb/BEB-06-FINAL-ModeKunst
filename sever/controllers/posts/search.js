@@ -11,21 +11,32 @@ module.exports = {
       let diff;
 
       const title = await Post.findAll({
-          where: { title: { [Op.like]: `%${name}%` } },
-          order: literal('likes_num DESC'),
-          attributes: ['id', 'image_1', 'title', 'content', 'category', 'views', 'createdAt', 'UserNickname', 'likes_num', 'reviews_num'],
-          raw: true,
+        where: { title: { [Op.like]: `%${name}%` } },
+        order: literal("likes_num DESC"),
+        attributes: [
+          "id",
+          "image_1",
+          "title",
+          "content",
+          "category",
+          "views",
+          "createdAt",
+          "UserNickname",
+          "likes_num",
+          "reviews_num",
+        ],
+        raw: true,
       });
-      if(title.length){
-          const dateFormatTitles = title.map((post) =>{
-              return new Date(post.createdAt);
-          });
+      if (title.length) {
+        const dateFormatTitles = title.map(post => {
+          return new Date(post.createdAt);
+        });
 
-          diff = many(dateFormatTitles);
+        diff = many(dateFormatTitles);
 
-          title.map((post, i) => {
-              post.createdAt = diff[i]
-          });
+        title.map((post, i) => {
+          post.createdAt = diff[i];
+        });
       }
 
       const content = await Post.findAll({
@@ -57,6 +68,8 @@ module.exports = {
           post.createdAt = diff[i];
         });
       }
+
+      console.log(title, content);
 
       res.status(200).json({
         message: `${name}의 결과 값`,

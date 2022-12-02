@@ -1,5 +1,3 @@
-import Input from "./Input";
-
 function ImageUploader({ register }) {
   return (
     <label className="w-48 h-48 flex justify-center items-center rounded-full border-2 border-slate-100 bg-slate-50 hover:border-transparent hover:bg-yellow-300 shadow-sm cursor-pointer tablet:w-64 tablet:h-64 desktop:w-72 desktop:h-72">

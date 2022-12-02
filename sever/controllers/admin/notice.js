@@ -15,7 +15,6 @@ module.exports = {
       //파일이 있을 때, 래플 등록
       if (token_price > 0) {
         if (req.files.length > 0) {
-          console.log("잉잉", req.files);
           const { host } = req.headers;
           let imageList = [];
           req.files.map((file, idx) => {
@@ -62,7 +61,6 @@ module.exports = {
         }
       }
       if (token_price == 0) {
-        console.log("엌엌");
         if (req.files.length > 0) {
           const { host } = req.headers;
           let imageList = [];
@@ -127,6 +125,79 @@ module.exports = {
     } catch (err) {
       console.log(err);
     }
+    //파일이 없을 때,
+    if (req.files.length == 0) {
+      return res.status(404).json({
+        message:
+          "이미지 파일이 없습니다. 래플을 등록하려면 이미지를 등록해주세요.",
+      });
+    }
+    if (token_price == 0) {
+      console.log("엌엌");
+      if (req.files.length > 0) {
+        const { host } = req.headers;
+        let imageList = [];
+        req.files.map((file, idx) => {
+          imageList.push(file.path);
+        });
+
+        const imagePathList = imageList.map(image => {
+          return `http://${host}/${image}`;
+        });
+
+        const [image_1, image_2, image_3, image_4, image_5] = imagePathList;
+
+        let { title, content } = req.body;
+
+        let notice = await Notice.create({
+          image_1: image_1,
+          image_2: image_2,
+          image_3: image_3,
+          image_4: image_4,
+          image_5: image_5,
+          title: title,
+          content: content,
+          AdminNickname: nickname,
+          token_price: token_price,
+        });
+
+        return res.status(200).json({
+          message: "공지를 등록했습니다.",
+          data: {
+            noticeId: notice.dataValues.id,
+            admin_nickname: notice.dataValues.AdminNickname,
+            title: notice.dataValues.title,
+            content: notice.dataValues.content,
+            token_price: token_price,
+          },
+        });
+      }
+      //파일이 없을 때,
+      if (req.files.length == 0) {
+        let { title, content } = req.body;
+
+        let notice = await Notice.create({
+          title: title,
+          content: content,
+          AdminNickname: nickname,
+          token_price: token_price,
+        });
+
+        return res.status(200).json({
+          message: "공지를 등록했습니다.",
+          data: {
+            noticeId: notice.dataValues.id,
+            admin_nickname: notice.dataValues.AdminNickname,
+            title: notice.dataValues.title,
+            content: notice.dataValues.content,
+            token_price: notice.dataValues.token_price,
+          },
+        });
+      }
+    }
+  },
+  catch(err) {
+    console.log(err);
   },
   //공지 읽기 공지 리스트에서 눌러서 읽었을 때,
   get: async (req, res) => {
