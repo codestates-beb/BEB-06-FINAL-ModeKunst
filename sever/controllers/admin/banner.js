@@ -59,7 +59,6 @@ module.exports = {
     const { host } = req.headers;
     const { bannerId } = req.params;
 
-    console.log(host);
 
     let banner_image = req.file.filename;
     let { banner_url } = req.body;
@@ -75,9 +74,8 @@ module.exports = {
     //기존의 배너가 있는 곳일 때,
     try {
       if (oldBanner) {
-        let imageName = oldBanner.dataValues.image.slice(22);
+        let imageName = oldBanner.dataValues.image.slice(32);
 
-        console.log(imageName, "이미지 이름");
 
         if (
           fs.existsSync(
@@ -94,7 +92,7 @@ module.exports = {
           }
         }
 
-        console.log(host);
+        let imagePath = `http://${host}/banner_img/${banner_image}`;
 
         await Banner.update(
           { image: imagePath, url: banner_url },
@@ -113,24 +111,10 @@ module.exports = {
       console.log(err);
     }
 
-    let imagePath = `http://${host}/${banner_image}`;
 
-    await Banner.update(
-      { image: imagePath, url: banner_url },
-      { where: { id: bannerId } }
-    );
+  },
 
-    return res.status(200).json({
-      message: "배너가 변경 되었습니다.",
-      data: {
-        banner_image: imagePath,
-        banner_url: banner_url,
-      },
-    });
-  },
-  catch(err) {
-    console.log(err);
-  },
+
   delete: async (req, res) => {
     const { bannerId } = req.params;
 
