@@ -619,6 +619,18 @@ module.exports = {
         limit: 4,
         raw: true,
       });
+
+      //보유한 토큰 타이틀 리스트 가져오기
+      const nfts = await Token.findAll({
+        attributes:['title'],
+        where:{ UserNickname :UserNickname}
+      });
+
+      let nftList =[];
+      nfts.map((el)=>{
+        nftList.push(el.dataValues.title);
+      })
+
       let haveReview;
       let isLike;
       let isFollow;
@@ -674,7 +686,9 @@ module.exports = {
               isOwner: true,
               top_post,
               haveReview,
-            },
+              haveNfts : nftList
+            }
+
           });
         } else {
           if (isFollow) {
@@ -706,7 +720,9 @@ module.exports = {
                 isOwner: false,
                 top_post,
                 haveReview,
-              },
+                haveNfts : nftList
+              }
+
             });
           } else {
             res.status(200).json({
@@ -737,7 +753,8 @@ module.exports = {
                 isOwner: false,
                 top_post,
                 haveReview,
-              },
+                haveNfts : nftList
+              }
             });
           }
         }
@@ -773,7 +790,8 @@ module.exports = {
             isLike,
             isOwner: false,
             top_post,
-          },
+            haveNfts : nftList
+          }
         });
       }
     } catch (e) {

@@ -12,5 +12,6 @@ module.exports = {
     tokens: require('./tokens'),
     update: require('./update'),
     chat: require('./chat'),
-    report: require('./report')
+    report: require('./report'),
+    
 }
