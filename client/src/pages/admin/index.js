@@ -7,3 +7,4 @@ export * from "./WriteBanner";
 export * from "./ResetBanner";
 export * from "./BannerList";
 export * from "./WriteNotice";
+export * from "./ResetNotice";

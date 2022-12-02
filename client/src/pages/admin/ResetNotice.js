@@ -1,16 +1,35 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { useSelector } from "react-redux";
 import axios from "axios";
 
 import Swal from "sweetalert2";
 
-function WriteNotice() {
+function ResetNotice() {
   //🟠redux 관리자 정보
+  const { noticeId } = useParams();
   const adminInfo = useSelector(state => state.admin);
   const isAdmin = adminInfo.isAdmin;
   const navigate = useNavigate();
+
+  //🟠공지 상태관리
+  const [notice, setNotice] = useState({});
+  const [content, setContent] = useState("");
+  const [title, setTitle] = useState("");
+  const [tokenPrice, setTokenPrice] = useState(0);
+
+  //🟠이미지 input 값 상태관리
+  const [imagePreview, setImagePreview] = useState([]);
+  const [multipleImages, setMultipleImages] = useState([]);
+  var imageList = [];
+
+  var fileList = [];
+  var fileName1;
+  var fileName2;
+  var fileName3;
+  var fileName4;
+  var fileName5;
 
   //🟠react-hook-form 라이브러리 설정
   const {
@@ -20,9 +39,81 @@ function WriteNotice() {
     watch,
   } = useForm();
 
-  //🟠체크박스, 이미지 input 값 상태관리
-  const [imagePreview, setImagePreview] = useState([]);
-  const [multipleImages, setMultipleImages] = useState([]);
+  // 🟠유저페이지 정보(리뷰 제외) 가져오기
+  useEffect(() => {
+    axios
+      .get(`http://localhost:8000/admin/notice/${noticeId}`, {
+        withCredentials: true,
+      })
+      .then(result => {
+        const data = result.data.data;
+        console.log(data);
+        setNotice(data);
+        setContent(data.content);
+        setTitle(data.title);
+        setTokenPrice(data.token_price);
+      })
+      .catch(e => {
+        console.log(e);
+      });
+  }, [noticeId]);
+
+  //🟠image 가져오면 file 객체의 배열로 만들어줌
+  useEffect(() => {
+    imageList = [
+      notice.image_1,
+      notice.image_2,
+      notice.image_3,
+      notice.image_4,
+      notice.image_5,
+    ].filter(item => {
+      if (item) return item;
+    });
+
+    if (imageList) {
+      console.log(imageList);
+      setImagePreview(imageList);
+      const convert = async () => {
+        fileName1 = await convertURLtoBLOB(imageList[0]);
+
+        if (imageList[1]) {
+          fileName2 = await convertURLtoBLOB(imageList[1]);
+        }
+
+        if (imageList[2]) {
+          fileName3 = await convertURLtoBLOB(imageList[2]);
+        }
+
+        if (imageList[3]) {
+          fileName4 = await convertURLtoBLOB(imageList[3]);
+        }
+        if (imageList[4]) {
+          fileName5 = await convertURLtoBLOB(imageList[4]);
+        }
+
+        fileList = [
+          fileName1,
+          fileName2,
+          fileName3,
+          fileName4,
+          fileName5,
+        ].filter(item => {
+          if (item) return item;
+        });
+        setMultipleImages(fileList);
+      };
+      convert();
+      console.log(multipleImages);
+    }
+  }, [notice]);
+
+  const convertURLtoBLOB = async url => {
+    const blob = await fetch(url).then(result => result.blob());
+    const ext = await url.split(".").pop(); // url 구조에 맞게 수정할 것
+    const filename = await url.split("/").pop(); // url 구조에 맞게 수정할 것
+    const metadata = { type: `image/${ext}` };
+    return new File([blob], filename, metadata);
+  };
 
   //🟠이미지 업로드 함수(onChange)
   const uploadImageHandler = e => {
@@ -115,7 +206,7 @@ function WriteNotice() {
       formData.append("notice_image", image_5);
 
       axios
-        .post("http://localhost:8000/admin/notice", formData, {
+        .put(`http://localhost:8000/admin/notice/${noticeId}`, formData, {
           withCredentials: true,
         })
         .then(result => {
@@ -125,7 +216,7 @@ function WriteNotice() {
             icon: "success",
             text: `${data.message}`,
           });
-          navigate(`/notice/${data.data.noticeId}`);
+          navigate(`/notice/${noticeId}`);
         })
         .catch(e => {
           console.log(e);
@@ -150,7 +241,7 @@ function WriteNotice() {
     return (
       <div className="mt-48 flex flex-col items-center">
         <h1 className="text-3xl font-bold text-center font-title">
-          공지 / 래플 작성
+          공지 / 래플 수정
         </h1>
         <div className="mt-4 w-3/5">
           <div>
@@ -160,8 +251,9 @@ function WriteNotice() {
                   제목
                 </label>
                 <input
-                  {...register("title", { required: "제목을 입력해주세요." })}
+                  {...register("title")}
                   type="text"
+                  defaultValue={title}
                   placeholder="제목을 입력해주세요."
                   className="border-2 border-black rounded-md"
                 />
@@ -174,10 +266,9 @@ function WriteNotice() {
                   내용
                 </label>
                 <textarea
-                  {...register("contents", {
-                    required: "내용을 입력해주세요.",
-                  })}
+                  {...register("contents")}
                   type="text"
+                  defaultValue={content}
                   placeholder="내용을 입력해주세요."
                   className="border-2 border-black rounded-md h-40"
                 />
@@ -236,9 +327,7 @@ function WriteNotice() {
                   필요한 MODE 토큰
                 </label>
                 <input
-                  {...register("token_price", {
-                    required: "래플이 아닌 일반 공지인 경우 0을 기재해주세요.",
-                  })}
+                  {...register("token_price")}
                   type="token_price"
                   defaultValue="0"
                   className="border-2 border-black rounded-md"
@@ -251,7 +340,7 @@ function WriteNotice() {
                 type="submit"
                 className="my-8 py-1 border-b bg-black w-full text-white font-medium text-l rounded-md"
               >
-                작성 완료
+                수정 완료
               </button>
               <div className="h-20" />
             </form>
@@ -262,4 +351,4 @@ function WriteNotice() {
   }
 }
 
-export { WriteNotice };
+export { ResetNotice };

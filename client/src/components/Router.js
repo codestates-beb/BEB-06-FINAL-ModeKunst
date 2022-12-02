@@ -13,6 +13,8 @@ import {
   Followings,
   Followers,
   Search,
+  ReadNotice,
+  NoticeList,
 } from "../pages";
 import { AdminSignup, AdminLogin } from "../pages/admin";
 import Header from "./common/Header";
@@ -50,6 +52,8 @@ export default function Router() {
         <Route path="*" element={<NotFound />} />
         <Route path="/chat" element={<Chat />} />
         <Route path="/search/:name" element={<Search />} />
+        <Route path="/notice" element={<NoticeList />} />
+        <Route path="/notice/:noticeId" element={<ReadNotice />} />
       </Routes>
       <Footer />
     </BrowserRouter>

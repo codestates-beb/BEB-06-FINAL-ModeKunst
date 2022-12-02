@@ -1,5 +1,6 @@
 import { useSelector, useDispatch } from "react-redux";
 import { logout } from "../../store/user";
+import { adminLogout } from "../../store/admin";
 import { convert } from "../../store/screenMode";
 import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
@@ -30,6 +31,9 @@ export default function Header() {
   );
   const { currentScreenMode: screenMode } = useSelector(
     state => state.currentScreenMode
+  );
+  const { nickname: adminNickname, isAdmin } = useSelector(
+    state => state.admin
   );
 
   const screenModeHandler = () => {
@@ -105,7 +109,11 @@ export default function Header() {
           text: "로그아웃 되었습니다",
         });
         toggleMenuHandler();
-        dispatch(logout(loggedInUserInfo.nickname));
+        if (isLoggedIn) {
+          dispatch(logout(loggedInUserInfo.nickname));
+        } else if (isAdmin) {
+          dispatch(adminLogout());
+        }
         navigate("/");
       }
     });
@@ -150,7 +158,7 @@ export default function Header() {
             onClick={toggleMenuHandler}
             className="px-1.5 hover:scale-110 cursor-pointer tablet:text-xl"
           >
-            <Link to="/">HOME</Link>
+            <Link to="/notice">NOTICE</Link>
           </li>
           <li
             onClick={toggleMenuHandler}
@@ -192,7 +200,7 @@ export default function Header() {
           </li>
         </ul>
         {/* 로그인 & 회원가입 */}
-        {isLoggedIn ? (
+        {isLoggedIn || isAdmin ? (
           <div className="self-end flex flex-col items-center space-y-2 text-xs text-white desktop:items-end">
             <button
               onClick={logoutHandler}
@@ -209,7 +217,8 @@ export default function Header() {
                   to={`/user/${loggedInUserInfo.nickname}`}
                   className="text-indigo-800 text-sm font-semibold"
                 >
-                  {loggedInUserInfo.nickname}
+                  {isLoggedIn && loggedInUserInfo.nickname}
+                  {isAdmin && adminNickname}
                 </Link>{" "}
                 님, Ready to Change?
               </span>
