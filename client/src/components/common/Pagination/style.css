@@ -2,9 +2,10 @@
   display: flex;
   justify-content: center;
   margin-top: 50px;
-  /* width: 950px; */
-  border: 1px solid #80deea;
-  background-color: #80deea;
+  width: fit-content;
+  margin: 25px auto 0;
+  border: 1px solid #bce29e;
+  background-color: #bce29e;
   box-shadow: 0px 0px 21px -4px rgba(0, 0, 0, 0.25);
   border-radius: 20px;
   overflow: hidden;
@@ -30,7 +31,7 @@ ul.pagination li:last-child {
 }
 ul.pagination li:hover {
   cursor: pointer;
-  background-color: #88ffff;
+  background-color: #829460;
   color: white;
   transition: background-color ease-in 0.18s;
 }
@@ -44,7 +45,7 @@ ul.pagination li.active a {
   color: white;
 }
 ul.pagination li.active {
-  background-color: #4bacb8;
+  background-color: #6ebf8b;
 }
 ul.pagination li:hover {
   color: white;
