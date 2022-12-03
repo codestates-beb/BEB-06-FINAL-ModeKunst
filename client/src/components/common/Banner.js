@@ -1,5 +1,3 @@
-import CardPost from "./CardPost";
-
 export default function Banner() {
   return (
     <div className="relative my-32 px-10 pt-2 pb-16 rounded-2xl tablet:pt-6 tablet:pb-20 tablet:rounded-t-3xl desktop:px-20 desktop:pb-24">

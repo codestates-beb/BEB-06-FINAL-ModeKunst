@@ -1,10 +1,10 @@
 import { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import Swal from "sweetalert2";
-import CardPost from "../CardPost";
+import PostCard from "../\bPostCard";
 import ClipLoader from "react-spinners/ClipLoader";
 
-export default function InfinitePost() {
+export default function InfinitePosts() {
   const [posts, setPosts] = useState([]);
   const [pageNum, setPageNum] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
@@ -59,7 +59,7 @@ export default function InfinitePost() {
       </h3>
       <div className="pt-8 grid grid-cols-1 gap-8 tablet:grid-cols-2 tablet:pt-12 desktop:grid-cols-4 desktop:gap-28 desktop:pt-16">
         {posts.map((post, idx) => (
-          <CardPost section="main" key={idx} post={post} />
+          <PostCard section="main" key={idx} post={post} />
         ))}
       </div>
       {isLoading && (
