@@ -11,6 +11,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { useSelector } from "react-redux";
+import { motion } from "framer-motion";
 import axios from "axios";
 import Swal from "sweetalert2";
 import {
@@ -20,7 +21,15 @@ import {
   Input,
   Title,
 } from "../components/form";
-import Card from "../components/common/Carousel/Card";
+
+const writePageVar = {
+  enter: { opacity: 0 },
+  visible: { opacity: 1 },
+  invisible: {
+    opacity: 0,
+    transition: { duration: 0.15 },
+  },
+};
 
 function WritePost() {
   const { isLoggedIn } = useSelector(state => state.user);
@@ -140,7 +149,7 @@ function WritePost() {
         pants_size,
         shoes_size,
       } = data;
-      console.log(top_brand);
+      // console.log(top_brand);
       const image_1 = multipleImages[0];
       const image_2 = multipleImages[1];
       const image_3 = multipleImages[2];
@@ -193,267 +202,261 @@ function WritePost() {
     }
   };
 
-  if (!isLoggedIn) {
-    Swal.fire({
-      icon: "info",
-      text: "로그인 후 이용해주세요.",
-    });
-    navigate("/login");
-  } else {
-    return (
-      <div className="w-full px-10 my-40 flex flex-col items-center tablet:px-16 tablet:my-64 select-none">
-        <FormHeader title="게시물 작성" />
-        <form
-          onSubmit={handleSubmit(onValid)}
-          className="w-full space-y-8 tablet:w-3/5 desktop:w-1/2"
-        >
-          <div className="flex flex-col space-y-4">
-            <Title title="제목" />
-            <Input register={register} id="title" type="text" message="제목" />
-            <ErrorMessage error={errors.title} />
-          </div>
-          <div className="flex flex-col space-y-4">
-            <Title title="내용" />
-            <textarea
-              {...register("contents", {
-                required: "내용을 입력해주세요.",
-              })}
-              type="text"
-              className="px-4 py-2 text-sm bg-transparent border-2 border-black rounded-md focus:outline-none focus:border-[3px]"
-            />
-            <ErrorMessage error={errors.contents} />
-          </div>
-          <div className="flex flex-col space-y-4">
-            <Title title="카테고리" />
-            <select
-              defaultValue="casual"
-              {...register("category", {
-                required: "카테고리를 선택해주세요.",
-              })}
-              className="px-2 py-1 text-sm bg-transparent border-2 border-black rounded-md focus:outline-none focus:border-[3px]"
-            >
-              <option value="casual">캐주얼</option>
-              <option value="dandy">댄디</option>
-              <option value="normcore">놈코어</option>
-              <option value="street">스트릿</option>
-            </select>
-          </div>
-          <div className="flex flex-col space-y-4">
-            <Title title="이미지" />
-            <div className="space-y-4">
-              <label className="w-1/5 px-4 py-2 mx-auto flex flex-col justify-center items-center bg-violet-700 hover:bg-yellow-500 rounded-full cursor-pointer">
-                <svg
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={3}
-                  className="w-4 h-4 stroke-slate-50 tablet:w-5 tablet:h-5"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M12 4.5v15m7.5-7.5h-15"
-                  />
-                </svg>
-                <span className="text-xs font-semibold text-slate-50">
-                  {multipleImages ? (
-                    <div>{multipleImages.length} / 5</div>
-                  ) : null}
-                </span>
-                <input
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={uploadImageHandler}
-                  required
+  return (
+    <motion.div
+      variants={writePageVar}
+      initial="enter"
+      animate="visible"
+      exit="invisible"
+      className="w-full px-10 my-40 flex flex-col items-center tablet:px-16 tablet:my-64 select-none"
+    >
+      <FormHeader title="게시물 작성" />
+      <form
+        onSubmit={handleSubmit(onValid)}
+        className="w-full space-y-8 tablet:w-3/5 desktop:w-1/2"
+      >
+        <div className="flex flex-col space-y-4">
+          <Title title="제목" />
+          <Input register={register} id="title" type="text" message="제목" />
+          <ErrorMessage error={errors.title} />
+        </div>
+        <div className="flex flex-col space-y-4">
+          <Title title="내용" />
+          <textarea
+            {...register("contents", {
+              required: "내용을 입력해주세요.",
+            })}
+            type="text"
+            className="px-4 py-2 text-sm bg-transparent border-2 border-black rounded-md focus:outline-none focus:border-[3px]"
+          />
+          <ErrorMessage error={errors.contents} />
+        </div>
+        <div className="flex flex-col space-y-4">
+          <Title title="카테고리" />
+          <select
+            defaultValue="casual"
+            {...register("category", {
+              required: "카테고리를 선택해주세요.",
+            })}
+            className="px-2 py-1 text-sm bg-transparent border-2 border-black rounded-md focus:outline-none focus:border-[3px]"
+          >
+            <option value="casual">캐주얼</option>
+            <option value="dandy">댄디</option>
+            <option value="normcore">놈코어</option>
+            <option value="street">스트릿</option>
+          </select>
+        </div>
+        <div className="flex flex-col space-y-4">
+          <Title title="이미지" />
+          <div className="space-y-4">
+            <label className="w-1/5 px-4 py-2 mx-auto flex flex-col justify-center items-center bg-violet-700 hover:bg-yellow-500 rounded-full cursor-pointer">
+              <svg
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={3}
+                className="w-4 h-4 stroke-slate-50 tablet:w-5 tablet:h-5"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M12 4.5v15m7.5-7.5h-15"
                 />
-                <ErrorMessage error={errors.image} />
-              </label>
-              {imagePreview && (
-                <div className="grid grid-cols-2 gap-2 tablet:grid-cols-3 desktop:grid-cols-5 desktop:gap-5">
-                  {getPreviewImg()}
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div className="flex flex-col space-y-4">
-            <div className="flex flex-col space-y-2">
-              <Title title="옷 정보" />
-              <div className="flex items-center space-x-2">
-                <span className="text-xs font-semibold text-violet-700">
-                  체크하면 옷 정보 입력란이 추가됩니다
-                </span>
-                <input
-                  {...register("fashion-info")}
-                  type="checkbox"
-                  checked={isChecked}
-                  onClick={checkHandler}
-                />
-              </div>
-            </div>
-            {isChecked && (
-              <div className="flex flex-col space-y-3">
-                <div className="flex justify-between items-center space-x-4">
-                  <span className="text-sm font-semibold">상의</span>
-                  <div className="space-x-1">
-                    <input
-                      name="top_brand"
-                      placeholder="브랜드명"
-                      {...register("top_brand")}
-                      className="px-2 py-1 border-b-2 border-b-black bg-transparent placeholder:text-xs placeholder:text-yellow-500 focus:outline-none focus:border-b-[3px]"
-                    />
-                    <input
-                      name="top_name"
-                      placeholder="제품명"
-                      {...register("top_name")}
-                      className="px-2 py-1 border-b-2 border-b-black bg-transparent placeholder:text-xs placeholder:text-yellow-500 focus:outline-none focus:border-b-[3px]"
-                    />
-                    <select
-                      name="top_size"
-                      {...register("top_size")}
-                      className="bg-transparent text-xs focus:outline-none"
-                    >
-                      <option value="S">S</option>
-                      <option value="M">M</option>
-                      <option value="L">L</option>
-                      <option value="XL">XL</option>
-                    </select>
-                  </div>
-                </div>
-                <div className="flex justify-between items-center space-x-4">
-                  <span className="text-sm font-semibold">하의</span>
-                  <div className="space-x-1">
-                    <input
-                      name="top_brand"
-                      placeholder="브랜드명"
-                      {...register("top_brand")}
-                      className="px-2 py-1 border-b-2 border-b-black bg-transparent placeholder:text-xs placeholder:text-yellow-500 focus:outline-none focus:border-b-[3px]"
-                    />
-                    <input
-                      name="top_name"
-                      placeholder="제품명"
-                      {...register("top_name")}
-                      className="px-2 py-1 border-b-2 border-b-black bg-transparent placeholder:text-xs placeholder:text-yellow-500 focus:outline-none focus:border-b-[3px]"
-                    />
-                    <select
-                      name="top_size"
-                      {...register("top_size")}
-                      className="bg-transparent text-xs focus:outline-none"
-                    >
-                      <option value="S">S</option>
-                      <option value="M">M</option>
-                      <option value="L">L</option>
-                      <option value="XL">XL</option>
-                    </select>
-                  </div>
-                </div>
-                <div className="flex justify-between items-center space-x-4">
-                  <span className="text-sm font-semibold">신발</span>
-                  <div className="space-x-1">
-                    <input
-                      name="shoes_brand"
-                      placeholder="브랜드명"
-                      {...register("shoes_brand")}
-                      className="px-2 py-1 border-b-2 border-b-black bg-transparent placeholder:text-xs placeholder:text-yellow-500 focus:outline-none focus:border-b-[3px]"
-                    />
-                    <input
-                      name="shoes_name"
-                      placeholder="제품명"
-                      {...register("shoes_name")}
-                      className="px-2 py-1 border-b-2 border-b-black bg-transparent placeholder:text-xs placeholder:text-yellow-500 focus:outline-none focus:border-b-[3px]"
-                    />
-                    <select
-                      name="shoes_size"
-                      {...register("shoes_size")}
-                      className="bg-transparent text-xs focus:outline-none"
-                    >
-                      <option value="240">240</option>
-                      <option value="250">250</option>
-                      <option value="260">260</option>
-                      <option value="270">270</option>
-                      <option value="280">280</option>
-                    </select>
-                  </div>
-                </div>
-                {isAdded && (
-                  <div className="flex justify-between items-center space-x-4">
-                    <span className="text-sm font-semibold">아우터</span>
-                    <div className="space-x-1">
-                      <input
-                        name="outer_brand"
-                        className="px-2 py-1 border-b-2 border-b-black bg-transparent placeholder:text-xs placeholder:text-yellow-500 focus:outline-none focus:border-b-[3px]"
-                        placeholder="브랜드명"
-                        {...register("outer_brand")}
-                      />
-                      <input
-                        name="outer_name"
-                        className="px-2 py-1 border-b-2 border-b-black bg-transparent placeholder:text-xs placeholder:text-yellow-500 focus:outline-none focus:border-b-[3px]"
-                        placeholder="제품명"
-                        {...register("outer_name")}
-                      />
-                      <select
-                        name="outer_size"
-                        {...register("outer_size")}
-                        className="bg-transparent text-xs focus:outline-none"
-                      >
-                        <option value="S">S</option>
-                        <option value="M">M</option>
-                        <option value="L">L</option>
-                        <option value="XL">XL</option>
-                      </select>
-                    </div>
-                  </div>
-                )}
-                {!isAdded && (
-                  <button onClick={infoAddHandler}>
-                    <svg
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      strokeWidth={1.5}
-                      stroke="currentColor"
-                      className="w-5 h-5"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M12 9v6m3-3H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"
-                      />
-                    </svg>
-                  </button>
-                )}
+              </svg>
+              <span className="text-xs font-semibold text-slate-50">
+                {multipleImages ? <div>{multipleImages.length} / 5</div> : null}
+              </span>
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={uploadImageHandler}
+                required
+              />
+              <ErrorMessage error={errors.image} />
+            </label>
+            {imagePreview && (
+              <div className="grid grid-cols-2 gap-2 tablet:grid-cols-3 desktop:grid-cols-5 desktop:gap-5">
+                {getPreviewImg()}
               </div>
             )}
           </div>
-          <div className="px-4 py-4 flex flex-col space-y-4 border-2 border-black rounded-md">
-            <Title title="📌 상위 게시물로 등록하시겠습니까?" />
-            <div className="px-4 flex flex-col space-y-1 text-sm font-semibold">
-              <span>등록 시 메인 페이지 상단 게시물에 업로드 되며</span>
-              <span>50토큰이 소요됩니다.</span>
-            </div>
-            <div className="px-4 space-x-2">
-              <label className="text-sm font-semibold text-green-500">네</label>
+        </div>
+
+        <div className="flex flex-col space-y-4">
+          <div className="flex flex-col space-y-2">
+            <Title title="옷 정보" />
+            <div className="flex items-center space-x-2">
+              <span className="text-xs font-semibold text-violet-700">
+                체크하면 옷 정보 입력란이 추가됩니다
+              </span>
               <input
-                {...register("upstream", { required: true })}
-                type="radio"
-                value="true"
-              />
-            </div>
-            <div className="px-4 space-x-2">
-              <label className="text-sm font-semibold text-red-500">
-                아니요
-              </label>
-              <input
-                {...register("upstream", { required: true })}
-                type="radio"
-                value="false"
+                {...register("fashion-info")}
+                type="checkbox"
+                checked={isChecked}
+                onClick={checkHandler}
               />
             </div>
           </div>
-          <Button message="작성" />
-        </form>
-      </div>
-    );
-  }
+          {isChecked && (
+            <div className="flex flex-col space-y-3">
+              <div className="flex justify-between items-center space-x-4">
+                <span className="text-sm font-semibold">상의</span>
+                <div className="space-x-1">
+                  <input
+                    name="top_brand"
+                    placeholder="브랜드명"
+                    {...register("top_brand")}
+                    className="px-2 py-1 border-b-2 border-b-black bg-transparent placeholder:text-xs placeholder:text-yellow-500 focus:outline-none focus:border-b-[3px]"
+                  />
+                  <input
+                    name="top_name"
+                    placeholder="제품명"
+                    {...register("top_name")}
+                    className="px-2 py-1 border-b-2 border-b-black bg-transparent placeholder:text-xs placeholder:text-yellow-500 focus:outline-none focus:border-b-[3px]"
+                  />
+                  <select
+                    name="top_size"
+                    {...register("top_size")}
+                    className="bg-transparent text-xs focus:outline-none"
+                  >
+                    <option value="S">S</option>
+                    <option value="M">M</option>
+                    <option value="L">L</option>
+                    <option value="XL">XL</option>
+                  </select>
+                </div>
+              </div>
+              <div className="flex justify-between items-center space-x-4">
+                <span className="text-sm font-semibold">하의</span>
+                <div className="space-x-1">
+                  <input
+                    name="top_brand"
+                    placeholder="브랜드명"
+                    {...register("top_brand")}
+                    className="px-2 py-1 border-b-2 border-b-black bg-transparent placeholder:text-xs placeholder:text-yellow-500 focus:outline-none focus:border-b-[3px]"
+                  />
+                  <input
+                    name="top_name"
+                    placeholder="제품명"
+                    {...register("top_name")}
+                    className="px-2 py-1 border-b-2 border-b-black bg-transparent placeholder:text-xs placeholder:text-yellow-500 focus:outline-none focus:border-b-[3px]"
+                  />
+                  <select
+                    name="top_size"
+                    {...register("top_size")}
+                    className="bg-transparent text-xs focus:outline-none"
+                  >
+                    <option value="S">S</option>
+                    <option value="M">M</option>
+                    <option value="L">L</option>
+                    <option value="XL">XL</option>
+                  </select>
+                </div>
+              </div>
+              <div className="flex justify-between items-center space-x-4">
+                <span className="text-sm font-semibold">신발</span>
+                <div className="space-x-1">
+                  <input
+                    name="shoes_brand"
+                    placeholder="브랜드명"
+                    {...register("shoes_brand")}
+                    className="px-2 py-1 border-b-2 border-b-black bg-transparent placeholder:text-xs placeholder:text-yellow-500 focus:outline-none focus:border-b-[3px]"
+                  />
+                  <input
+                    name="shoes_name"
+                    placeholder="제품명"
+                    {...register("shoes_name")}
+                    className="px-2 py-1 border-b-2 border-b-black bg-transparent placeholder:text-xs placeholder:text-yellow-500 focus:outline-none focus:border-b-[3px]"
+                  />
+                  <select
+                    name="shoes_size"
+                    {...register("shoes_size")}
+                    className="bg-transparent text-xs focus:outline-none"
+                  >
+                    <option value="240">240</option>
+                    <option value="250">250</option>
+                    <option value="260">260</option>
+                    <option value="270">270</option>
+                    <option value="280">280</option>
+                  </select>
+                </div>
+              </div>
+              {isAdded && (
+                <div className="flex justify-between items-center space-x-4">
+                  <span className="text-sm font-semibold">아우터</span>
+                  <div className="space-x-1">
+                    <input
+                      name="outer_brand"
+                      className="px-2 py-1 border-b-2 border-b-black bg-transparent placeholder:text-xs placeholder:text-yellow-500 focus:outline-none focus:border-b-[3px]"
+                      placeholder="브랜드명"
+                      {...register("outer_brand")}
+                    />
+                    <input
+                      name="outer_name"
+                      className="px-2 py-1 border-b-2 border-b-black bg-transparent placeholder:text-xs placeholder:text-yellow-500 focus:outline-none focus:border-b-[3px]"
+                      placeholder="제품명"
+                      {...register("outer_name")}
+                    />
+                    <select
+                      name="outer_size"
+                      {...register("outer_size")}
+                      className="bg-transparent text-xs focus:outline-none"
+                    >
+                      <option value="S">S</option>
+                      <option value="M">M</option>
+                      <option value="L">L</option>
+                      <option value="XL">XL</option>
+                    </select>
+                  </div>
+                </div>
+              )}
+              {!isAdded && (
+                <button onClick={infoAddHandler}>
+                  <svg
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={1.5}
+                    stroke="currentColor"
+                    className="w-5 h-5"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M12 9v6m3-3H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                </button>
+              )}
+            </div>
+          )}
+        </div>
+        <div className="px-4 py-4 flex flex-col space-y-4 border-2 border-black rounded-md">
+          <Title title="📌 상위 게시물로 등록하시겠습니까?" />
+          <div className="px-4 flex flex-col space-y-1 text-sm font-semibold">
+            <span>등록 시 메인 페이지 상단 게시물에 업로드 되며</span>
+            <span>50토큰이 소요됩니다.</span>
+          </div>
+          <div className="px-4 space-x-2">
+            <label className="text-sm font-semibold text-green-500">네</label>
+            <input
+              {...register("upstream", { required: true })}
+              type="radio"
+              value="true"
+            />
+          </div>
+          <div className="px-4 space-x-2">
+            <label className="text-sm font-semibold text-red-500">아니요</label>
+            <input
+              {...register("upstream", { required: true })}
+              type="radio"
+              value="false"
+            />
+          </div>
+        </div>
+        <Button message="작성" />
+      </form>
+    </motion.div>
+  );
 }
 
 export { WritePost };

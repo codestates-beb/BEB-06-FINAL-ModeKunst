@@ -13,7 +13,6 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import "./carousel.css";
 import Card from "./Card";
-// import CardPost from "../CardPost";
 
 const StyledSlider = styled(Slider)`
   width: 90%;

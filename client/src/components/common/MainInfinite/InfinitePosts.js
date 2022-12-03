@@ -1,10 +1,10 @@
 import { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import Swal from "sweetalert2";
-import PostCard from "../PostCard";
+import PostCard from "../\bPostCard";
 import ClipLoader from "react-spinners/ClipLoader";
 
-export default function InfinitePost() {
+export default function InfinitePosts() {
   const [posts, setPosts] = useState([]);
   const [pageNum, setPageNum] = useState(1);
   const [isLoading, setIsLoading] = useState(false);

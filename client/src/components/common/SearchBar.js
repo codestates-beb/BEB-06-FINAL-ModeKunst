@@ -1,9 +1,18 @@
-// 📌 TODOS
-// 1) 서치바 너비 손보기 (좌측이 뜸)
+import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 
-export default function SearchBar({ closeModal }) {
+const searchbarVar = {
+  enter: { opacity: 0, width: 0 },
+  visible: { opacity: 1, width: "100%" },
+  invisible: {
+    opacity: 0,
+    x: window.innerWidth,
+    transition: { duration: 0.2 },
+  },
+};
+
+export default function SearchBar({ closeModal, innerRef }) {
   const [input, setInput] = useState("");
   const navigate = useNavigate();
 
@@ -12,7 +21,14 @@ export default function SearchBar({ closeModal }) {
   };
 
   return (
-    <div className="fixed top-0 right-0 bottom-0 left-0 w-screen h-screen">
+    <motion.div
+      variants={searchbarVar}
+      initial="enter"
+      animate="visible"
+      exit="invisible"
+      ref={innerRef}
+      className="fixed top-0 right-0 bottom-0 left-0 w-screen h-screen"
+    >
       <div
         onClick={() => closeModal(false)}
         className="fixed top-0 right-0 bottom-0 left-0 w-screen h-screen bg-black opacity-50"
@@ -40,21 +56,18 @@ export default function SearchBar({ closeModal }) {
               />
             </svg>
           </button>
-
           <input
             type="text"
             onChange={changeInputHandler}
-            placeholder="원하시는 포스트를 검색해보세요."
-            className="my-3 px-6 py-3 w-1/3 border-2 border-slate-600 rounded-md focus:outline-none hover:bg-slate-100"
+            className="w-1/2 my-4 px-3 py-0.5 border-b-2 border-b-slate-600 focus:border-b-[3px] focus:outline-none tablet:my-8"
           />
-
           <button className="hover:scale-110" onClick={() => closeModal(false)}>
             <svg
               fill="none"
               viewBox="0 0 24 24"
-              strokeWidth={1.5}
+              strokeWidth={2}
               stroke="currentColor"
-              className="w-6 h-6"
+              className="w-5 h-5"
             >
               <path
                 strokeLinecap="round"
@@ -65,6 +78,6 @@ export default function SearchBar({ closeModal }) {
           </button>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }
