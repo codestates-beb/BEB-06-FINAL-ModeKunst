@@ -87,7 +87,6 @@ export default function Header() {
           data: { data },
         } = result;
         setTokenInfo(data);
-        console.log(data);
       }
       setIsTokenBtnClicked(prevState => !prevState);
     } catch (error) {

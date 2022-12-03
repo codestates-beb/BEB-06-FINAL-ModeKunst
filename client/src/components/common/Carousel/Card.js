@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 
 const cardVariant = {
   initial: { x: 0 },
-  action: { x: 10, transition: { duration: 0.15 } },
+  action: { x: 2, transition: { duration: 0.15 } },
 };
 
 export default function Card({ imageUrl }) {
