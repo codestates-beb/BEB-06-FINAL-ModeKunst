@@ -20,6 +20,15 @@ module.exports = {
         paranoid: false,
       });
 
+      const {penalty} = await User.findOne({
+        attributes:['penalty'],
+        where:{nickname:nickname}
+      });
+
+      if(penalty){
+        return res.json({message:"이용이 제한된 사용자 입니다. 리뷰 작성에 제한됩니다."})
+      }
+
       if (!review) {
         // 여기가 새 리뷰
         try {

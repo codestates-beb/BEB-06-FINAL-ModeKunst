@@ -26,7 +26,7 @@ function AdminLogin() {
       setValue("password", "");
 
       setLoading(false);
-      navigate(-1);
+      navigate("/admin");
     } catch (e) {
       console.log(e);
     }

@@ -29,6 +29,10 @@ module.exports = class Token extends Sequelize.Model {
                     type: Sequelize.STRING,
                     allowNull: false,
                 },
+                tokenid:{
+                    type:Sequelize.INTEGER,
+                    allowNull : false,
+                }
             },
             {
                 sequelize,

@@ -80,4 +80,8 @@ router.get("/logout", isLoggedIn, usersController.logout.get);
 //회원탈퇴
 router.delete("/deluser", isLoggedIn, usersController.delete.delete);
 
+
+
+
+
 module.exports = router;

@@ -194,22 +194,39 @@ function Chat(props) {
         {joinRoom ? (
           chatData.length ? (
             <div>
-              <div>
-                <button onClick={leaveRoom}>X</button>
-              </div>
-              {chatData.map((chat, i) => {
-                return (
-                  <div key={i}>
-                    <p>{chat.senderNickname}</p>
-                    <p>{chat.message}</p>
-                    <p>{chat.createdAt}</p>
+              {joinRoom ? (
+                chatData.length ? (
+                  <div>
+                    <div>
+                      <button onClick={leaveRoom}>X</button>
+                    </div>
+                    {chatData.map((chat, i) => {
+                      return (
+                        <div key={i}>
+                          <p>{chat.senderNickname}</p>
+                          <p>{chat.message}</p>
+                          <p>{chat.createdAt}</p>
+                        </div>
+                      );
+                    })}
+                    <div>
+                      <input onChange={writeMsg} />
+                      {message ? <button onClick={sendMsg}>send</button> : null}
+                    </div>
                   </div>
-                );
-              })}
-              <div>
-                <input onChange={writeMsg} />
-                {message ? <button onClick={sendMsg}>send</button> : null}
-              </div>
+                ) : (
+                  <div>
+                    <div>
+                      <button onClick={leaveRoom}>X</button>
+                    </div>
+                    <div>대화 내용이 없습니다.</div>
+                    <div>
+                      <input onChange={writeMsg} />
+                      {message ? <button onClick={sendMsg}>send</button> : null}
+                    </div>
+                  </div>
+                )
+              ) : null}
             </div>
           ) : (
             <div>

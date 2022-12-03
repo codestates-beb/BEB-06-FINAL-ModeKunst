@@ -19,9 +19,12 @@ module.exports = {
         raw: true
       });
 
-      let isFollow = await Follow.findOne({
-        where: { follower: login_user, following: nickname}
-      });
+      let isFollow
+      if(login_user){
+        isFollow = await Follow.findOne({
+          where: { follower: login_user, following: nickname}
+        });
+      }
 
       isFollow = !!isFollow;
 
@@ -66,6 +69,19 @@ module.exports = {
         delete (post['User.profile_img']);
         return {...post, ...data}
       });
+
+      let nfts = await Token.findAll({
+        attributes: ['title','image','createdAt'],
+        where:{UserNickname: nickname}
+      });
+
+      nfts = nfts.map((nft)=>{
+          return {
+            title: nft.dataValues.title,
+            image: nft.dataValues.image,
+            createdAt : nft.dataValues.createdAt
+          }
+      })
 
       if(user){
         try{
@@ -121,7 +137,8 @@ module.exports = {
                 likePosts,
                 followers: realFollowers,
                 followings: realFollowings,
-                isFollow
+                isFollow,
+                NFTs : nfts,
             }
           });
         } catch (e) {

@@ -1,3 +1,6 @@
+// 🗒 TODOS
+// 1) SearchBar 사라져서 추가해야 함
+
 import { useSelector, useDispatch } from "react-redux";
 import { logout } from "../../store/user";
 import { convert } from "../../store/screenMode";

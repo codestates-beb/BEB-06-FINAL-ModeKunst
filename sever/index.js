@@ -138,6 +138,7 @@ io.on("connection", socket => {
     });
 
     socket.on("createOrEnter", data => {
+      console.log(socket.adapter.rooms);
       const { sender, receiver } = data;
       // 먼저 DM 보낸 사람이랑 받는 사람으로 DB에 방이 있는지 확인 후 데이터 값 클라이언트에 전달
       // 1. 방이 있으면 전에 있던 데이터와 방 ID

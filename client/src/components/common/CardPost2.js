@@ -3,6 +3,7 @@
 import { Link } from "react-router-dom";
 
 export default function CardPostTwo({ post, section }) {
+
   return (
     <div className="mt-2 relative w-full transition-all duration-75 ease-in hover:scale-105 cursor-pointer">
       {section === "searchResults" ? (
@@ -25,7 +26,7 @@ export default function CardPostTwo({ post, section }) {
               <div>
                 <span>{post.UserNickname} </span>
                 <span>views: {post.views}</span>
-                <span>likes</span>
+                <span>likes: {post.likes_num}</span>
               </div>
             ) : (
               ""

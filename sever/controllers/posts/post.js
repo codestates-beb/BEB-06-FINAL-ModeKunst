@@ -24,6 +24,7 @@ module.exports = {
   post: async (req, res) => {
     // 이미지가 3개 미만일 때 게시물 작성 안됨
 
+
     if (req.files.length <= 2) {
       req.files.map(file => {
         if (
@@ -45,6 +46,8 @@ module.exports = {
         message: "3개 이상의 사진을 등록 해주세요.",
       });
     } else {
+
+
       const { host } = req.headers;
       let imageList = [];
       req.files.map((file, i) => {
@@ -79,11 +82,15 @@ module.exports = {
       top_post = top_post === "true";
       haveInfo = haveInfo === "true";
 
-      const { write_count } = await User.findOne({
+      const { write_count,penalty } = await User.findOne({
         where: { nickname: nickname },
-        attributes: ["write_count"],
+        attributes: ["write_count","penalty"],
         raw: true,
       });
+
+      if(penalty){
+        return res.status(200).json({message:"이용이 제한된 사용자 입니다. 게시물 작성에 제한 됩니다."});
+      }
 
       const { address } = await Server.findOne({
         attributes: ["address"],
@@ -161,6 +168,7 @@ module.exports = {
                     shoes: shoes_size,
                     PostId: id,
                   });
+
 
                   await User.decrement(
                     { point_amount: top_post_price },
@@ -619,6 +627,18 @@ module.exports = {
         limit: 4,
         raw: true,
       });
+
+      //보유한 토큰 타이틀 리스트 가져오기
+      const nfts = await Token.findAll({
+        attributes:['title'],
+        where:{ UserNickname :UserNickname}
+      });
+
+      let nftList =[];
+      nfts.map((el)=>{
+        nftList.push(el.dataValues.title);
+      })
+
       let haveReview;
       let isLike;
       let isFollow;
@@ -674,7 +694,9 @@ module.exports = {
               isOwner: true,
               top_post,
               haveReview,
-            },
+              haveNfts : nftList
+            }
+
           });
         } else {
           if (isFollow) {
@@ -706,7 +728,9 @@ module.exports = {
                 isOwner: false,
                 top_post,
                 haveReview,
-              },
+                haveNfts : nftList
+              }
+
             });
           } else {
             res.status(200).json({
@@ -737,7 +761,8 @@ module.exports = {
                 isOwner: false,
                 top_post,
                 haveReview,
-              },
+                haveNfts : nftList
+              }
             });
           }
         }
@@ -773,7 +798,8 @@ module.exports = {
             isLike,
             isOwner: false,
             top_post,
-          },
+            haveNfts : nftList
+          }
         });
       }
     } catch (e) {

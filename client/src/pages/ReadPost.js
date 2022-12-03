@@ -68,10 +68,15 @@ function ReadPost() {
   const { userInfo: loggedInUser, isLoggedIn } = useSelector(
     state => state.user
   );
+
   const { currentScreenMode: screenMode } = useSelector(
     state => state.currentScreenMode
   );
+  const { isAdmin, nickname: adminNickname } = useSelector(
+    state => state.admin
+  );
   const { id } = useParams();
+
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const reviewRef = useRef();
