@@ -131,7 +131,7 @@ export default function Carousel() {
     <div className="relative my-32 px-10 pt-2 pb-16 rounded-2xl tablet:pt-6 tablet:pb-20 tablet:rounded-t-3xl desktop:px-20 desktop:pb-24">
       <div className="absolute top-0 left-0 right-0 mx-auto w-2/5 border-t-4 border-t-yellow-400" />
       <h3 className="pt-6 text-xl text-center font-bold font-title tablet:pt-10 tablet:text-3xl desktop:pt-14 desktop:text-4xl">
-        # 이런 룩은 어떠세요? 🎁
+        # 이런 룩은 어때요? 🎁
       </h3>
       <div className="pt-8 tablet:pt-12 desktop:pt-16">
         <div className="relative">

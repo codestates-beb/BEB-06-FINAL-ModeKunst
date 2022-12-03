@@ -196,7 +196,7 @@ function WritePost() {
           console.log(error);
           Swal.fire({
             icon: "info",
-            text: "업로드에 실패했습니다.",
+            text: `${error.response.data.message}`,
           });
         });
     }
@@ -434,7 +434,7 @@ function WritePost() {
           <Title title="📌 상위 게시물로 등록하시겠습니까?" />
           <div className="px-4 flex flex-col space-y-1 text-sm font-semibold">
             <span>등록 시 메인 페이지 상단 게시물에 업로드 되며</span>
-            <span>50토큰이 소요됩니다.</span>
+            <span>일정 포인트(NODE)가 소모됩니다.</span>
           </div>
           <div className="px-4 space-x-2">
             <label className="text-sm font-semibold text-green-500">네</label>
