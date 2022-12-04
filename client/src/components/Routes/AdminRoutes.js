@@ -7,6 +7,7 @@ import {
   AdminMain,
   AdminReport,
   AdminNFT,
+  NFTList,
 } from "../../pages/admin";
 
 export default function AdminRoutes() {
@@ -19,7 +20,8 @@ export default function AdminRoutes() {
         <Route path="resetbanner/:bannerId" element={<ResetBanner />} />
         <Route path="writenotice" element={<WriteNotice />} />
         <Route path="report" element={<AdminReport />} />
-        <Route path="nft" element={<AdminNFT />} />
+        <Route path="nft/mint" element={<AdminNFT />} />
+        <Route path="nft/list" element={<NFTList />} />
       </Routes>
     </>
   );

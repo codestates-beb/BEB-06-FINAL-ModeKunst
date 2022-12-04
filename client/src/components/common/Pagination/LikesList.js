@@ -4,7 +4,7 @@
 // 3) desktop 인 경우) -> 8개
 
 import { useEffect, useState } from "react";
-import PostCard from "../PostCard";
+import PostCard from "../PostCard";
 import FollowCard from "../FollowCard";
 import cls from "../../../utils/setClassnames";
 import Pagination from "react-js-pagination";

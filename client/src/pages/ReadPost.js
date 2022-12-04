@@ -842,7 +842,7 @@ function ReadPost() {
             <span className="mr-2 text-xs text-slate-50 font-semibold self-end tablet:text-sm">
               {reviewsCount > 0 && `총 ${reviewsCount}개의 리뷰`}
             </span>
-            {isLoggedIn ? (
+            {isLoggedIn || isAdmin ? (
               <div>
                 {isOwner ? null : haveReview ? null : (
                   <div className="w-9/10 mx-auto px-6 py-4 flex flex-col space-y-2 tablet:px-8 tablet:py-6 tablet:w-3/4 desktop:px-12 desktop:py-10">

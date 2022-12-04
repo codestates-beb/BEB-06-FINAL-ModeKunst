@@ -101,7 +101,7 @@ function Search() {
           onChange={changeInputHandler}
           placeholder="컨텐츠의 제목, 내용을 검색해보세요."
           defulatValue={name}
-          className="flex w-full mx-2 border-transparent focus:border-transparent focus:ring-0"
+          className="flex w-full mx-2 border-transparent focus:border-transparent focus:ring-0 bg-transparent"
         />
         <button
           className="hover:scale-110 flex"
