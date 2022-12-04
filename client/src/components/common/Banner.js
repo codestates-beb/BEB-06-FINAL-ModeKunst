@@ -1,4 +1,4 @@
-import CardPost from "./CardPost";
+import PostCard from "./PostCard";
 
 export default function Banner() {
   return (
