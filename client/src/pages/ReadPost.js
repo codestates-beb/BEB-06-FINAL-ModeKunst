@@ -155,7 +155,7 @@ function ReadPost() {
         setWriter(data.user.nickname);
         setWriterProfile(data.user.profile_img);
         setPost(data.post);
-        setLikeCount(data.likes_counts);
+        setLikeCount(data.likes_num);
         setReviewsCount(data.reviews_num);
         setSimilarLook(data.similarLook);
         setIsOwner(data.isOwner);
@@ -199,7 +199,7 @@ function ReadPost() {
   const likeHandler = () => {
     Swal.fire({
       icon: "info",
-      text: "좋아요를 누르시면 5토큰이 차감되며, 좋아요를 취소하셔도 반환되지 않습니다.",
+      text: "좋아요를 누르면 5 MODE 만큼 차감되며 좋아요를 취소해도 반환되지 않습니다.",
     });
     if (!isLike) {
       axios
@@ -347,7 +347,6 @@ function ReadPost() {
       });
   };
 
-  // 게시글 작성 유저 신고
   const reportUser = () => {
     console.log(1);
     axios
@@ -466,7 +465,7 @@ function ReadPost() {
   };
 
   return (
-    <div className="w-full px-10 my-40 flex flex-col items-center tablet:px-16 tablet:my-64 select-none">
+    <div className="max-w-[1400px] w-full px-10 my-40 flex flex-col items-center tablet:px-16 tablet:my-64 select-none">
       {/* 포스트 제목 & 기타 버튼 모음 */}
       <div className="w-full flex flex-col space-y-1 tablet:w-3/4">
         <span className="ml-2 w-fit inline-block text-xs text-white px-1 py-0.5 bg-amber-300 rounded-full drop-shadow tablet:px-2 tablet:py-1 tablet:text-sm">
@@ -589,7 +588,7 @@ function ReadPost() {
               해당 포스트의 주인입니다
             </h5>
           </div>
-          <div className="bg-slate-300 border-[3px] border-black rounded-md">
+          <div className="bg-slate-300 border-[3px] border-black rounded-2xl">
             <div className="flex items-center space-x-5 px-4 py-3">
               <img
                 src={writerProfile}
@@ -644,7 +643,7 @@ function ReadPost() {
                   stroke="currentColor"
                   className={cls(
                     "w-5 h-5 tablet:w-6 tablet:h-6",
-                    isLike ? "fill-red" : ""
+                    isLike ? "fill-red-500" : ""
                   )}
                 >
                   <path
@@ -874,11 +873,14 @@ function ReadPost() {
                 )}
 
                 <div>
-                  <div className="px-10 py-7 space-y-3 divide-y-2 divide-black tablet:space-y-7 desktop:space-y-9">
+                  <div className="px-10 py-7 space-y-3 tablet:space-y-7 desktop:space-y-9">
                     {reviews?.length ? (
                       modifiedReviews.map((review, idx) => {
                         return (
-                          <div key={idx}>
+                          <div
+                            key={idx}
+                            className="px-4 py-2 bg-slate-300 rounded-md shadow-lg border-2 border-black"
+                          >
                             <div className="flex flex-col justify-start items-start space-y-2 text-black">
                               <div className="w-full flex flex-col space-y-1">
                                 <span className="text-base font-semibold">
@@ -984,126 +986,6 @@ function ReadPost() {
                         </span>
                       </div>
                     )}
-                    <div>
-                      <div>
-                        {reviews?.length ? (
-                          // ⭕️ 리뷰 뿌려주기
-                          modifiedReviews.map((review, idx) => {
-                            return (
-                              <div key={idx}>
-                                <div>
-                                  <Link to={`/user/${review.nickname}`}>
-                                    <div className="mt-4 font-bold">
-                                      {review.nickname}
-                                    </div>
-                                  </Link>
-                                  <span className="text-xs font-semibold inline-block px-1 py-0.5 bg-cyan-400 rounded-full text-slate-50">
-                                    {review.create_at}
-                                  </span>
-                                  {/* 📍 리뷰 내용 */}
-                                  {loggedInUser.nickname === review.nickname &&
-                                  isEditReview ? null : (
-                                    <div className="text-sm">
-                                      {review.content}
-                                    </div>
-                                  )}
-                                </div>
-                                {loggedInUser.nickname === review.nickname ? (
-                                  <div className="space-x-2">
-                                    {/* 📍 수정 버튼 */}
-                                    {!isEditReview ? (
-                                      // 수정모드 OFF
-                                      <div>
-                                        <button
-                                          onClick={() => {
-                                            setIsEditReview(true);
-                                            setEditTargetReview(review.content);
-                                          }}
-                                          className="bg-yellow-300 px-2 py-0.5 rounded-full inline-block text-center text-xs text-slate-800"
-                                        >
-                                          수정
-                                        </button>
-                                        <button
-                                          className="bg-pink-300 px-2 py-0.5 rounded-full inline-block text-center text-xs text-slate-800"
-                                          onClick={deleteReview}
-                                        >
-                                          삭제
-                                        </button>
-                                      </div>
-                                    ) : (
-                                      // 수정모드 ON
-                                      <div>
-                                        <input
-                                          type="text"
-                                          value={editTargetReview}
-                                          onChange={e =>
-                                            setEditTargetReview(e.target.value)
-                                          }
-                                        />
-                                        <button
-                                          onClick={() => {
-                                            setIsEditReview(false);
-                                          }}
-                                        >
-                                          취소
-                                        </button>
-                                        <button onClick={editReview}>
-                                          수정
-                                        </button>
-                                      </div>
-                                    )}
-                                  </div>
-                                ) : null}
-                              </div>
-                            );
-                          })
-                        ) : (
-                          <div>리뷰가 없습니다.</div>
-                        )}
-                      </div>
-                      <div className="flex justify-center">
-                        {!isLast && (
-                          <button
-                            onClick={showReviewsByFour}
-                            className="bg-slate-50 hover:bg-yellow-200 px-2 py-1 text-base font-semibold rounded-full shadow-md"
-                          >
-                            <svg
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              strokeWidth={2}
-                              stroke="currentColor"
-                              className="w-4 h-4"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                d="M19.5 8.25l-7.5 7.5-7.5-7.5"
-                              />
-                            </svg>
-                          </button>
-                        )}
-                        {!isFirst && (
-                          <button
-                            onClick={initReviews}
-                            className="bg-slate-50 hover:bg-yellow-200 px-2 py-1 text-base font-semibold rounded-full shadow-md"
-                          >
-                            <svg
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              strokeWidth={2}
-                              stroke="currentColor"
-                              className="w-4 h-4"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                d="M4.5 12.75l7.5-7.5 7.5 7.5m-15 6l7.5-7.5 7.5 7.5"
-                              />
-                            </svg>
-                          </button>
-                        )}
-                      </div>
-                    </div>
                   </div>
 
                   {reviewsCount > 0 ? (

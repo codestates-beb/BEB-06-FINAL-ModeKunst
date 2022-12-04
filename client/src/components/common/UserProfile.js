@@ -4,10 +4,22 @@ import { select } from "../../store/selectedSection";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useParams, useNavigate, Outlet } from "react-router-dom";
+import { motion } from "framer-motion";
 import cls from "../../utils/setClassnames";
 
+const userProfileVar = {
+  enter: { opacity: 0 },
+  visible: { opacity: 1 },
+  invisible: {
+    opacity: 0,
+    transition: { duration: 0.15 },
+  },
+};
+
 export default function UserProfile() {
-  const { userInfo: loggedInUser } = useSelector(state => state.user);
+  const { userInfo: loggedInUser, isLoggedIn } = useSelector(
+    state => state.user
+  );
   const screenMode = useSelector(
     state => state.currentScreenMode
   ).currentScreenMode;
@@ -32,7 +44,7 @@ export default function UserProfile() {
           `http://localhost:8000/users/mypage/${nickname}`,
           { withCredentials: true }
         );
-        console.log(result);
+        // console.log(result);
         const {
           user,
           follow_amount,
@@ -97,10 +109,16 @@ export default function UserProfile() {
   };
 
   return (
-    <div className="w-full mx-auto max-w-[1400px] px-5 space-y-16 flex flex-col items-center my-40 tablet:px-16 tablet:my-64 select-none">
+    <motion.div
+      variants={userProfileVar}
+      initial="enter"
+      animate="visible"
+      exit="invisible"
+      className="w-full mx-auto max-w-[1400px] px-5 space-y-16 flex flex-col items-center my-40 tablet:px-16 tablet:my-64 select-none"
+    >
       <div
         className={cls(
-          "grid grid-cols-1 gap-5 place-items-center w-full px-10 py-10 space-y-5 bg-slate-300 rounded-lg border-[3px] border-black desktop:w-4/5",
+          "grid grid-cols-1 gap-5 place-items-center w-full px-10 py-10 space-y-5 bg-slate-800 rounded-lg border-[3px] border-black desktop:w-4/5",
           loggedInUser.nickname === nickname
             ? "tablet:grid-cols-2"
             : "tablet:grid-cols-3"
@@ -111,10 +129,10 @@ export default function UserProfile() {
           <img
             alt="profile_image"
             src={user.profile_img}
-            className="w-full h-full object-cover bg-slate-200 shadow-lg rounded-full"
+            className="w-full h-full object-cover rounded-full"
           />
         </div>
-        {/* 2) 컬렉션 */}
+        {/* 2) 정보 뭉치 */}
         <div
           className={cls(
             "h-full flex flex-col justify-evenly items-center space-y-2 flex-1 tablet:items-start",
@@ -125,7 +143,7 @@ export default function UserProfile() {
         >
           {/* 2-1) 닉네임, 채팅, 설정 */}
           <div className="flex items-center space-x-1 tablet:space-x-2 desktop:space-x-3">
-            <span className="text-2xl font-title font-semibold tablet:text-4xl tablet:font-bold desktop:text-5xl">
+            <span className="text-2xl text-slate-50 font-title font-semibold tablet:text-4xl tablet:font-bold desktop:text-5xl">
               {nickname}
             </span>
             {loggedInUser.nickname === nickname ? (
@@ -321,6 +339,6 @@ export default function UserProfile() {
         </div>
         <Outlet context={{ nickname, posts, followings }} />
       </div>
-    </div>
+    </motion.div>
   );
 }
