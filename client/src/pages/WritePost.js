@@ -149,7 +149,8 @@ function WritePost() {
         pants_size,
         shoes_size,
       } = data;
-      // console.log(top_brand);
+      console.log(data);
+
       const image_1 = multipleImages[0];
       const image_2 = multipleImages[1];
       const image_3 = multipleImages[2];
@@ -330,20 +331,20 @@ function WritePost() {
                 <span className="text-sm font-semibold">하의</span>
                 <div className="space-x-1">
                   <input
-                    name="top_brand"
+                    name="pants_brand"
                     placeholder="브랜드명"
-                    {...register("top_brand")}
+                    {...register("pants_brand")}
                     className="px-2 py-1 border-b-2 border-b-black bg-transparent placeholder:text-xs placeholder:text-yellow-500 focus:outline-none focus:border-b-[3px]"
                   />
                   <input
-                    name="top_name"
+                    name="pants_name"
                     placeholder="제품명"
-                    {...register("top_name")}
+                    {...register("pants_name")}
                     className="px-2 py-1 border-b-2 border-b-black bg-transparent placeholder:text-xs placeholder:text-yellow-500 focus:outline-none focus:border-b-[3px]"
                   />
                   <select
-                    name="top_size"
-                    {...register("top_size")}
+                    name="pants_size"
+                    {...register("pants_size")}
                     className="bg-transparent text-xs focus:outline-none"
                   >
                     <option value="S">S</option>
