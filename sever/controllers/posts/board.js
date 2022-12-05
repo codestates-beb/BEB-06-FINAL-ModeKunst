@@ -11,7 +11,7 @@ module.exports = {
       attributes: ['id', 'image', 'url', 'createdAt'],
       raw: true
     });
-
+    console.log(banner);
     const top_post = await Post.findAll({
       include: [ { model: User, attributes: ['profile_img'] } ],
       order: literal('createdAt DESC'),
