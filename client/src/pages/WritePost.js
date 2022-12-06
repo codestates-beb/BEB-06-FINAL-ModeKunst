@@ -114,7 +114,10 @@ function WritePost() {
   const checkHandler = e => {
     setIsChecked(!isChecked);
     if (!isChecked) {
-      alert("체크하시면 토큰을 10만큼 더 수령합니다. 정성껏 작성해주세요.");
+      Swal.fire({
+        icon: "info",
+        text: "Fashion Info를 작성해주시면 10 NODE를 수령합니다. 정성껏 작성해주세요.",
+      });
     }
   };
 
@@ -332,18 +335,18 @@ function WritePost() {
                   <input
                     name="top_brand"
                     placeholder="브랜드명"
-                    {...register("top_brand")}
+                    {...register("pants_brand")}
                     className="px-2 py-1 border-b-2 border-b-black bg-transparent placeholder:text-xs placeholder:text-yellow-500 focus:outline-none focus:border-b-[3px]"
                   />
                   <input
                     name="top_name"
                     placeholder="제품명"
-                    {...register("top_name")}
+                    {...register("pants_name")}
                     className="px-2 py-1 border-b-2 border-b-black bg-transparent placeholder:text-xs placeholder:text-yellow-500 focus:outline-none focus:border-b-[3px]"
                   />
                   <select
                     name="top_size"
-                    {...register("top_size")}
+                    {...register("pants_size")}
                     className="bg-transparent text-xs focus:outline-none"
                   >
                     <option value="S">S</option>

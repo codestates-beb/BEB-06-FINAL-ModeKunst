@@ -86,9 +86,9 @@ function ReadPost() {
   const COLOR_STD2 = 2;
 
   // 포스트 & 리뷰 관련 state
-  const [brand, setBrand] = useState("");
-  const [size, setSize] = useState("");
-  const [names, setNames] = useState("");
+  const [brands, setBrands] = useState({});
+  const [sizes, setSizes] = useState({});
+  const [names, setNames] = useState({});
   const [reviews, setReviews] = useState([]);
   const [reviewsCount, setReviewsCount] = useState("");
   const [likeCount, setLikeCount] = useState("");
@@ -132,6 +132,15 @@ function ReadPost() {
       dispatch(convert("desktop"));
     }
   };
+  useEffect(() => {
+    if (!isLoggedIn) {
+      Swal.fire({
+        icon: "warning",
+        text: "로그인 후 이용해주세요.",
+      });
+      navigate("/login");
+    }
+  }, []);
 
   useEffect(() => {
     window.addEventListener("load", screenModeHandler);
@@ -161,8 +170,8 @@ function ReadPost() {
         setIsOwner(data.isOwner);
         setIsFollow(data.isFollow);
         setIsLike(data.isLike);
-        setBrand(data.product_brand);
-        setSize(data.product_size);
+        setBrands(data.product_brand);
+        setSizes(data.product_size);
         setNames(data.product_name);
         setHaveReview(data.haveReview);
       } catch (error) {
@@ -194,7 +203,7 @@ function ReadPost() {
     setModifiedReviews(reviews.slice(0, STD_NUM * std));
   }, [reviewsCount, toggleReview]);
 
-  const sendMessage = () => {};
+  // const sendMessage = () => {};
 
   const likeHandler = () => {
     Swal.fire({
@@ -261,7 +270,6 @@ function ReadPost() {
             result.data.data;
           // 리뷰 작성 후에 reviews state 수정
           // post 요청으로 등록했기 때문에 새로고침해도 등록된 모든 리뷰를 불러옴
-          console.log(newReviews);
           setReviews(newReviews);
           setReviewsCount(newReviewsCount);
           setHaveReview(true);
@@ -287,7 +295,6 @@ function ReadPost() {
         })
         .then(result => {
           const { reviews: newReviews } = result.data.data;
-          console.log(newReviews);
           setReviews(newReviews);
           setIsEditReview(false); // 수정모드 OFF
           setToggleReview(prev => !prev);
@@ -348,7 +355,6 @@ function ReadPost() {
   };
 
   const reportUser = () => {
-    console.log(1);
     axios
       .post(`http://localhost:8000/users/report`, {
         reported: writer,
@@ -522,11 +528,11 @@ function ReadPost() {
           <div className="flex items-center space-x-2 tablet:space-x-3">
             {isOwner && (
               <div className="flex space-x-1 tablet:space-x-2">
-                <button className="flex justify-center items-center px-1 text-xs rounded-md tablet:p-1 tablet:text-sm tablet:rounded-md">
+                <button className="flex justify-center items-center px-0.5 text-xs font-semibold bg-slate-300 rounded-md tablet:px-1 tablet:text-sm tablet:rounded-md">
                   <Link to={`/reset/post/${id}`}>수정</Link>
                 </button>
                 <button
-                  className="flex justify-center items-center px-1 text-xs rounded-md tablet:p-1 tablet:text-sm tablet:rounded-md"
+                  className="flex justify-center items-center px-0.5 text-xs font-semibold bg-slate-300 rounded-md tablet:p-1 tablet:text-sm tablet:rounded-md"
                   onClick={deletePost}
                 >
                   삭제
@@ -601,20 +607,18 @@ function ReadPost() {
                     <Link to={`/user/${writer}`}>{writer}</Link>
                   </span>
                   <button className="p-1 bg-blue-500 rounded-full hover:bg-yellow-500">
-                    <Link to={"/chat"} state={writer}>
-                      <svg
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        strokeWidth={2}
-                        className="w-3 h-3 stroke-slate-100 tablet:w-4 tablet:h-4"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M20.25 8.511c.884.284 1.5 1.128 1.5 2.097v4.286c0 1.136-.847 2.1-1.98 2.193-.34.027-.68.052-1.02.072v3.091l-3-3c-1.354 0-2.694-.055-4.02-.163a2.115 2.115 0 01-.825-.242m9.345-8.334a2.126 2.126 0 00-.476-.095 48.64 48.64 0 00-8.048 0c-1.131.094-1.976 1.057-1.976 2.192v4.286c0 .837.46 1.58 1.155 1.951m9.345-8.334V6.637c0-1.621-1.152-3.026-2.76-3.235A48.455 48.455 0 0011.25 3c-2.115 0-4.198.137-6.24.402-1.608.209-2.76 1.614-2.76 3.235v6.226c0 1.621 1.152 3.026 2.76 3.235.577.075 1.157.14 1.74.194V21l4.155-4.155"
-                        />
-                      </svg>
-                    </Link>
+                    <svg
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth={2}
+                      className="w-3 h-3 stroke-slate-100 tablet:w-4 tablet:h-4"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M20.25 8.511c.884.284 1.5 1.128 1.5 2.097v4.286c0 1.136-.847 2.1-1.98 2.193-.34.027-.68.052-1.02.072v3.091l-3-3c-1.354 0-2.694-.055-4.02-.163a2.115 2.115 0 01-.825-.242m9.345-8.334a2.126 2.126 0 00-.476-.095 48.64 48.64 0 00-8.048 0c-1.131.094-1.976 1.057-1.976 2.192v4.286c0 .837.46 1.58 1.155 1.951m9.345-8.334V6.637c0-1.621-1.152-3.026-2.76-3.235A48.455 48.455 0 0011.25 3c-2.115 0-4.198.137-6.24.402-1.608.209-2.76 1.614-2.76 3.235v6.226c0 1.621 1.152 3.026 2.76 3.235.577.075 1.157.14 1.74.194V21l4.155-4.155"
+                      />
+                    </svg>
                   </button>
                 </div>
                 <div className="flex space-x-1 tablet:space-x-2">
@@ -687,147 +691,173 @@ function ReadPost() {
             비슷한 카테고리의 룩을 살펴볼 기회예요!
           </h5>
           <div className="pt-4 tablet:pt-6 desktop:pt-8">
-            {SlickSlider({
-              settings,
-              screenMode,
-              colorStd: 2,
-              children: similarLook
-                ? similarLook.map((item, idx) => (
+            {isOwner || isLike || isFollow ? (
+              SlickSlider({
+                settings,
+                screenMode,
+                colorStd: 2,
+                children: similarLook ? (
+                  similarLook.map((item, idx) => (
                     <Card key={idx} imageUrl={item.image_1} />
                   ))
-                : null,
-            })}
+                ) : (
+                  <span>비슷한 룩이 존재하지 않습니다</span>
+                ),
+              })
+            ) : (
+              <div className="flex flex-col items-center space-y-3 px-8 py-6 border-[3px] bg-cyan-300 border-black rounded-xl text-sm font-semibold">
+                <svg
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={1}
+                  stroke="currentColor"
+                  className="w-6 h-6 fill-yellow-500"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z"
+                  />
+                </svg>
+                <span className="text-base font-bold">
+                  해당 정보를 열람하려면?
+                </span>
+                <span>
+                  토큰을 사용해 게시글 좋아요를 누르거나 작성자를 팔로우 하세요!
+                </span>
+                <svg
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={1}
+                  stroke="currentColor"
+                  className="w-6 h-6 fill-yellow-500"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z"
+                  />
+                </svg>
+              </div>
+            )}
           </div>
-
-          {/* <div className="p-2 mt-4 bg-slate-300 drop-shadow-md border-2 border-black rounded-md">
-            <Slider
-              {...settingsSimilar}
-              className="max-w-xs max-h-fit border-2 border-gray-800 flex items-center justify-center"
-            >
-              {similarLook ? (
-                similarLook.map((item, idx) => (
-                  <div key={idx}>
-                    <img
-                      className="h-48 justify-center"
-                      alt="similar_looks"
-                      src={item.image_1}
-                    ></img>
-                    <div
-                      className="absolute text-white text-center text-lg w-full h-full bottom-0 bg-black opacity-0 hover:h-full hover:opacity-30 duration-500 cursor-pointer"
-                      id={item.id}
-                      onClick={moveToDetail}
-                    >
-                      페이지 이동
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <div></div>
-              )}
-            </Slider>
-          </div> */}
         </div>
 
-        {/* 🟠fashion info */}
-        {/* {isOwner || isLike || isFollow ? (
-            <div>
-              {brand && (
-                <div>
-                  <div className="mt-8 text-2xl font-bold">#Looks Info</div>
-                  <div className="w-96 p-2 flex flex-col border-2 border-black bg-slate-300 rounded-md">
-                    <div className="self-start flex flex-row px-2">
-                      <div className="font-bold text-lg text-center">OUTER</div>
-                      {brand.outer ? (
-                        <div className="ml-3"> 정보 없음 </div>
-                      ) : (
-                        <div>
-                          <div className="ml-3"> {brand.outer}</div>
-                          <div className="ml-2"> {names.outer}</div>
-                          <div className="ml-2">사이즈 {size.outer}</div>
-                        </div>
-                      )}
+        {/* fashion info */}
+        {/* 글 작성자인 경우, 좋아요를 누른 경우, 팔로우를 하는 경우 패션info 보여짐 */}
+        <div className="w-full mx-auto space-y-6 tablet:space-y-8 desktop:space-y-10 tablet:w-5/6">
+          <div className="space-y-2">
+            <h3 className="pt-6 text-xl text-center font-bold font-title tablet:pt-10 tablet:text-3xl desktop:pt-14 desktop:text-4xl">
+              # 옷 정보
+            </h3>
+            <h5 className="text-base text-center font-title tablet:text-lg desktop:text-xl">
+              옷 정보를 얻어 가세요!
+            </h5>
+          </div>
+          {isOwner || isLike || isFollow ? (
+            brands && names && sizes ? (
+              // top, pants, shoes
+
+              <div className="px-8 py-6 flex flex-col space-y-4 bg-slate-300 border-[3px] border-black rounded-2xl">
+                <div className="flex items-center space-x-4">
+                  <div className="px-1 py-0.5 bg-blue-500 rounded-lg text-sm font-bold shadow-md">
+                    <span>분류</span>
+                  </div>
+                  <div className="w-3/4 flex justify-between text-sm font-semibold">
+                    <div className="px-1 py-0.5 bg-blue-500 rounded-lg text-sm font-bold shadow-md">
+                      <span>브랜드</span>
                     </div>
-                    <div className="self-start flex flex-row px-2">
-                      <div className="font-bold text-lg text-center">TOP</div>
-                      <div className="ml-3">브랜드 {brand.top}</div>
-                      <div className="ml-2">이름 {names.top}</div>
-                      <div className="ml-2">사이즈 {size.top}</div>
+                    <div className="px-1 py-0.5 bg-blue-500 rounded-lg text-sm font-bold shadow-md">
+                      <span>제품명</span>
                     </div>
-                    <div className="self-start flex flex-row px-2">
-                      <div className="font-bold text-lg text-center">
-                        BOTTOM
-                      </div>
-                      <div className="ml-3">브랜드 {brand.pants}</div>
-                      <div className="ml-2">이름 {names.pants}</div>
-                      <div className="ml-2">사이즈 {size.pants}</div>
-                    </div>
-                    <div className="self-start flex flex-row px-2">
-                      <div className="font-bold text-lg text-center">SHOES</div>
-                      <div className="ml-3">브랜드 {brand.shoes}</div>
-                      <div className="ml-2">이름 {names.shoes}</div>
-                      <div className="ml-2">사이즈 {size.shoes}</div>
+                    <div className="px-1 py-0.5 bg-blue-500 rounded-lg text-sm font-bold shadow-md">
+                      <span>사이즈</span>
                     </div>
                   </div>
                 </div>
-              )}
-            </div>
+                <div className="flex items-center space-x-4">
+                  <div className="px-1 py-0.5 bg-amber-200 rounded-lg text-sm font-bold shadow-md">
+                    <span>상의</span>
+                  </div>
+                  <div className="w-3/4 flex justify-between text-sm font-semibold">
+                    <span>{brands.top}</span>
+                    <span>{names.top}</span>
+                    <span>{sizes.top}</span>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-4">
+                  <div className="px-1 py-0.5 bg-amber-200 rounded-lg text-sm font-bold shadow-md">
+                    <span>하의</span>
+                  </div>
+                  <div className="w-3/4 flex justify-between text-sm font-semibold">
+                    <span>{brands.pants}</span>
+                    <span>{names.pants}</span>
+                    <span>{sizes.pants}</span>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-4">
+                  <div className="px-1 py-0.5 bg-amber-200 rounded-lg text-sm font-bold shadow-md">
+                    <span>신발</span>
+                  </div>
+                  <div className="w-3/4 flex justify-between text-sm font-semibold">
+                    <span>{brands.shoes}</span>
+                    <span>{names.shoes}</span>
+                    <span>{sizes.shoes}</span>
+                  </div>
+                </div>
+                {!brands.outer === "undefined" && (
+                  <div className="flex items-center space-x-4">
+                    <div className="px-1 py-0.5 bg-amber-200 rounded-lg text-sm font-bold shadow-md">
+                      <span>아우터</span>
+                    </div>
+                    <div className="w-3/4 flex justify-between text-sm font-semibold">
+                      <span>{brands.outer}</span>
+                      <span>{names.outer}</span>
+                      <span>{sizes.outer}</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : null
           ) : (
-            <div>
-              {brand && (
-                <div>
-                  <div className="mt-8 text-2xl font-bold">#Looks Info</div>
-                  <div className="w-96 px-2 py-2 flex flex-col drop-shadow-sm border-2 border-black bg-slate-300 rounded-md">
-                    <div className="blur-sm w-96 flex flex-col">
-                      <div className="self-start flex flex-row px-2">
-                        <div className="font-bold text-lg text-center">
-                          OUTER
-                        </div>
-                        {brand.outer ? (
-                          <div className="ml-3"> 정보 없음 </div>
-                        ) : (
-                          <div>
-                            <div className="ml-3"> {brand.outer}</div>
-                            <div className="ml-2"> {names.outer}</div>
-                            <div className="ml-2">사이즈 {size.outer}</div>
-                          </div>
-                        )}
-                      </div>
-                      <div className="self-start flex flex-row px-2">
-                        <div className="font-bold text-lg text-center">TOP</div>
-                        <div className="ml-3">브랜드 {brand.top}</div>
-                        <div className="ml-2">이름 {names.top}</div>
-                        <div className="ml-2">사이즈 {size.top}</div>
-                      </div>
-                      <div className="self-start flex flex-row px-2">
-                        <div className="font-bold text-lg text-center">
-                          BOTTOM
-                        </div>
-                        <div className="ml-3">브랜드 {brand.pants}</div>
-                        <div className="ml-2">이름 {names.pants}</div>
-                        <div className="ml-2">사이즈 {size.pants}</div>
-                      </div>
-                      <div className="self-start flex flex-row px-2">
-                        <div className="font-bold text-lg text-center">
-                          SHOES
-                        </div>
-                        <div className="ml-3">브랜드 {brand.shoes}</div>
-                        <div className="ml-2">이름 {names.shoes}</div>
-                        <div className="ml-2">사이즈 {size.shoes}</div>
-                      </div>
-                    </div>
-                    <div>
-                      <div className="m-auto align-middle py-4 text-sm font-bold fixed top-0 right-0 bottom-0 left-0 w-60 h-12 rounded-md text-center bg-white drop-shadow-md">
-                        좋아요를 누르고 정보를 확인해보세요!
-                        <div className="w-full h-full bg-cyan-200 rounded-b-md"></div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
+            <div className="flex flex-col items-center space-y-3 px-8 py-6 border-[3px] bg-cyan-300 border-black rounded-xl text-sm font-semibold">
+              <svg
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1}
+                stroke="currentColor"
+                className="w-6 h-6 fill-yellow-500"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z"
+                />
+              </svg>
+              <span className="text-base font-bold">
+                해당 정보를 열람하려면?
+              </span>
+              <span>
+                토큰을 사용해 게시글 좋아요를 누르거나 작성자를 팔로우 하세요!
+              </span>
+              <svg
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1}
+                stroke="currentColor"
+                className="w-6 h-6 fill-yellow-500"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z"
+                />
+              </svg>
             </div>
           )}
+        </div>
 
-          {/* review */}
+        {/* review */}
         <div className="w-full mx-auto space-y-6 tablet:space-y-8 desktop:space-y-10 tablet:w-5/6">
           <div className="space-y-2">
             <h3 className="pt-6 text-xl text-center font-bold font-title tablet:pt-10 tablet:text-3xl desktop:pt-14 desktop:text-4xl">
