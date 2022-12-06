@@ -6,7 +6,6 @@ import {
   WritePost,
   ReadPost,
   NotFound,
-  Chat,
   UserHome,
   NftLists,
   Collections,
@@ -50,7 +49,6 @@ export default function Router() {
         <Route path="/forgot/*" element={<ForgotRoutes />} />
         <Route path="/reset/*" element={<ResetRoutes />} />
         <Route path="*" element={<NotFound />} />
-        <Route path="/chat" element={<Chat />} />
         <Route path="/search/:name" element={<Search />} />
         <Route path="/notice" element={<NoticeList />} />
         <Route path="/notice/:noticeId" element={<ReadNotice />} />

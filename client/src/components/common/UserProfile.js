@@ -87,6 +87,7 @@ export default function UserProfile() {
         });
       })
       .catch(error => {
+        console.log(error);
         Swal.fire({
           icon: "error",
           text: error.response.data.message,
@@ -147,7 +148,7 @@ export default function UserProfile() {
               {nickname}
             </span>
             {loggedInUser.nickname === nickname ? (
-              <button className="px-0.5 py-0.5 bg-black rounded-full">
+              <button className="px-0.5 py-0.5 bg-orange-500 rounded-full">
                 <Link to="/reset/myinfo">
                   <svg
                     fill="none"

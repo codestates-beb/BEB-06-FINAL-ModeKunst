@@ -53,13 +53,10 @@ const DivPre = styled.div`
 `;
 const SlickSlider = props => {
   const { settings, children } = props;
-
   return <StyledSlider {...settings}>{children}</StyledSlider>;
 };
 
-export default function Carousel(top_posts) {
-  const real_top_posts = top_posts.top_posts;
-
+export default function Carousel({ posts }) {
   const dispatch = useDispatch();
   const { currentScreenMode: screenMode } = useSelector(
     state => state.currentScreenMode
@@ -70,10 +67,9 @@ export default function Carousel(top_posts) {
     arrows: true,
     infinite: true,
     autoplay: true,
-    autoplaySpeed: 4000,
+    autoplaySpeed: 3300,
     slidesToShow: screenMode === "mobile" ? 1 : screenMode === "tablet" ? 2 : 3,
-    slidesToScroll:
-      screenMode === "mobile" ? 1 : screenMode === "tablet" ? 2 : 3,
+    slidesToScroll: 1,
     nextArrow: (
       <Div>
         <svg
@@ -137,23 +133,12 @@ export default function Carousel(top_posts) {
       </h3>
       <div className="pt-8 tablet:pt-12 desktop:pt-16">
         <div className="relative">
-          {
-            top_posts?.top_posts
-              ?
-                SlickSlider({
-                  settings,
-                  screenMode,
-                  children: real_top_posts.map(
-                      (item, idx) => (
-                          <PostCard
-                              key={idx}
-                              post={item}/>
-                      )
-                  ),
-                })
-                :
-                null
-          }
+          {SlickSlider({
+            settings,
+            children: posts.map((post, idx) => (
+              <PostCard post={post} section="topPosts" key={idx} />
+            )),
+          })}
         </div>
       </div>
     </div>

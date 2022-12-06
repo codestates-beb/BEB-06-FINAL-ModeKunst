@@ -114,7 +114,10 @@ function WritePost() {
   const checkHandler = e => {
     setIsChecked(!isChecked);
     if (!isChecked) {
-      alert("체크하시면 토큰을 10만큼 더 수령합니다. 정성껏 작성해주세요.");
+      Swal.fire({
+        icon: "info",
+        text: "Fashion Info를 작성해주시면 10 NODE를 수령합니다. 정성껏 작성해주세요.",
+      });
     }
   };
 
@@ -149,8 +152,7 @@ function WritePost() {
         pants_size,
         shoes_size,
       } = data;
-      console.log(data);
-
+      // console.log(top_brand);
       const image_1 = multipleImages[0];
       const image_2 = multipleImages[1];
       const image_3 = multipleImages[2];
@@ -331,19 +333,19 @@ function WritePost() {
                 <span className="text-sm font-semibold">하의</span>
                 <div className="space-x-1">
                   <input
-                    name="pants_brand"
+                    name="top_brand"
                     placeholder="브랜드명"
                     {...register("pants_brand")}
                     className="px-2 py-1 border-b-2 border-b-black bg-transparent placeholder:text-xs placeholder:text-yellow-500 focus:outline-none focus:border-b-[3px]"
                   />
                   <input
-                    name="pants_name"
+                    name="top_name"
                     placeholder="제품명"
                     {...register("pants_name")}
                     className="px-2 py-1 border-b-2 border-b-black bg-transparent placeholder:text-xs placeholder:text-yellow-500 focus:outline-none focus:border-b-[3px]"
                   />
                   <select
-                    name="pants_size"
+                    name="top_size"
                     {...register("pants_size")}
                     className="bg-transparent text-xs focus:outline-none"
                   >
