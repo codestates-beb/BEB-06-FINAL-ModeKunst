@@ -78,7 +78,7 @@ module.exports = {
         pants_size,
         shoes_size,
       } = req.body;
-
+      console.log(req.body);
       top_post = top_post === "true";
       haveInfo = haveInfo === "true";
 

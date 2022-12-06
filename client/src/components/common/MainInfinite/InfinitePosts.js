@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import Swal from "sweetalert2";
-import PostCard from "../\bPostCard";
+import PostCard from "../PostCard";
 import ClipLoader from "react-spinners/ClipLoader";
 
 export default function InfinitePosts() {

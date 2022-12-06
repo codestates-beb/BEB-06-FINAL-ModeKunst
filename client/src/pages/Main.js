@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { motion } from "framer-motion";
 import axios from "axios";
+import { motion } from "framer-motion";
 import Banner from "../components/common/Banner";
 import Carousel from "../components/common/Carousel/Carousel";
 import InfinitePosts from "../components/common/MainInfinite/InfinitePosts";
