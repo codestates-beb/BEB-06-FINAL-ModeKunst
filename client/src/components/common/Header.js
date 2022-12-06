@@ -1,6 +1,3 @@
-// 🗒 TODOS
-// 1) SearchBar 사라져서 추가해야 함
-
 import { useSelector, useDispatch } from "react-redux";
 import { logout } from "../../store/user";
 import { convert } from "../../store/screenMode";
@@ -21,9 +18,12 @@ const tokenVariants = {
 };
 
 export default function Header() {
+  const TOKEN_SYMBOL = "MODE";
   const [isToggleMenu, setIsToggleMenu] = useState(false);
   const [isSearchModal, setIsSearchModal] = useState(false);
-  const [tokenInfo, setTokenInfo] = useState({});
+  const [userAddress, setUserAddreess] = useState("");
+  const [tokenAmount, setTokenAmount] = useState(0);
+  const [pointAmount, setPointAmount] = useState(0);
   const [isTokenBtnClicked, setIsTokenBtnClicked] = useState(false);
   const [isTokenToPts, setIsTokenToPts] = useState(false);
   const [node, setNode] = useState(0);
@@ -86,7 +86,10 @@ export default function Header() {
         const {
           data: { data },
         } = result;
-        setTokenInfo(data);
+        console.log(data);
+        setTokenAmount(data.token_amount);
+        setPointAmount(data.point_amount);
+        setUserAddreess(data.address);
       }
       setIsTokenBtnClicked(prevState => !prevState);
     } catch (error) {
@@ -104,10 +107,18 @@ export default function Header() {
   const exchangePtsToToken = async () => {
     nodeRef.current.value = "";
     try {
-      const result = await axios.post("http://localhost:8000/users/tokens", {
+      const {
+        data: { data },
+      } = await axios.post("http://localhost:8000/users/tokens", {
         point: node,
       });
-      console.log(result);
+      Swal.fire({
+        icon: "question",
+        text: "해당 마일리지(NODE) 만큼의 양을 토큰(MODE)으로 전환하시겠습니까?",
+      }).then(result => {
+        setTokenAmount(data.token_amount);
+        setPointAmount(data.point_amount);
+      });
     } catch (error) {
       Swal.fire({
         icon: "warning",
@@ -196,7 +207,6 @@ export default function Header() {
               { section: "NOTICE", to: "/" },
               { section: "WRITE", to: "/write" },
               { section: "MYPAGE", to: `/user/${loggedInUserInfo.nickname}` },
-              { section: "CHAT", to: "/chat" },
             ].map((item, idx) => (
               <NavMenu
                 key={idx}
@@ -275,7 +285,7 @@ export default function Header() {
                       </svg>
                     </button>
                     <span className="text-yellow-500 text-sm font-bold">
-                      {tokenInfo.token_amount} {tokenInfo.token_symbol}{" "}
+                      {tokenAmount} {TOKEN_SYMBOL}{" "}
                       <span className="text-black text-xs font-medium">
                         보유 중
                       </span>
@@ -298,7 +308,7 @@ export default function Header() {
                       </svg>
                     </button>
                     <span className="text-blue-500 text-sm font-bold">
-                      {tokenInfo.point_amount} NODE{" "}
+                      {pointAmount} NODE{" "}
                       <span className="text-black text-xs font-medium">
                         보유 중
                       </span>
@@ -328,7 +338,7 @@ export default function Header() {
                         </span>
                       </div>
                     )}
-                    <span className="text-indigo-600">{tokenInfo.address}</span>
+                    <span className="text-indigo-600">{userAddress}</span>
                   </motion.div>
                 ) : null}
               </AnimatePresence>

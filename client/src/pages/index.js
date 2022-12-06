@@ -13,7 +13,6 @@ export * from "./Collections";
 export * from "./Followings";
 export * from "./Followers";
 export * from "./NotFound";
-export * from "./Chat";
 export * from "./Search";
 export * from "./ReadNotice";
 export * from "./NoticeList";

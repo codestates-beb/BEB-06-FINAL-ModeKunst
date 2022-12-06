@@ -1,7 +1,7 @@
 // 🗒 TODOS
 // 1) 로그인 하지 않은 유저가 게시물을 클릭하면 페이지 이동을 막아야 함
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import user from "../store/user";
 import axios from "axios";
@@ -20,8 +20,28 @@ const mainVar = {
 };
 
 function Main() {
-  // const userInfo = useSelector(state => state.user);
-  // 👇🏻👇🏻 axios 👇🏻👇🏻
+  const { userInfo: loggedInUser, isLoggedIn } = useSelector(
+    state => state.user
+  );
+  const [topPosts, setTopPosts] = useState([]);
+  const [banner, setBanner] = useState([]);
+
+  useEffect(() => {
+    async function fetchDatas() {
+      try {
+        const {
+          data: {
+            data: { top_posts, banner },
+          },
+        } = await axios.get("http://localhost:8000/posts/other");
+        setTopPosts(top_posts);
+        setBanner(banner);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+    fetchDatas();
+  }, []);
 
   return (
     <motion.div
@@ -31,8 +51,8 @@ function Main() {
       exit="invisible"
     >
       <div className="mt-64" />
-      <Banner />
-      <Carousel />
+      <Banner banner={banner} />
+      <Carousel posts={topPosts} />
       <InfinitePosts />
       <div className="mb-64" />
     </motion.div>
