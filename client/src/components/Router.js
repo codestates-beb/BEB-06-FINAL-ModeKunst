@@ -1,4 +1,12 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { AdminSignup, AdminLogin } from "../pages/admin";
+import Header from "./common/Header";
+import Footer from "./common/Footer";
+import ForgotRoutes from "./Routes/ForgotRoutes";
+import ResetRoutes from "./Routes/ResetRoutes";
+import UserProfile from "./common/UserProfile";
+import AdminRoutes from "./Routes/AdminRoutes";
+import ScrollTop from "./common/ScrollTop";
 import {
   Login,
   Main,
@@ -15,14 +23,6 @@ import {
   ReadNotice,
   NoticeList,
 } from "../pages";
-import { AdminSignup, AdminLogin } from "../pages/admin";
-import Header from "./common/Header";
-import Footer from "./common/Footer";
-import ForgotRoutes from "./Routes/ForgotRoutes";
-import ResetRoutes from "./Routes/ResetRoutes";
-import UserProfile from "./common/UserProfile";
-import AdminRoutes from "./Routes/AdminRoutes";
-import ScrollTop from "./common/ScrollTop";
 
 export default function Router() {
   return (

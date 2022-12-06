@@ -1,8 +1,3 @@
-// 🗒 TODOS
-// 1. 좋아요 누르니까 로그인했는데 로그인 하라고 하면서 로그아웃 됨
-// 2. 비슷한 룩 선택할 때 css 이상하게 들어감
-// 3. 리뷰 펼치고 접을 때 애니메이션 적용하기
-
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
@@ -202,8 +197,6 @@ function ReadPost() {
   useEffect(() => {
     setModifiedReviews(reviews.slice(0, STD_NUM * std));
   }, [reviewsCount, toggleReview]);
-
-  // const sendMessage = () => {};
 
   const likeHandler = () => {
     Swal.fire({
@@ -756,8 +749,6 @@ function ReadPost() {
           </div>
           {isOwner || isLike || isFollow ? (
             brands && names && sizes ? (
-              // top, pants, shoes
-
               <div className="px-8 py-6 flex flex-col space-y-4 bg-slate-300 border-[3px] border-black rounded-2xl">
                 <div className="flex items-center space-x-4">
                   <div className="px-1 py-0.5 bg-blue-500 rounded-lg text-sm font-bold shadow-md">
@@ -938,7 +929,6 @@ function ReadPost() {
                                   </div>
                                   {loggedInUser.nickname === review.nickname ? (
                                     <div className="space-x-0.5">
-                                      {/* 📍 수정 버튼 */}
                                       {!isEditReview ? (
                                         // 수정모드 OFF
                                         <div className="text-xs font-semibold text-yellow-500 space-x-2">

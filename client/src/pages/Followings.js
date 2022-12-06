@@ -1,8 +1,5 @@
-// 🟠 useLocation 훅 사용해서 state로 전달한 데이터 받아오기
-// 추후에 following 컴포넌트 따로 빼내도록 리팩토링
-
 import { useSelector } from "react-redux";
-import { useLocation, useOutletContext } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import LikesList from "../components/common/Pagination/LikesList";
 import { Title } from "../components/form/Title";
 
@@ -11,14 +8,12 @@ function Followings() {
     state => state.currentScreenMode
   );
   const location = useLocation();
-  // const { followings, nickname } = useOutletContext();
   const followings = location.state?.followings;
   const nickname = location.state?.nickname;
 
   return (
     <div className="w-full mx-auto py-16 max-w-[1400px] flex flex-col items-center space-y-8 border-2 border-slate-800 bg-green-500 tablet:px-16 select-none rounded-b-xl">
       <Title title={`#${nickname} 님의 팔로잉 리스트 🙋🏻‍♂️`} />
-
       {followings.length ? (
         <LikesList
           arr={followings}
@@ -44,22 +39,3 @@ function Followings() {
 }
 
 export { Followings };
-
-{
-  /* <div className="grid grid-cols-4 gap-8 w-full px-4 py-10">
-{followings.map((item, idx) => (
-  <div key={idx} className="flex flex-col items-center space-y-2">
-    <div className="w-48 h-48 bg-slate-500 rounded-full shadow-md">
-      {/* 👇🏻 밑에 img 태그에 src 전달해야 함 */
-}
-//       <Link to={`/user/${item.Following}`}>
-//         <img src={item.profile_img} />
-//       </Link>
-//     </div>
-//     <div className="flex flex-col">
-//       <span>{item.Following}</span>
-//       <span className="text-xs">팔로워 수: {item.follow_amount}</span>
-//     </div>
-//   </div>
-// ))}
-// </div> */}

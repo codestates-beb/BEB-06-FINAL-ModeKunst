@@ -1,7 +1,3 @@
-// 🗒 TODOS
-// 1) 닉네임 공백 미포함 설정
-// 2) 이메일 naver, gmail만 가능
-
 import axios from "axios";
 import Swal from "sweetalert2";
 import { useForm } from "react-hook-form";
@@ -372,7 +368,6 @@ function Signup() {
         <div className="flex flex-col space-y-4">
           <Title title="신체 정보" />
           <div className="flex space-x-10 justify-between">
-            {/* 🟠 리팩토링 해보기@@@ */}
             <div className="grow flex flex-col space-y-3">
               <Title title2="키(cm)" />
               <Input
@@ -435,7 +430,6 @@ function Signup() {
           />
         </div>
 
-        {/* 제출 버튼 */}
         <Button message="가입하기" />
       </form>
       <div className="space-y-3">

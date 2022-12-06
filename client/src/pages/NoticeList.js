@@ -1,9 +1,16 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import TablePage from "../components/common/Pagination/TablePage";
+import { useSelector } from "react-redux";
 
 function NoticeList() {
-  //🟠공지 상태관리
+  // redux 관리자 정보
+  const userInfo = useSelector(state => state.user);
+  const { isAdmin, nickname: adminNickname } = useSelector(
+    state => state.admin
+  );
+
+  // 공지 상태관리
   const [notice, setNotice] = useState([]);
 
   // 공지 및 래플 정보(리뷰 제외) 가져오기
@@ -14,11 +21,10 @@ function NoticeList() {
       })
       .then(result => {
         const data = result.data.notices;
-        console.log(data);
         setNotice(data);
       })
       .catch(e => {
-        console.log(e);
+        console.error(e);
       });
   }, []);
 

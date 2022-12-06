@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
@@ -85,7 +85,7 @@ function AdminSignup() {
         onSubmit={handleSubmit(onValid)}
         className="flex flex-col items-center space-y-10"
       >
-        {/* 🟠 이메일 */}
+        {/* 이메일 */}
         <div className="flex flex-col space-y-4">
           <label className="text-lg text-slate-900 font-bold select-none">
             이메일
@@ -98,7 +98,7 @@ function AdminSignup() {
                 disabled={emailDisabled}
                 className="w-72 px-3 pb-1 text-sm border-b-2 focus:border-b-[3px] border-b-slate-800 focus:outline-none disabled:bg-white disabled:select-none"
               />
-              {/* 🟢 인증 버튼 & 입력값삭제 버튼 */}
+              {/* 인증 버튼 & 입력값삭제 버튼 */}
               {emailVerifyBtns && (
                 <div className="flex items-center space-x-3 absolute right-3 -top-0.5">
                   <div
@@ -169,7 +169,7 @@ function AdminSignup() {
                 </div>
               )}
             </div>
-            {/* 🟢 이메일 인증 완료 여부 표시 */}
+            {/* 이메일 인증 완료 여부 표시 */}
             {!emailVerified ? (
               <div className="w-5 h-5 flex justify-center items-center text-xs text-red-500 font-medium rounded-full">
                 <svg
@@ -214,7 +214,7 @@ function AdminSignup() {
                 onChange={e => setEmailVerifyCode(e.target.value)}
                 className="px-3 border-b-2 border-b-slate-500 w-1/3 focus:outline-none text-xs text-slate-400 font-medium"
               />
-              {/* 🟢 이메일 인증코드 제출 버튼 */}
+              {/* 이메일 인증코드 제출 버튼 */}
               <div
                 className="flex justify-center items-center w-4 h-4 text-slate-400 hover:text-white hover:bg-slate-400 rounded-full cursor-pointer"
                 onClick={async () => {
@@ -264,7 +264,7 @@ function AdminSignup() {
           </span>
         </div>
 
-        {/* 🟠 닉네임 */}
+        {/* 닉네임 */}
         <div className="flex flex-col space-y-4">
           <label className="text-lg text-slate-900 font-bold select-none">
             닉네임
@@ -277,7 +277,7 @@ function AdminSignup() {
                 disabled={nicknameDisabled}
                 className="w-72 px-3 text-sm border-b-2 focus:border-b-[3px] border-b-slate-800 focus:outline-none disabled:bg-white disabled:select-none"
               />
-              {/* 🟢 닉네임 입력값 삭제 버튼 */}
+              {/* 닉네임 입력값 삭제 버튼 */}
               {nicknameChecked ? (
                 // 닉네임 체크 완료 상태일 때
                 // 닉네임 바꾸기 버튼
@@ -382,7 +382,7 @@ function AdminSignup() {
                 </div>
               )}
             </div>
-            {/* 🟢 닉네임 검증 여부 표시 */}
+            {/* 닉네임 검증 여부 표시 */}
             {!nicknameChecked ? (
               <div className="w-5 h-5 flex justify-center items-center text-xs text-red-500 font-medium rounded-full">
                 <svg
@@ -422,7 +422,7 @@ function AdminSignup() {
           </span>
         </div>
 
-        {/* 🟠 비밀번호 */}
+        {/* 비밀번호 */}
         <div className="flex flex-col space-y-4">
           <label className="text-lg text-slate-900 font-bold select-none">
             비밀번호
@@ -457,7 +457,7 @@ function AdminSignup() {
           </span>
         </div>
 
-        {/* 🟠 비밀번호 RE */}
+        {/* 비밀번호 RE */}
         <div className="flex flex-col space-y-4">
           <label className="text-lg text-slate-900 font-bold select-none">
             비밀번호 확인
@@ -498,7 +498,7 @@ function AdminSignup() {
           )}
         </div>
 
-        {/* 🟠 폼 제출 버튼 */}
+        {/* 폼 제출 버튼 */}
         <button className="flex justify-center items-center p-2 text-white bg-slate-800 hover:scale-105 rounded-full select-none">
           <svg
             fill="none"

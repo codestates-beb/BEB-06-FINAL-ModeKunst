@@ -28,7 +28,6 @@ export default function InfinitePosts() {
     }
   };
 
-  // loadMore -> pageNum 증가 -> fetchPosts -> 기존 포스트에 더할 포스트 더 불러옴
   const loadMore = () => {
     setPageNum(prevPageNum => prevPageNum + 1);
   };

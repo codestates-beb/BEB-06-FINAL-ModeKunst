@@ -12,7 +12,7 @@ function ReadNotice() {
   const reviewRef = useRef();
   const navigate = useNavigate();
 
-  //🟠redux 관리자 정보
+  // redux 관리자 정보
   const { userInfo: loggedInUser, isLoggedIn } = useSelector(
     state => state.user
   );
@@ -20,7 +20,7 @@ function ReadNotice() {
     state => state.admin
   );
 
-  //🟠공지 상태관리
+  // 공지 상태관리
   const [notice, setNotice] = useState({});
   const [content, setContent] = useState("");
   const [title, setTitle] = useState("");

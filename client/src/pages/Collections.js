@@ -1,13 +1,9 @@
-// 🗒 CHECK
-// - 해당 유저 페이지가 내 페이지인 경우?
-//   👉🏻 '내가 좋아요 누른 게시물' 문구 바뀌게 state 별도로 설정해야 함
 import LikesList from "../components/common/Pagination/LikesList";
 import { useLocation, useOutletContext } from "react-router-dom";
 import { Title } from "../components/form/Title";
 import { useSelector } from "react-redux";
 
 function Collections() {
-  // const { nickname, collections } = useOutletContext();
   const location = useLocation();
   const { currentScreenMode: screenMode } = useSelector(
     state => state.currentScreenMode

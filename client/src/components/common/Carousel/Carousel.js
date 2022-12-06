@@ -1,13 +1,7 @@
-// 🗒 TODOS
-// 1) REACT-QUERY, 로딩스피너 적용
-// 2) Card 삭제해야 함
-// 3) Carousel -> API 데이터 바인딩
-
-import axios from "axios";
-import styled from "styled-components";
 import { convert } from "../../../store/screenMode";
 import { useSelector, useDispatch } from "react-redux";
 import { useEffect } from "react";
+import styled from "styled-components";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
