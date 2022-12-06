@@ -1,5 +1,5 @@
 import { useSelector } from "react-redux";
-import { useLocation, useOutletContext } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import LikesList from "../components/common/Pagination/LikesList";
 import { Title } from "../components/form/Title";
 
@@ -8,7 +8,6 @@ function Followers() {
     state => state.currentScreenMode
   );
   const location = useLocation();
-  // const { followers, nickname } = useOutletContext();
   const followers = location.state?.followers;
   const nickname = location.state?.nickname;
 

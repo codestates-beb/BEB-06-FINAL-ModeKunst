@@ -1,6 +1,5 @@
 import styled from "styled-components";
 import Slider from "react-slick";
-import PostCard from "./\bPostCard";
 import BannerPost from "./bannerPost";
 
 const StyledSlider = styled(Slider)`
@@ -91,7 +90,6 @@ export default function Banner({ banner }) {
 
   return (
     <div className="h-3/5 relative my-32 px-10 pt-2 pb-16 rounded-2xl tablet:pt-6 tablet:pb-20 tablet:rounded-t-3xl desktop:px-20 desktop:pb-24">
-      {/* <div className="pt-8 tablet:pt-12 desktop:pt-16"> */}
       <div className="flex justify-center items-center">
         {SlickSlider({
           settings,

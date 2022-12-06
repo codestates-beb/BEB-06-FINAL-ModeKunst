@@ -44,7 +44,6 @@ export default function UserProfile() {
           `http://localhost:8000/users/mypage/${nickname}`,
           { withCredentials: true }
         );
-        // console.log(result);
         const {
           user,
           follow_amount,
@@ -240,7 +239,6 @@ export default function UserProfile() {
         <div className="w-full flex justify-between space-x-1">
           <Link
             to={`/user/${nickname}/hotposts`}
-            // state={{ posts, nickname }}
             onClick={() => dispatch(select("hotposts"))}
             className={cls(
               "flex-1 text-base font-semibold flex justify-center rounded-t-lg py-1",

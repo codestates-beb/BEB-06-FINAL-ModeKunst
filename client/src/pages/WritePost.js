@@ -1,19 +1,3 @@
-//📌 to do
-//1. formData append 데이터 싹 정리해놓기 (v)
-//2. 작성한 data를 redux로 관리할것인지?
-//2-1. upstream = true 일 경우 fashion info 모든 값이 null 값이 아니어야됨
-//3. 사진 누르면 배열에서 요소 삭제하기 (v)
-//4. UI 개선하기
-//5. image 최소 3장, 최대 5장(v)
-//6. 유효성 검사(최소 내용 글자 수, fashion info)
-
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { useForm } from "react-hook-form";
-import { useSelector } from "react-redux";
-import { motion } from "framer-motion";
-import axios from "axios";
-import Swal from "sweetalert2";
 import {
   Button,
   ErrorMessage,
@@ -21,6 +5,13 @@ import {
   Input,
   Title,
 } from "../components/form";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { useSelector } from "react-redux";
+import { motion } from "framer-motion";
+import axios from "axios";
+import Swal from "sweetalert2";
 
 const writePageVar = {
   enter: { opacity: 0 },
@@ -32,7 +23,6 @@ const writePageVar = {
 };
 
 function WritePost() {
-  const { isLoggedIn } = useSelector(state => state.user);
   const {
     register,
     handleSubmit,

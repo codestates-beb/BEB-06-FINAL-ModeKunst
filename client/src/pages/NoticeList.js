@@ -4,13 +4,13 @@ import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 
 function NoticeList() {
-  //🟠redux 관리자 정보
+  // redux 관리자 정보
   const userInfo = useSelector(state => state.user);
   const { isAdmin, nickname: adminNickname } = useSelector(
     state => state.admin
   );
 
-  //🟠공지 상태관리
+  // 공지 상태관리
   const [notice, setNotice] = useState([]);
   const [adName, setAdName] = useState([]);
   const [title, setTitle] = useState([]);
@@ -26,11 +26,10 @@ function NoticeList() {
       })
       .then(result => {
         const data = result.data.notices;
-        console.log(data);
         setNotice(data);
       })
       .catch(e => {
-        console.log(e);
+        console.error(e);
       });
   }, []);
 

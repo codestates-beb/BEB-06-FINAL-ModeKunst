@@ -1,4 +1,3 @@
-// import CardPost from "../components/common/CardPost";
 import { useSelector } from "react-redux";
 import { useOutletContext, useParams } from "react-router-dom";
 import { Title } from "../components/form/Title";

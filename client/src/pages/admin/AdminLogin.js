@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-
 import { adminLogin } from "../../store/admin";
 
 function AdminLogin() {
@@ -16,7 +15,6 @@ function AdminLogin() {
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
 
-  //📌on Submit할 때 실행되는 함수
   const onValid = data => {
     setLoading(true);
     try {
