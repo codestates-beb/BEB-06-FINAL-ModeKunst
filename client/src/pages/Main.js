@@ -3,7 +3,6 @@
 
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import user from "../store/user";
 import axios from "axios";
 import { motion } from "framer-motion";
 import Banner from "../components/common/Banner";

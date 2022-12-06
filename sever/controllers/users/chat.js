@@ -28,25 +28,29 @@ module.exports = {
             });
 
 
-            const chatRoomName = chatRoom.map((a) => {
-                let profile_img;
-                const message = findMsg(a.id, a.senderNickname);
-                if(sender === a.senderNickname){
-                    profile_img = a['Receiver.profile_img'];
-                    if(message){
-                        return { id: a.id, name: a.receiverNickname, profile_img: profile_img, lastChat: a.lastChat, lastChatDate: a.lastChatDate }
-                    }else{
-                        return { id: a.id, name: a.receiverNickname, profile_img: profile_img, lastChatDate: a.lastChatDate }
+            const chatRoomName = await Promise.all(
+                chatRoom.map(async (a) => {
+                    let profile_img;
+                    const message = await findMsg(a.id, a.senderNickname);
+
+                    if(sender === a.senderNickname){
+                        profile_img = a['Receiver.profile_img'];
+                        if(message.length){
+                            return { id: a.id, name: a.receiverNickname, profile_img: profile_img, lastChat: a.lastChat, lastChatDate: a.lastChatDate }
+                        }else{
+                            return { id: a.id, name: a.receiverNickname, profile_img: profile_img, lastChatDate: a.lastChatDate }
+                        }
+                    }else if(sender === a.receiverNickname){
+                        profile_img = a['Sender.profile_img'];
+                        if(message.length){
+                            return { id: a.id, name: a.senderNickname, profile_img: profile_img, lastChat: a.lastChat, lastChatDate: a.lastChatDate }
+                        }else{
+                            return { id: a.id, name: a.senderNickname, profile_img: profile_img, lastChatDate: a.lastChatDate }
+                        }
                     }
-                }else if(sender === a.receiverNickname){
-                    profile_img = a['Sender.profile_img'];
-                    if(message){
-                        return { id: a.id, name: a.senderNickname, profile_img: profile_img, lastChat: a.lastChat, lastChatDate: a.lastChatDate }
-                    }else{
-                        return { id: a.id, name: a.senderNickname, profile_img: profile_img, lastChatDate: a.lastChatDate }
-                    }
-                }
-            });
+                })
+            );
+
 
             res.status(200).json({
                 message: `${sender}님의 채팅방 목록`,

@@ -35,6 +35,10 @@ export default function Header() {
   const { userInfo: loggedInUserInfo, isLoggedIn } = useSelector(
     state => state.user
   );
+
+  const adminInfo = useSelector(state => state.admin);
+  const isAdmin = adminInfo.isAdmin;
+
   const { currentScreenMode: screenMode } = useSelector(
     state => state.currentScreenMode
   );
@@ -218,7 +222,7 @@ export default function Header() {
           </ul>
         )}
         {/* 로그인 & 회원가입 */}
-        {isLoggedIn ? (
+        {isLoggedIn || isAdmin ? (
           <div className="self-end flex flex-col items-center space-y-2 text-xs text-white desktop:items-end">
             <button
               onClick={logoutHandler}
@@ -231,12 +235,21 @@ export default function Header() {
                 onClick={toggleMenuHandler}
                 className="self-end text-xs text-black font-medium"
               >
-                <Link
-                  to={`/user/${loggedInUserInfo.nickname}`}
-                  className="text-indigo-800 text-sm font-semibold"
-                >
-                  {loggedInUserInfo.nickname}
-                </Link>{" "}
+                {isLoggedIn ? (
+                  <Link
+                    to={`/user/${loggedInUserInfo.nickname}`}
+                    className="text-indigo-800 text-sm font-semibold"
+                  >
+                    {loggedInUserInfo.nickname}
+                  </Link>
+                ) : (
+                  <Link
+                    to="/admin"
+                    className="text-indigo-800 text-sm font-semibold"
+                  >
+                    {adminInfo.nickname}
+                  </Link>
+                )}
                 님, Ready to Change?
               </span>
               <button onClick={tokenInfoHandler} className="hover:scale-110">
